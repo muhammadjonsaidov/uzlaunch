@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dashboard — UZLaunch</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;display:flex;flex-direction:column}
+a{text-decoration:none;color:inherit}
+
+.nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.logo{font-size:18px;font-weight:800;color:#6366f1}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-name{font-size:13px;color:#64748b;font-weight:500}
+.badge-paid{font-size:11px;background:#d1fae5;color:#065f46;padding:3px 10px;border-radius:999px;font-weight:700}
+.badge-free{font-size:11px;background:#f1f5f9;color:#64748b;padding:3px 10px;border-radius:999px;font-weight:600}
+.nav-logout{font-size:13px;color:#94a3b8;cursor:pointer;background:none;border:none;font-family:inherit;transition:color 0.15s}
+.nav-logout:hover{color:#64748b}
+
+.main{flex:1;max-width:860px;margin:0 auto;width:100%;padding:40px 24px}
+
+.alert-success{background:#d1fae5;border:1px solid #a7f3d0;color:#065f46;font-size:14px;padding:12px 16px;border-radius:10px;margin-bottom:24px;font-weight:500}
+
+.header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.header-row h1{font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-0.3px}
+.btn-new{background:#6366f1;color:#fff;padding:9px 20px;border-radius:9px;font-size:14px;font-weight:700;transition:background 0.15s}
+.btn-new:hover{background:#4f46e5}
+
+.empty-state{border:2px dashed #e2e8f0;border-radius:16px;padding:64px 24px;text-align:center}
+.empty-state p{font-size:15px;color:#94a3b8;margin-bottom:16px}
+.empty-state a{font-size:14px;color:#6366f1;font-weight:600}
+
+.projects{display:flex;flex-direction:column;gap:12px}
+.project-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;transition:border-color 0.15s,box-shadow 0.15s}
+.project-card:hover{border-color:#c7d2fe;box-shadow:0 4px 16px rgba(99,102,241,0.06)}
+.project-info h3{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:3px}
+.project-info .tagline{font-size:13px;color:#64748b;margin-bottom:8px}
+.project-meta{display:flex;align-items:center;gap:12px}
+.sub-count{font-size:13px;color:#64748b}
+.sub-count strong{color:#0f172a;font-weight:700}
+.slug-link{font-size:12px;color:#6366f1;font-weight:500}
+.slug-link:hover{text-decoration:underline}
+
+.project-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:16px}
+.btn-view{border:1px solid #e2e8f0;background:#fff;color:#374151;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;transition:all 0.15s}
+.btn-view:hover{background:#f8fafc}
+.btn-subs{background:#6366f1;color:#fff;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;transition:background 0.15s}
+.btn-subs:hover{background:#4f46e5}
+
+.upgrade-banner{margin-top:32px;background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border:1px solid #fcd34d;border-radius:16px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center}
+.upgrade-banner-text h3{font-size:15px;font-weight:700;color:#92400e}
+.upgrade-banner-text p{font-size:13px;color:#b45309;margin-top:3px}
+.btn-upgrade{background:#d97706;color:#fff;padding:9px 20px;border-radius:9px;font-size:13px;font-weight:700;white-space:nowrap;flex-shrink:0;transition:background 0.15s}
+.btn-upgrade:hover{background:#b45309}
+
+footer{border-top:1px solid #e2e8f0;padding:20px 32px;text-align:center}
+footer p{font-size:12px;color:#94a3b8}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="logo">UZLaunch</a>
+  <div class="nav-right">
+    <span class="nav-name" th:text="${user.name}"></span>
+    <span th:if="${user.plan.name() == 'PAID'}" class="badge-paid">Pro</span>
+    <span th:if="${user.plan.name() == 'FREE'}" class="badge-free">Free</span>
+    <a href="/logout" class="nav-logout">Logout</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div th:if="${success}" class="alert-success" th:text="${success}"></div>
+
+  <div class="header-row">
+    <h1>Your projects</h1>
+    <a href="/projects/new" class="btn-new">+ New project</a>
+  </div>
+
+  <div th:if="${projects.empty}" class="empty-state">
+    <p>No projects yet. Create your first waitlist page!</p>
+    <a href="/projects/new">Create your first waitlist page →</a>
+  </div>
+
+  <div class="projects" th:unless="${projects.empty}">
+    <div th:each="project : ${projects}" class="project-card">
+      <div class="project-info">
+        <h3 th:text="${project.name}"></h3>
+        <p class="tagline" th:text="${project.tagline}"></p>
+        <div class="project-meta">
+          <span class="sub-count">
+            <strong th:text="${project.subscriberCount}">0</strong> subscribers
+          </span>
+          <a th:href="'/p/' + ${project.slug}"
+             th:text="'/p/' + ${project.slug}"
+             class="slug-link" target="_blank"></a>
+        </div>
+      </div>
+      <div class="project-actions">
+        <a th:href="'/p/' + ${project.slug}" target="_blank" class="btn-view">View page</a>
+        <a th:href="'/projects/' + ${project.id}" class="btn-subs">Subscribers</a>
+      </div>
+    </div>
+  </div>
+
+  <div th:if="${user.plan.name() == 'FREE'}" class="upgrade-banner">
+    <div class="upgrade-banner-text">
+      <h3>Upgrade to Pro</h3>
+      <p>Unlock unlimited subscribers, CSV export, and email notifications</p>
+    </div>
+    <a href="https://t.me/uzlaunch" target="_blank" class="btn-upgrade">Upgrade · $5/mo</a>
+  </div>
+</main>
+
+<footer>
+  <p>© 2024 UZLaunch · Built for Uzbek founders</p>
+</footer>
+
+</body>
+</html>

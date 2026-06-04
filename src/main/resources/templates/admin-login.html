@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Admin Login — UZLaunch</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:#0f172a;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{background:#1e293b;border:1px solid #334155;border-radius:20px;padding:40px;width:100%;max-width:380px;margin:16px}
+.logo{font-size:18px;font-weight:800;color:#6366f1;margin-bottom:28px;display:block}
+h1{font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:4px}
+.sub{font-size:13px;color:#64748b;margin-bottom:28px}
+.error-box{background:#450a0a;border:1px solid #7f1d1d;color:#fca5a5;font-size:13px;padding:12px 16px;border-radius:10px;margin-bottom:20px}
+.field{margin-bottom:16px}
+label{font-size:13px;font-weight:600;color:#94a3b8;display:block;margin-bottom:7px}
+input{border:1px solid #334155;border-radius:10px;padding:11px 14px;font-size:14px;width:100%;outline:none;font-family:inherit;background:#0f172a;color:#f1f5f9;transition:border-color 0.15s}
+input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.2)}
+input::placeholder{color:#475569}
+.btn{background:#6366f1;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;margin-top:4px;transition:background 0.15s}
+.btn:hover{background:#4f46e5}
+</style>
+</head>
+<body>
+<div class="card">
+  <span class="logo">UZLaunch</span>
+  <h1>Admin access</h1>
+  <p class="sub">Enter the admin secret to continue</p>
+  <div th:if="${error}" class="error-box" th:text="${error}"></div>
+  <form method="post" th:action="@{/admin/login}">
+    <div class="field">
+      <label>Admin secret</label>
+      <input type="password" name="secret" placeholder="Enter admin secret" required autocomplete="off"/>
+    </div>
+    <button type="submit" class="btn">Access dashboard →</button>
+  </form>
+</div>
+</body>
+</html>

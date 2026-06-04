@@ -1,0 +1,91 @@
+package uz.uzlaunch.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import uz.uzlaunch.dto.SubscribeRequest;
+import uz.uzlaunch.exception.AlreadySubscribedException;
+import uz.uzlaunch.exception.AwaitingConfirmationException;
+import uz.uzlaunch.exception.PageNotFoundException;
+import uz.uzlaunch.exception.SubscribeRateLimitedException;
+import uz.uzlaunch.model.Project;
+import uz.uzlaunch.model.Subscriber;
+import uz.uzlaunch.repository.ProjectRepository;
+import uz.uzlaunch.repository.SubscriberRepository;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+public class SubscriberService {
+
+    @Autowired private ProjectRepository projectRepo;
+    @Autowired private SubscriberRepository subscriberRepo;
+    @Autowired private EmailService emailService;
+
+    @Autowired
+    @Qualifier("subscribeRateLimiter")
+    private RateLimiter rateLimiter;
+
+    public void subscribe(String slug, SubscribeRequest req, String ip) {
+        if (!rateLimiter.isAllowed(ip + ":" + slug))
+            throw new SubscribeRateLimitedException(slug);
+
+        Project project = projectRepo.findBySlug(slug).orElseThrow(PageNotFoundException::new);
+        String email = req.getEmail().trim().toLowerCase();
+
+        Optional<Subscriber> existing = subscriberRepo.findByProjectAndEmail(project, email);
+        if (existing.isPresent()) {
+            if (existing.get().isConfirmed()) throw new AlreadySubscribedException(slug);
+            else throw new AwaitingConfirmationException(slug);
+        }
+
+        Subscriber sub = new Subscriber();
+        sub.setProject(project);
+        sub.setEmail(email);
+        if (req.getName() != null && !req.getName().isBlank()) sub.setName(req.getName().trim());
+        sub.setToken(UUID.randomUUID().toString());
+        sub.setConfirmed(false);
+        subscriberRepo.save(sub);
+
+        emailService.sendSubscriberConfirmation(email, req.getName(), project.getName(), project.getSlug(), sub.getToken());
+    }
+
+    @Transactional
+    public String confirmSubscription(String token) {
+        Subscriber sub = subscriberRepo.findByToken(token).orElseThrow(PageNotFoundException::new);
+        String slug = sub.getProject().getSlug();
+        if (sub.isConfirmed()) return slug;
+
+        sub.setConfirmed(true);
+        subscriberRepo.save(sub);
+
+        Project p = sub.getProject();
+        p.setSubscriberCount(p.getSubscriberCount() + 1);
+        projectRepo.save(p);
+
+        emailService.sendSubscriptionConfirmed(sub.getEmail(), sub.getName(), p.getName(), p.getSlug(), sub.getToken());
+        emailService.sendOwnerNotification(
+            p.getUser().getEmail(), p.getUser().getName(),
+            sub.getEmail(), sub.getName(), p.getName(), p.getSubscriberCount()
+        );
+
+        return slug;
+    }
+
+    @Transactional
+    public String unsubscribe(String token) {
+        Subscriber sub = subscriberRepo.findByToken(token).orElseThrow(PageNotFoundException::new);
+        String projectName = sub.getProject().getName();
+
+        if (sub.isConfirmed()) {
+            Project p = sub.getProject();
+            p.setSubscriberCount(Math.max(0, p.getSubscriberCount() - 1));
+            projectRepo.save(p);
+        }
+
+        subscriberRepo.delete(sub);
+        return projectName;
+    }
+}

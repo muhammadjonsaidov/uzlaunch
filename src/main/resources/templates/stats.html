@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title th:text="${project.name} + ' — Stats'">Stats</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;display:flex;flex-direction:column}
+a{text-decoration:none;color:inherit}
+
+.nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:18px;font-weight:800;color:#6366f1}
+.nav-back{font-size:13px;color:#64748b;font-weight:500;transition:color 0.15s}
+.nav-back:hover{color:#374151}
+
+.main{flex:1;max-width:860px;margin:0 auto;width:100%;padding:40px 24px}
+
+.page-title{font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-0.3px;margin-bottom:4px}
+.page-sub{font-size:14px;color:#64748b;margin-bottom:32px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px 22px}
+.stat-label{font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.stat-value{font-size:30px;font-weight:800;color:#0f172a;letter-spacing:-0.5px;line-height:1}
+.stat-desc{font-size:12px;color:#94a3b8;margin-top:4px}
+
+.chart-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;margin-bottom:24px}
+.chart-title{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px}
+.chart-sub{font-size:12px;color:#94a3b8;margin-bottom:24px}
+
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:180px;padding:0 0 0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bar-count{font-size:11px;font-weight:700;color:#6366f1;min-height:16px}
+.bar-fill{width:100%;background:linear-gradient(180deg,#6366f1,#8b5cf6);border-radius:6px 6px 0 0;min-height:3px;transition:height 0.3s}
+.bar-label{font-size:10px;color:#94a3b8;white-space:nowrap;margin-top:6px;text-align:center}
+
+.referrer-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px}
+.referrer-title{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px}
+.referrer-soon{font-size:13px;color:#94a3b8;margin-top:8px;font-style:italic}
+
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr}}
+
+footer{border-top:1px solid #e2e8f0;padding:20px;text-align:center}
+footer p{font-size:12px;color:#94a3b8}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="logo">UZLaunch</a>
+  <a th:href="'/projects/' + ${project.id}" class="nav-back">← Back to subscribers</a>
+</nav>
+
+<main class="main">
+  <div class="page-title" th:text="${project.name} + ' — Analytics'"></div>
+  <p class="page-sub">Subscriber growth and daily signups</p>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total subscribers</div>
+      <div class="stat-value" th:text="${totalSubscribers}">0</div>
+      <div class="stat-desc">All time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Last 7 days</div>
+      <div class="stat-value" th:text="${last7Days}">0</div>
+      <div class="stat-desc">New signups this week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Public page</div>
+      <div class="stat-value" style="font-size:16px;margin-top:6px">
+        <a th:href="'/p/' + ${project.slug}"
+           style="color:#6366f1;font-weight:700;font-size:14px"
+           th:text="'/p/' + ${project.slug}"></a>
+      </div>
+      <div class="stat-desc">Share this link</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Daily signups — last 7 days</div>
+    <div class="chart-sub">Each bar represents new subscribers that day</div>
+
+    <div class="bar-chart">
+      <div th:each="bar : ${chartData}" class="bar-col">
+        <span class="bar-count" th:text="${bar.count > 0 ? bar.count : ''}"></span>
+        <div class="bar-fill" th:style="'height:' + ${bar.height} + 'px'"></div>
+        <span class="bar-label" th:text="${bar.label}"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="referrer-card">
+    <div class="referrer-title">📍 Referring sources</div>
+    <p class="referrer-soon">
+      Referrer tracking is coming soon. Share your page on Telegram, Instagram, and LinkedIn to see where subscribers come from.
+    </p>
+  </div>
+</main>
+
+<footer>
+  <p>© 2024 UZLaunch · Built for Uzbek founders</p>
+</footer>
+
+</body>
+</html>

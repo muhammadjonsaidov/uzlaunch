@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>New project — UZLaunch</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;display:flex;flex-direction:column}
+a{text-decoration:none;color:inherit}
+
+.nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:18px;font-weight:800;color:#6366f1}
+.nav-back{font-size:14px;color:#64748b;font-weight:500;display:flex;align-items:center;gap:6px;transition:color 0.15s}
+.nav-back:hover{color:#374151}
+
+.main{flex:1;max-width:600px;margin:0 auto;width:100%;padding:48px 24px}
+
+.page-title{font-size:24px;font-weight:800;color:#0f172a;letter-spacing:-0.5px;margin-bottom:6px}
+.page-sub{font-size:14px;color:#64748b;margin-bottom:36px}
+
+.error-box{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;font-size:13px;padding:12px 16px;border-radius:10px;margin-bottom:24px}
+
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:36px}
+
+.field{margin-bottom:20px}
+label{font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:7px}
+.field-hint{font-size:11px;color:#94a3b8;margin-top:5px}
+.required{color:#6366f1;margin-left:2px}
+
+input[type=text],input[type=date],textarea{border:1px solid #e2e8f0;border-radius:10px;padding:11px 14px;font-size:14px;width:100%;outline:none;font-family:inherit;transition:border-color 0.15s,box-shadow 0.15s;color:#1e293b;background:#fff}
+input:focus,textarea:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.12)}
+input::placeholder,textarea::placeholder{color:#94a3b8}
+textarea{resize:vertical;min-height:100px}
+
+.char-count{font-size:11px;color:#94a3b8;text-align:right;margin-top:4px}
+
+.btn-submit{background:#6366f1;color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;margin-top:8px;transition:all 0.15s}
+.btn-submit:hover{background:#4f46e5;transform:translateY(-1px)}
+
+footer{border-top:1px solid #e2e8f0;padding:20px;text-align:center}
+footer p{font-size:12px;color:#94a3b8}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="/" class="logo">UZLaunch</a>
+  <a href="/dashboard" class="nav-back">← Back to dashboard</a>
+</nav>
+
+<main class="main">
+  <div class="page-title">Create a waitlist page</div>
+  <p class="page-sub">Takes about 2 minutes. Your page goes live immediately.</p>
+
+  <div th:if="${error}" class="error-box" th:text="${error}"></div>
+
+  <div class="card">
+    <form method="post" th:action="@{/projects/new}">
+      <div class="field">
+        <label>Project name <span class="required">*</span></label>
+        <input type="text" name="name" placeholder="e.g. BookUz" required maxlength="100"
+               oninput="document.getElementById('name-count').textContent=this.value.length"/>
+        <div style="display:flex;justify-content:space-between">
+          <span class="field-hint">What is your project called?</span>
+          <span class="char-count"><span id="name-count">0</span>/100</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>One-line tagline <span class="required">*</span></label>
+        <input type="text" name="tagline" required maxlength="150"
+               placeholder="e.g. Book appointments online in Uzbekistan"
+               oninput="document.getElementById('tagline-count').textContent=this.value.length"/>
+        <div style="display:flex;justify-content:space-between">
+          <span class="field-hint">A single sentence describing what you're building</span>
+          <span class="char-count"><span id="tagline-count">0</span>/150</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Description</label>
+        <textarea name="description" maxlength="1000"
+                  placeholder="Tell visitors what you're building and why they should join..."></textarea>
+        <span class="field-hint">Optional — helps visitors understand your vision</span>
+      </div>
+
+      <div class="field">
+        <label>Expected launch date</label>
+        <input type="date" name="launchDate"/>
+        <span class="field-hint">Optional — shows a countdown timer on your public page</span>
+      </div>
+
+      <button type="submit" class="btn-submit">Create waitlist page →</button>
+    </form>
+  </div>
+</main>
+
+<footer>
+  <p>© 2024 UZLaunch · Built for Uzbek founders</p>
+</footer>
+</body>
+</html>

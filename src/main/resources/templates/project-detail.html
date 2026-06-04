@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title th:text="${project.name} + ' — Subscribers'">Subscribers</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;display:flex;flex-direction:column}
+a{text-decoration:none;color:inherit}
+
+.nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:18px;font-weight:800;color:#6366f1}
+.nav-actions{display:flex;align-items:center;gap:12px}
+.nav-back{font-size:13px;color:#64748b;font-weight:500;transition:color 0.15s}
+.nav-back:hover{color:#374151}
+.nav-view{font-size:13px;color:#6366f1;font-weight:600}
+.nav-view:hover{text-decoration:underline}
+
+.main{flex:1;max-width:860px;margin:0 auto;width:100%;padding:36px 24px}
+
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;gap:16px}
+.page-header-left h1{font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-0.3px;margin-bottom:3px}
+.page-header-left .tagline{font-size:14px;color:#64748b}
+.stat-box{text-align:right;flex-shrink:0}
+.stat-box .num{font-size:32px;font-weight:800;color:#6366f1;letter-spacing:-1px;line-height:1}
+.stat-box .label{font-size:12px;color:#94a3b8;margin-top:2px}
+
+.action-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all 0.15s}
+.btn-outline{background:#fff;border:1px solid #e2e8f0;color:#374151}
+.btn-outline:hover{background:#f8fafc}
+.btn-primary{background:#6366f1;color:#fff}
+.btn-primary:hover{background:#4f46e5}
+.btn-danger{background:#fef2f2;border:1px solid #fecaca;color:#dc2626}
+.btn-danger:hover{background:#fee2e2}
+.btn-stats{background:#f0fdf4;border:1px solid #bbf7d0;color:#065f46}
+.btn-stats:hover{background:#dcfce7}
+
+.table-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden}
+.table-header{padding:14px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+.table-header-title{font-size:14px;font-weight:700;color:#0f172a}
+.table-header-meta{font-size:12px;color:#94a3b8}
+
+.empty-subs{padding:48px 20px;text-align:center}
+.empty-subs p{font-size:14px;color:#94a3b8}
+
+.sub-row{padding:13px 20px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center}
+.sub-row:last-child{border-bottom:none}
+.sub-row:hover{background:#fafbff}
+.sub-name{font-size:14px;font-weight:600;color:#0f172a;margin-bottom:1px}
+.sub-email{font-size:12px;color:#64748b}
+.sub-date{font-size:12px;color:#94a3b8;white-space:nowrap}
+
+.lock-banner{margin-top:16px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fcd34d;border-radius:14px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.lock-banner-text h3{font-size:14px;font-weight:700;color:#92400e}
+.lock-banner-text p{font-size:12px;color:#b45309;margin-top:2px}
+.btn-upgrade{background:#d97706;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.btn-upgrade:hover{background:#b45309}
+
+.share-box{margin-top:20px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 22px}
+.share-box-label{font-size:12px;font-weight:600;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+.share-url{font-size:14px;color:#6366f1;font-family:monospace;font-weight:600;word-break:break-all}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.5);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:20px;padding:32px;max-width:400px;width:100%;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.modal h2{font-size:18px;font-weight:800;color:#0f172a;margin-bottom:8px}
+.modal p{font-size:14px;color:#64748b;margin-bottom:24px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+.btn-cancel{background:#f1f5f9;color:#475569;border:none;padding:9px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-confirm-delete{background:#dc2626;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+
+.pagination{display:flex;align-items:center;gap:6px;margin-top:16px;flex-wrap:wrap}
+.page-btn{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:0 10px;border-radius:8px;font-size:13px;font-weight:600;background:#fff;border:1px solid #e2e8f0;color:#374151;cursor:pointer;transition:all 0.15s}
+.page-btn:hover{background:#f8fafc;border-color:#c7d2fe;color:#6366f1}
+.page-btn.active{background:#6366f1;border-color:#6366f1;color:#fff}
+.page-btn.disabled{opacity:0.4;pointer-events:none}
+
+footer{border-top:1px solid #e2e8f0;padding:20px;text-align:center}
+footer p{font-size:12px;color:#94a3b8}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="logo">UZLaunch</a>
+  <div class="nav-actions">
+    <a href="/dashboard" class="nav-back">← Dashboard</a>
+    <a th:href="'/p/' + ${project.slug}" target="_blank" class="nav-view">View public page →</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1 th:text="${project.name}"></h1>
+      <p class="tagline" th:text="${project.tagline}"></p>
+    </div>
+    <div class="stat-box">
+      <div class="num" th:text="${project.subscriberCount}">0</div>
+      <div class="label">subscribers</div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <a th:href="'/p/' + ${project.slug}" target="_blank" class="btn btn-outline">🌐 View page</a>
+    <a th:href="'/p/' + ${project.slug} + '/stats'" class="btn btn-stats">📊 Stats</a>
+    <a th:href="'/projects/' + ${project.id} + '/edit'" class="btn btn-outline">✏ Edit</a>
+    <a th:if="${user.plan.name() == 'PAID'}"
+       th:href="'/projects/' + ${project.id} + '/export'" class="btn btn-outline">⬇ Export CSV</a>
+    <button onclick="document.getElementById('delete-modal').classList.add('active')"
+            class="btn btn-danger">🗑 Delete project</button>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-header-title">Confirmed subscribers</span>
+      <span class="table-header-meta" th:text="${total} + ' total'"></span>
+    </div>
+
+    <div th:if="${subscribers.empty}" class="empty-subs">
+      <p>No subscribers yet. Share your page to get started!</p>
+    </div>
+
+    <div th:each="sub : ${subscribers}" class="sub-row">
+      <div>
+        <div class="sub-name"
+             th:text="${sub.name != null and !#strings.isEmpty(sub.name) ? sub.name : 'Anonymous'}"></div>
+        <div class="sub-email" th:text="${sub.email}"></div>
+      </div>
+      <div class="sub-date"
+           th:text="${#temporals.format(sub.subscribedAt, 'dd MMM yyyy')}"></div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div th:if="${totalPages > 1}" class="pagination">
+    <a th:href="'/projects/' + ${project.id} + '?page=' + ${currentPage - 1}"
+       th:class="${currentPage == 0} ? 'page-btn disabled' : 'page-btn'">← Prev</a>
+    <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+      <a th:href="'/projects/' + ${project.id} + '?page=' + ${i}"
+         th:text="${i + 1}"
+         th:class="${i == currentPage} ? 'page-btn active' : 'page-btn'"></a>
+    </span>
+    <a th:href="'/projects/' + ${project.id} + '?page=' + ${currentPage + 1}"
+       th:class="${currentPage >= totalPages - 1} ? 'page-btn disabled' : 'page-btn'">Next →</a>
+  </div>
+
+  <div th:if="${locked}" class="lock-banner">
+    <div class="lock-banner-text">
+      <h3>100+ subscribers — upgrade to see all</h3>
+      <p>Export as CSV and access all subscriber emails with Pro</p>
+    </div>
+    <a href="https://t.me/uzlaunch" target="_blank" class="btn-upgrade">Upgrade · $5/mo</a>
+  </div>
+
+  <div class="share-box">
+    <div class="share-box-label">Your public page link</div>
+    <div class="share-url" th:text="${baseUrl + '/p/' + project.slug}"></div>
+  </div>
+</main>
+
+<!-- Delete confirmation modal -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <h2>Delete project?</h2>
+    <p>This will permanently delete "<span th:text="${project.name}"></span>" and all its subscribers. This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel"
+              onclick="document.getElementById('delete-modal').classList.remove('active')">
+        Cancel
+      </button>
+      <form th:action="'/projects/' + ${project.id} + '/delete'" method="post" style="display:inline">
+        <button type="submit" class="btn-confirm-delete">Yes, delete everything</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2024 UZLaunch · Built for Uzbek founders</p>
+</footer>
+
+</body>
+</html>

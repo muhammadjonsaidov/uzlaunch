@@ -1,0 +1,154 @@
+package uz.uzlaunch.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import uz.uzlaunch.dto.ProjectCreateRequest;
+import uz.uzlaunch.exception.ForbiddenException;
+import uz.uzlaunch.exception.PageNotFoundException;
+import uz.uzlaunch.exception.ProjectNotFoundException;
+import uz.uzlaunch.model.Project;
+import uz.uzlaunch.model.Subscriber;
+import uz.uzlaunch.model.User;
+import uz.uzlaunch.repository.ProjectRepository;
+import uz.uzlaunch.repository.SubscriberRepository;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+@Service
+public class ProjectService {
+
+    private static final int PAGE_SIZE = 25;
+
+    @Autowired private ProjectRepository projectRepo;
+    @Autowired private SubscriberRepository subscriberRepo;
+
+    public record ProjectDetail(Project project, List<Subscriber> subscribers,
+                                boolean locked, long total, int page, int totalPages) {}
+    public record ExportData(Project project, List<Subscriber> subscribers) {}
+
+    public List<Project> listByUser(User user) {
+        return projectRepo.findByUser(user);
+    }
+
+    public Project getBySlug(String slug) {
+        return projectRepo.findBySlug(slug).orElseThrow(PageNotFoundException::new);
+    }
+
+    public Project getOwned(Long id, User user) {
+        Project p = projectRepo.findById(id).orElseThrow(ProjectNotFoundException::new);
+        if (!p.getUser().getId().equals(user.getId())) throw new ForbiddenException("Not your project");
+        return p;
+    }
+
+    public Project getOwnedBySlug(String slug, User user) {
+        Project p = projectRepo.findBySlug(slug).orElseThrow(ProjectNotFoundException::new);
+        if (!p.getUser().getId().equals(user.getId())) throw new ForbiddenException("Not your project");
+        return p;
+    }
+
+    public ProjectDetail getProjectDetail(Long id, User user, int page) {
+        Project p = getOwned(id, user);
+        boolean isPaid = user.getPlan() == User.Plan.PAID;
+
+        // FREE users capped at 100 confirmed subscribers (4 pages × 25)
+        int effectivePage = (!isPaid && page > 3) ? 3 : page;
+
+        Pageable pageable = PageRequest.of(effectivePage, PAGE_SIZE, Sort.by("subscribedAt").descending());
+        Page<Subscriber> result = subscriberRepo.findByProjectAndConfirmed(p, true, pageable);
+
+        long total = result.getTotalElements();
+        boolean locked = !isPaid && total > 100;
+        int displayTotalPages = isPaid ? result.getTotalPages() : Math.min(result.getTotalPages(), 4);
+
+        return new ProjectDetail(p, result.getContent(), locked, total, effectivePage, displayTotalPages);
+    }
+
+    public Project create(ProjectCreateRequest req, User user) {
+        Project p = new Project();
+        p.setUser(user);
+        p.setSlug(generateSlug(req.getName()));
+        p.setName(req.getName().trim());
+        p.setTagline(req.getTagline().trim());
+        if (req.getDescription() != null && !req.getDescription().isBlank())
+            p.setDescription(req.getDescription().trim());
+        if (req.getLaunchDate() != null && !req.getLaunchDate().isEmpty()) {
+            try { p.setLaunchDate(LocalDate.parse(req.getLaunchDate())); } catch (Exception ignored) {}
+        }
+        return projectRepo.save(p);
+    }
+
+    public Project update(Long id, ProjectCreateRequest req, User user) {
+        Project p = getOwned(id, user);
+        p.setName(req.getName().trim());
+        p.setTagline(req.getTagline().trim());
+        p.setDescription(req.getDescription() != null && !req.getDescription().isBlank()
+            ? req.getDescription().trim() : null);
+        if (req.getLaunchDate() != null && !req.getLaunchDate().isEmpty()) {
+            try { p.setLaunchDate(LocalDate.parse(req.getLaunchDate())); } catch (Exception ignored) {}
+        } else {
+            p.setLaunchDate(null);
+        }
+        return projectRepo.save(p);
+    }
+
+    @Transactional
+    public String delete(Long id, User user) {
+        Project p = getOwned(id, user);
+        String name = p.getName();
+        subscriberRepo.deleteAll(subscriberRepo.findByProject(p));
+        projectRepo.delete(p);
+        return name;
+    }
+
+    public ExportData getExportData(Long id, User user) {
+        if (user.getPlan() != User.Plan.PAID) throw new ForbiddenException("CSV export requires Pro plan");
+        Project p = getOwned(id, user);
+        return new ExportData(p, subscriberRepo.findByProjectAndConfirmed(p, true));
+    }
+
+    public Map<String, Object> getStats(String slug, User user) {
+        Project p = getOwnedBySlug(slug, user);
+        List<Subscriber> allSubs = subscriberRepo.findByProjectAndConfirmed(p, true);
+
+        LocalDate today = LocalDate.now();
+        Map<LocalDate, Long> rawCounts = new LinkedHashMap<>();
+        for (int i = 6; i >= 0; i--) rawCounts.put(today.minusDays(i), 0L);
+        for (Subscriber s : allSubs)
+            rawCounts.computeIfPresent(s.getSubscribedAt().toLocalDate(), (k, v) -> v + 1);
+
+        long max = Math.max(rawCounts.values().stream().mapToLong(Long::longValue).max().orElse(1), 1);
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MMM d");
+        List<Map<String, Object>> chartData = new ArrayList<>();
+        for (Map.Entry<LocalDate, Long> e : rawCounts.entrySet()) {
+            Map<String, Object> bar = new HashMap<>();
+            bar.put("label", e.getKey().format(fmt));
+            bar.put("count", e.getValue());
+            bar.put("height", (int) (e.getValue() * 150 / max));
+            chartData.add(bar);
+        }
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("project", p);
+        stats.put("chartData", chartData);
+        stats.put("totalSubscribers", allSubs.size());
+        stats.put("last7Days", rawCounts.values().stream().mapToLong(Long::longValue).sum());
+        return stats;
+    }
+
+    private String generateSlug(String name) {
+        String base = name.toLowerCase()
+            .replaceAll("[^a-z0-9\\s-]", "").trim().replaceAll("[\\s-]+", "-");
+        if (base.isEmpty()) base = "project";
+        String slug = base;
+        int i = 2;
+        while (projectRepo.existsBySlug(slug)) slug = base + "-" + i++;
+        return slug;
+    }
+}
