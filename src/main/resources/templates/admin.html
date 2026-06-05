@@ -1,131 +1,80 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Admin — UZLaunch</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;display:flex;flex-direction:column}
-a{text-decoration:none;color:inherit}
-
-.nav{background:#0f172a;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-size:18px;font-weight:800;color:#6366f1}
-.nav-right{display:flex;align-items:center;gap:16px}
-.admin-badge{font-size:11px;background:#3b0764;color:#a78bfa;padding:3px 10px;border-radius:999px;font-weight:700}
-.nav-logout{font-size:13px;color:#94a3b8;transition:color 0.15s}
-.nav-logout:hover{color:#fff}
-
-.main{flex:1;max-width:1100px;margin:0 auto;width:100%;padding:40px 24px}
-
-.page-title{font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-0.3px;margin-bottom:4px}
-.page-sub{font-size:14px;color:#64748b;margin-bottom:32px}
-
-.alert-success{background:#d1fae5;border:1px solid #a7f3d0;color:#065f46;font-size:13px;padding:12px 16px;border-radius:10px;margin-bottom:20px}
-.alert-error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;font-size:13px;padding:12px 16px;border-radius:10px;margin-bottom:20px}
-
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:36px}
-.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:22px}
-.stat-label{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
-.stat-value{font-size:36px;font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1}
-.stat-icon{font-size:20px;margin-bottom:10px}
-
-.section-title{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:16px}
-
-.table-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden}
-.table-header-row{display:grid;grid-template-columns:2fr 2fr 1fr 1fr 100px;gap:12px;padding:12px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0}
-.th{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}
-
-.user-row{display:grid;grid-template-columns:2fr 2fr 1fr 1fr 100px;gap:12px;padding:13px 20px;border-bottom:1px solid #f1f5f9;align-items:center}
-.user-row:last-child{border-bottom:none}
-.user-row:hover{background:#fafbff}
-.user-email{font-size:14px;font-weight:600;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.user-name{font-size:13px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.badge-paid{font-size:11px;background:#d1fae5;color:#065f46;padding:3px 10px;border-radius:999px;font-weight:700;display:inline-block}
-.badge-free{font-size:11px;background:#f1f5f9;color:#64748b;padding:3px 10px;border-radius:999px;font-weight:600;display:inline-block}
-.user-date{font-size:12px;color:#94a3b8}
-
-.btn-upgrade-sm{background:#6366f1;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.15s;white-space:nowrap}
-.btn-upgrade-sm:hover{background:#4f46e5}
-.btn-upgrade-sm:disabled{background:#c7d2fe;cursor:default}
-
-footer{border-top:1px solid #e2e8f0;padding:20px;text-align:center}
-footer p{font-size:12px;color:#94a3b8}
-
-@media(max-width:768px){
-  .stats-grid{grid-template-columns:1fr}
-  .table-header-row,.user-row{grid-template-columns:1fr 1fr}
-  .th:nth-child(n+3),.user-row>*:nth-child(n+3){display:none}
-}
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Admin — UZLaunch</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <script>tailwind={config:{theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}}</script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-slate-50 min-h-screen flex flex-col">
 
-<nav class="nav">
-  <span class="logo">UZLaunch</span>
-  <div class="nav-right">
-    <span class="admin-badge">⚡ Admin</span>
-    <a href="/admin/logout" class="nav-logout">Logout</a>
+<nav class="app-nav">
+  <a href="/" class="logo-text">UZLaunch</a>
+  <div class="flex items-center gap-3">
+    <span class="text-xs font-bold bg-red-100 text-red-700 px-3 py-1 rounded-full">Admin</span>
+    <a href="/admin/logout" class="text-sm text-slate-400 hover:text-slate-600 transition-colors">Logout</a>
   </div>
 </nav>
 
-<main class="main">
-  <div class="page-title">Admin Dashboard</div>
-  <p class="page-sub">Platform overview and user management</p>
+<main class="flex-1 max-w-4xl mx-auto w-full px-5 py-8">
 
-  <div th:if="${success}" class="alert-success" th:text="${success}"></div>
-  <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+  <div th:if="${success}" class="alert-success mb-6" th:text="${success}"></div>
+  <div th:if="${error}" class="alert-error mb-6" th:text="${error}"></div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon">👤</div>
-      <div class="stat-label">Total users</div>
-      <div class="stat-value" th:text="${userCount}">0</div>
+  <h1 class="text-2xl font-black text-slate-900 tracking-tight mb-6">Admin panel</h1>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-3 gap-4 mb-8">
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 text-center">
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total users</p>
+      <p class="text-3xl font-black text-indigo-600" th:text="${userCount}">0</p>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon">🚀</div>
-      <div class="stat-label">Total projects</div>
-      <div class="stat-value" th:text="${projectCount}">0</div>
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 text-center">
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total projects</p>
+      <p class="text-3xl font-black text-indigo-600" th:text="${projectCount}">0</p>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon">📧</div>
-      <div class="stat-label">Total subscribers</div>
-      <div class="stat-value" th:text="${subscriberCount}">0</div>
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 text-center">
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total subscribers</p>
+      <p class="text-3xl font-black text-indigo-600" th:text="${subscriberCount}">0</p>
     </div>
   </div>
 
-  <div class="section-title">All users</div>
-  <div class="table-card">
-    <div class="table-header-row">
-      <div class="th">Email</div>
-      <div class="th">Name</div>
-      <div class="th">Plan</div>
-      <div class="th">Joined</div>
-      <div class="th">Action</div>
+  <!-- Users table -->
+  <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+    <div class="px-5 py-4 border-b border-slate-100">
+      <h2 class="text-sm font-bold text-slate-700">Users</h2>
     </div>
-
-    <div th:each="u : ${users}" class="user-row">
-      <div class="user-email" th:text="${u.email}"></div>
-      <div class="user-name" th:text="${u.name != null ? u.name : '—'}"></div>
-      <div>
-        <span th:if="${u.plan.name() == 'PAID'}" class="badge-paid">Pro</span>
+    <div th:if="${users.empty}" class="py-10 text-center text-sm text-slate-400">No users yet</div>
+    <div th:each="u : ${users}"
+         class="flex items-center justify-between px-5 py-3.5 border-b border-slate-50 hover:bg-slate-50/50 last:border-0">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600"
+             th:text="${not #strings.isEmpty(u.name) ? u.name.substring(0,1).toUpperCase() : 'U'}">U</div>
+        <div>
+          <div class="text-sm font-semibold text-slate-800" th:text="${u.name}"></div>
+          <div class="text-xs text-slate-400" th:text="${u.email}"></div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span th:if="${u.plan.name() == 'PAID'}" class="badge-pro">Pro</span>
         <span th:if="${u.plan.name() == 'FREE'}" class="badge-free">Free</span>
-      </div>
-      <div class="user-date" th:text="${#temporals.format(u.createdAt, 'dd MMM yyyy')}"></div>
-      <div>
         <form th:if="${u.plan.name() == 'FREE'}"
-              th:action="'/admin/users/' + ${u.id} + '/upgrade'" method="post"
-              style="display:inline">
-          <button type="submit" class="btn-upgrade-sm">Upgrade</button>
+              th:action="'/admin/users/' + ${u.id} + '/upgrade'" method="post">
+          <button type="submit"
+                  class="text-xs font-bold text-white bg-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors">
+            Upgrade to Pro
+          </button>
         </form>
-        <span th:if="${u.plan.name() == 'PAID'}" style="font-size:12px;color:#6366f1;font-weight:600">✓ Pro</span>
       </div>
     </div>
   </div>
+
 </main>
 
-<footer>
-  <p>© 2024 UZLaunch Admin · <a href="/dashboard" style="color:#6366f1">Back to app</a></p>
+<footer class="border-t border-slate-100 py-5 text-center">
+  <p class="text-xs text-slate-300">© 2026 UZLaunch · Admin</p>
 </footer>
 
 </body>

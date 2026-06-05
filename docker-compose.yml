@@ -1,17 +1,22 @@
 services:
-#  app:
-#    build: .
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      DATABASE_URL: jdbc:postgresql://db:5432/uzlaunch
-#      SPRING_DATASOURCE_USERNAME: uzlaunch
-#      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-#      PORT: 8080
-#    depends_on:
-#      db:
-#        condition: service_healthy
-#    restart: unless-stopped
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/uzlaunch
+      DB_USER: uzlaunch
+      DB_PASSWORD: ${DB_PASSWORD}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-UZLaunch <noreply@uzlaunch.uz>}
+      BASE_URL: ${BASE_URL:-http://localhost:8080}
+      PORT: 8080
+      ADMIN_SECRET: ${ADMIN_SECRET}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
 
   db:
     image: postgres:16-alpine

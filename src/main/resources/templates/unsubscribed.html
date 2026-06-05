@@ -1,26 +1,27 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Unsubscribed — UZLaunch</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:48px 40px;max-width:440px;width:100%;text-align:center;margin:24px}
-.icon{font-size:40px;margin-bottom:16px}
-h1{font-size:22px;font-weight:800;color:#0f172a;margin-bottom:8px}
-p{font-size:14px;color:#64748b;line-height:1.6}
-.home-link{display:inline-block;margin-top:24px;font-size:13px;color:#6366f1;font-weight:600}
-.home-link:hover{text-decoration:underline}
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Unsubscribed — UZLaunch</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <script>tailwind={config:{theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}}</script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<div class="card">
-  <div class="icon">👋</div>
-  <h1>You've been unsubscribed</h1>
-  <p>You've been removed from the <strong th:text="${projectName}">project</strong> waitlist. You won't receive any more emails about this project.</p>
-  <a href="/" class="home-link">← Back to UZLaunch</a>
-</div>
+<body class="bg-dark-gradient min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="glass-card w-full max-w-sm p-10 text-center relative z-10">
+    <div class="text-5xl mb-5">👋</div>
+    <h1 class="text-xl font-black text-white mb-2">You've been unsubscribed</h1>
+    <p class="text-sm text-white/50 mb-2">
+      You've been removed from the
+      <span class="text-white/80 font-semibold" th:text="${projectName}">project</span>
+      waitlist.
+    </p>
+    <p class="text-sm text-white/40 mb-8">Sorry to see you go. You won't receive any more emails.</p>
+    <a href="/" class="btn-glass text-sm">← Back to UZLaunch</a>
+  </div>
 </body>
 </html>

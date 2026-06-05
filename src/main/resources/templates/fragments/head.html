@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title th:text="${title} + ' — UZLaunch'">UZLaunch</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <script>
+    tailwind = { config: { theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } } } }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+</html>

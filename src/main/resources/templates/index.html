@@ -1,248 +1,245 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>UZLaunch — Launch your startup idea in 2 minutes</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;color:#1e293b;line-height:1.6;background:#fff}
-a{text-decoration:none;color:inherit}
-
-/* NAV */
-.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-bottom:1px solid #e2e8f0;padding:0 5%}
-.nav-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;height:60px}
-.logo{font-size:20px;font-weight:800;color:#6366f1;letter-spacing:-0.5px}
-.nav-links{display:flex;align-items:center;gap:24px}
-.nav-links a.login{font-size:14px;color:#64748b;font-weight:500}
-.nav-links a.login:hover{color:#1e293b}
-.btn-nav{background:#6366f1;color:#fff;padding:8px 20px;border-radius:8px;font-size:14px;font-weight:600;transition:background 0.15s}
-.btn-nav:hover{background:#4f46e5}
-
-/* HERO */
-.hero{padding:96px 5% 80px;text-align:center;background:linear-gradient(180deg,#fafbff 0%,#fff 100%)}
-.hero-badge{display:inline-block;background:#eef2ff;color:#6366f1;font-size:12px;font-weight:600;padding:4px 14px;border-radius:999px;margin-bottom:24px;border:1px solid #c7d2fe}
-.hero h1{font-size:clamp(36px,6vw,64px);font-weight:800;line-height:1.15;letter-spacing:-1.5px;color:#0f172a;margin-bottom:20px}
-.hero h1 span{color:#6366f1}
-.hero p{font-size:18px;color:#64748b;max-width:540px;margin:0 auto 36px}
-.hero-cta{display:inline-block;background:#6366f1;color:#fff;padding:14px 32px;border-radius:10px;font-size:16px;font-weight:700;transition:all 0.2s;box-shadow:0 4px 24px rgba(99,102,241,0.35)}
-.hero-cta:hover{background:#4f46e5;transform:translateY(-1px);box-shadow:0 8px 30px rgba(99,102,241,0.4)}
-.hero-sub{font-size:13px;color:#94a3b8;margin-top:16px}
-.hero-sub span{margin:0 8px}
-
-/* SOCIAL PROOF */
-.proof{border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;background:#f8fafc;padding:28px 5%}
-.proof-inner{max-width:800px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:20px}
-.proof-num{font-size:28px;font-weight:800;color:#0f172a;letter-spacing:-1px}
-.proof-label{font-size:13px;color:#64748b;margin-top:2px}
-
-/* FEATURES */
-.features{padding:80px 5%;background:#fff}
-.section-label{font-size:12px;font-weight:700;color:#6366f1;letter-spacing:1px;text-transform:uppercase;text-align:center;margin-bottom:12px}
-.section-title{font-size:clamp(24px,4vw,36px);font-weight:800;text-align:center;color:#0f172a;letter-spacing:-0.5px;margin-bottom:8px}
-.section-sub{font-size:16px;color:#64748b;text-align:center;margin-bottom:56px}
-.features-grid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
-.feature-card{padding:28px;border:1px solid #e2e8f0;border-radius:16px;transition:all 0.2s;background:#fff}
-.feature-card:hover{border-color:#c7d2fe;box-shadow:0 8px 32px rgba(99,102,241,0.08)}
-.feature-icon{font-size:32px;margin-bottom:16px}
-.feature-card h3{font-size:17px;font-weight:700;color:#0f172a;margin-bottom:8px}
-.feature-card p{font-size:14px;color:#64748b;line-height:1.6}
-
-/* HOW IT WORKS */
-.how{padding:80px 5%;background:#f8fafc}
-.steps{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:56px}
-.step{text-align:center}
-.step-num{width:48px;height:48px;background:#6366f1;color:#fff;border-radius:50%;font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-.step h3{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px}
-.step p{font-size:14px;color:#64748b}
-
-/* PRICING */
-.pricing{padding:80px 5%;background:#fff}
-.pricing-grid{max-width:1000px;margin:56px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.price-card{border:1px solid #e2e8f0;border-radius:20px;padding:32px;background:#fff;transition:all 0.2s}
-.price-card.featured{border-color:#6366f1;background:#fafbff;box-shadow:0 0 0 3px #eef2ff}
-.price-name{font-size:14px;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
-.price-amount{font-size:40px;font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1}
-.price-period{font-size:14px;color:#94a3b8;margin-top:4px;margin-bottom:24px}
-.price-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
-.price-features li{font-size:14px;color:#475569;display:flex;align-items:center;gap:8px}
-.price-features li::before{content:"✓";color:#6366f1;font-weight:700;flex-shrink:0}
-.price-btn{display:block;text-align:center;padding:11px;border-radius:10px;font-size:14px;font-weight:700;background:#f1f5f9;color:#475569;transition:all 0.2s}
-.price-btn:hover{background:#e2e8f0}
-.price-btn.primary{background:#6366f1;color:#fff}
-.price-btn.primary:hover{background:#4f46e5}
-.badge{display:inline-block;background:#fef3c7;color:#d97706;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:8px}
-
-/* CTA BANNER */
-.cta-banner{padding:80px 5%;text-align:center;background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%)}
-.cta-banner h2{font-size:clamp(24px,4vw,36px);font-weight:800;color:#fff;margin-bottom:12px;letter-spacing:-0.5px}
-.cta-banner p{font-size:16px;color:rgba(255,255,255,0.8);margin-bottom:28px}
-.btn-white{display:inline-block;background:#fff;color:#6366f1;padding:13px 32px;border-radius:10px;font-size:15px;font-weight:700;transition:all 0.2s}
-.btn-white:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,0.15)}
-
-/* FOOTER */
-footer{background:#0f172a;padding:40px 5%;text-align:center}
-.footer-logo{font-size:18px;font-weight:800;color:#fff;margin-bottom:12px}
-.footer-links{display:flex;justify-content:center;gap:24px;margin-bottom:20px;flex-wrap:wrap}
-.footer-links a{font-size:13px;color:#94a3b8;transition:color 0.15s}
-.footer-links a:hover{color:#fff}
-.footer-copy{font-size:12px;color:#475569}
-
-@media(max-width:768px){
-  .features-grid,.steps,.pricing-grid,.proof-inner{grid-template-columns:1fr}
-}
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>UZLaunch — Launch your startup idea in 2 minutes</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+  <script>tailwind={config:{theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}}</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .hero-bg {
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1040 45%, #0f1a40 100%);
+    }
+    .nav-glass {
+      background: rgba(15, 15, 35, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .feature-glass {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+    .feature-glass:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(99,102,241,0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(99,102,241,0.15);
+    }
+    .step-num {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; color: #fff;
+      margin: 0 auto 16px;
+      box-shadow: 0 8px 24px rgba(99,102,241,0.4);
+    }
+    .price-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      transition: all 0.3s;
+    }
+    .price-card.featured {
+      background: rgba(99,102,241,0.15);
+      border-color: rgba(99,102,241,0.5);
+      box-shadow: 0 0 40px rgba(99,102,241,0.2);
+    }
+    .price-card:hover { transform: translateY(-4px); }
+    .check-item::before { content: "✓"; color: #818cf8; font-weight: 700; margin-right: 8px; }
+  </style>
 </head>
-<body>
+<body class="hero-bg text-white overflow-x-hidden">
 
-<nav class="nav">
-  <div class="nav-inner">
-    <span class="logo">UZLaunch</span>
-    <div class="nav-links">
-      <a href="/login" class="login">Log in</a>
-      <a href="/register" class="btn-nav">Get started free</a>
+<!-- NAV -->
+<nav class="nav-glass sticky top-0 z-50 px-6 md:px-12">
+  <div class="max-w-6xl mx-auto flex items-center justify-between h-16">
+    <span class="logo-text text-xl">UZLaunch</span>
+    <div class="flex items-center gap-4">
+      <a href="/login" class="text-sm text-white/60 hover:text-white transition-colors font-medium">Log in</a>
+      <a href="/register" class="btn-primary text-sm py-2 px-5">Get started free</a>
     </div>
   </div>
 </nav>
 
-<section class="hero">
-  <div class="hero-badge">Free to start · No credit card needed</div>
-  <h1>Launch your <span>startup idea</span><br/>before writing a single line of code</h1>
-  <p>Create a beautiful pre-launch waitlist page in 2 minutes. Collect emails, validate your idea, and build with confidence.</p>
-  <a href="/register" class="hero-cta">Create your waitlist free →</a>
-  <p class="hero-sub">
-    <span>✓ Free forever</span>
-    <span>✓ 2-minute setup</span>
-    <span>✓ No design skills needed</span>
-  </p>
+<!-- HERO -->
+<section class="relative overflow-hidden py-28 px-6 text-center">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="relative z-10 max-w-4xl mx-auto">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-8 glass" style="color:#a5b4fc">
+      <span class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></span>
+      Free to start · No credit card needed
+    </div>
+    <h1 class="text-5xl md:text-7xl font-black leading-tight tracking-tight mb-6">
+      Launch your
+      <span class="gradient-text"> startup idea</span><br/>
+      before writing a single line of code
+    </h1>
+    <p class="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed">
+      Create a beautiful pre-launch waitlist page in 2 minutes. Collect emails, validate your idea, and build with confidence.
+    </p>
+    <a href="/register" class="btn-primary text-base px-10 py-4 inline-flex items-center gap-2">
+      Create your waitlist free
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+    <div class="flex items-center justify-center gap-6 mt-6 text-sm text-white/40">
+      <span>✓ Free forever</span>
+      <span>✓ 2-minute setup</span>
+      <span>✓ No design skills needed</span>
+    </div>
+  </div>
 </section>
 
-<div class="proof">
-  <div class="proof-inner">
+<!-- SOCIAL PROOF -->
+<div class="glass mx-6 md:mx-auto max-w-3xl rounded-2xl px-8 py-6 mb-24">
+  <div class="grid grid-cols-3 gap-8 text-center">
     <div>
-      <div class="proof-num">100+</div>
-      <div class="proof-label">Uzbek founders using UZLaunch</div>
+      <div class="text-3xl font-black text-white mb-1">100+</div>
+      <div class="text-sm text-white/50">Uzbek founders using UZLaunch</div>
+    </div>
+    <div class="border-x border-white/10">
+      <div class="text-3xl font-black text-white mb-1">2 min</div>
+      <div class="text-sm text-white/50">Average time to launch a page</div>
     </div>
     <div>
-      <div class="proof-num">2 min</div>
-      <div class="proof-label">Average time to launch a page</div>
-    </div>
-    <div>
-      <div class="proof-num">$0</div>
-      <div class="proof-label">To get started with 100 subscribers</div>
+      <div class="text-3xl font-black text-white mb-1">$0</div>
+      <div class="text-sm text-white/50">To get started with 100 subscribers</div>
     </div>
   </div>
 </div>
 
-<section class="features">
-  <div class="section-label">Features</div>
-  <h2 class="section-title">Everything you need to validate your idea</h2>
-  <p class="section-sub">Built for Uzbek founders who move fast</p>
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">🚀</div>
-      <h3>Launch in 2 minutes</h3>
-      <p>Fill in your project name, tagline, and description. Your public waitlist page is live immediately with a shareable link.</p>
+<!-- FEATURES -->
+<section class="px-6 pb-24 max-w-5xl mx-auto">
+  <p class="text-center text-xs font-bold text-indigo-400 tracking-widest uppercase mb-3">Features</p>
+  <h2 class="text-3xl md:text-4xl font-black text-center mb-3 tracking-tight">Everything you need to validate your idea</h2>
+  <p class="text-center text-white/50 mb-14">Built for Uzbek founders who move fast</p>
+  <div class="grid md:grid-cols-3 gap-6">
+    <div class="feature-glass p-7">
+      <div class="text-4xl mb-4">🚀</div>
+      <h3 class="text-lg font-bold mb-2">Launch in 2 minutes</h3>
+      <p class="text-sm text-white/50 leading-relaxed">Fill in your project name, tagline, and description. Your public waitlist page is live immediately with a shareable link.</p>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">📧</div>
-      <h3>Collect real subscribers</h3>
-      <p>Beautiful signup form with email validation. Every subscriber gets a confirmation email. You get notified instantly.</p>
+    <div class="feature-glass p-7">
+      <div class="text-4xl mb-4">📧</div>
+      <h3 class="text-lg font-bold mb-2">Collect real subscribers</h3>
+      <p class="text-sm text-white/50 leading-relaxed">Beautiful signup form with email validation. Every subscriber gets a confirmation email. You get notified instantly.</p>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">📊</div>
-      <h3>Track your growth</h3>
-      <p>See subscriber counts, daily signups, and growth trends. Know exactly how much interest your idea is generating.</p>
+    <div class="feature-glass p-7">
+      <div class="text-4xl mb-4">📊</div>
+      <h3 class="text-lg font-bold mb-2">Track your growth</h3>
+      <p class="text-sm text-white/50 leading-relaxed">See subscriber counts, daily signups, and growth trends. Know exactly how much interest your idea is generating.</p>
     </div>
   </div>
 </section>
 
-<section class="how">
-  <div class="section-label">How it works</div>
-  <h2 class="section-title">Three steps to validate your startup</h2>
-  <p class="section-sub">Simple enough to launch before your morning tea</p>
-  <div class="steps">
-    <div class="step">
+<!-- HOW IT WORKS -->
+<section class="px-6 pb-24 max-w-4xl mx-auto">
+  <p class="text-center text-xs font-bold text-indigo-400 tracking-widest uppercase mb-3">How it works</p>
+  <h2 class="text-3xl md:text-4xl font-black text-center mb-3 tracking-tight">Three steps to validate your startup</h2>
+  <p class="text-center text-white/50 mb-16">Simple enough to launch before your morning tea</p>
+  <div class="grid md:grid-cols-3 gap-10">
+    <div class="text-center">
       <div class="step-num">1</div>
-      <h3>Create your page</h3>
-      <p>Register, fill in your project details — name, tagline, description, and expected launch date.</p>
+      <h3 class="text-base font-bold mb-2">Create your page</h3>
+      <p class="text-sm text-white/50 leading-relaxed">Register, fill in your project details — name, tagline, description, and expected launch date.</p>
     </div>
-    <div class="step">
+    <div class="text-center">
       <div class="step-num">2</div>
-      <h3>Share the link</h3>
-      <p>Post your <strong>/p/your-project</strong> link on social media, Telegram groups, and anywhere your audience hangs out.</p>
+      <h3 class="text-base font-bold mb-2">Share the link</h3>
+      <p class="text-sm text-white/50 leading-relaxed">Post your <span class="text-indigo-300 font-mono text-xs">/p/your-project</span> link on Telegram, social media, and anywhere your audience hangs out.</p>
     </div>
-    <div class="step">
+    <div class="text-center">
       <div class="step-num">3</div>
-      <h3>Launch with confidence</h3>
-      <p>When you're ready, export your subscriber list and send the launch email to people who are already waiting for you.</p>
+      <h3 class="text-base font-bold mb-2">Launch with confidence</h3>
+      <p class="text-sm text-white/50 leading-relaxed">When you're ready, export your subscriber list and send the launch email to people already waiting.</p>
     </div>
   </div>
 </section>
 
-<section class="pricing">
-  <div class="section-label">Pricing</div>
-  <h2 class="section-title">Simple, honest pricing</h2>
-  <p class="section-sub">Start free. Upgrade when you're ready to scale.</p>
-  <div class="pricing-grid">
-    <div class="price-card">
-      <div class="price-name">Free</div>
-      <div class="price-amount">$0</div>
-      <div class="price-period">forever</div>
-      <ul class="price-features">
-        <li>Up to 100 subscribers</li>
-        <li>1 waitlist page</li>
-        <li>Public page with custom slug</li>
-        <li>Countdown timer</li>
-        <li>Basic analytics</li>
+<!-- PRICING -->
+<section class="px-6 pb-24 max-w-5xl mx-auto">
+  <p class="text-center text-xs font-bold text-indigo-400 tracking-widest uppercase mb-3">Pricing</p>
+  <h2 class="text-3xl md:text-4xl font-black text-center mb-3 tracking-tight">Simple, honest pricing</h2>
+  <p class="text-center text-white/50 mb-14">Start free. Upgrade when you're ready to scale.</p>
+  <div class="grid md:grid-cols-3 gap-6">
+    <!-- Free -->
+    <div class="price-card p-8">
+      <div class="text-sm font-bold text-white/50 uppercase tracking-wider mb-2">Free</div>
+      <div class="text-5xl font-black mb-1">$0</div>
+      <div class="text-sm text-white/40 mb-8">forever</div>
+      <ul class="space-y-3 mb-8 text-sm text-white/70">
+        <li class="check-item">Up to 100 subscribers</li>
+        <li class="check-item">1 waitlist page</li>
+        <li class="check-item">Public page with custom slug</li>
+        <li class="check-item">Countdown timer</li>
+        <li class="check-item">Basic analytics</li>
       </ul>
-      <a href="/register" class="price-btn">Get started free</a>
+      <a href="/register" class="btn-glass w-full text-center block">Get started free</a>
     </div>
-    <div class="price-card featured">
-      <div class="price-name">Pro <span class="badge">Popular</span></div>
-      <div class="price-amount">$5</div>
-      <div class="price-period">per month</div>
-      <ul class="price-features">
-        <li>Unlimited subscribers</li>
-        <li>Multiple waitlist pages</li>
-        <li>CSV export</li>
-        <li>Email notifications</li>
-        <li>Advanced analytics</li>
-        <li>Priority support</li>
+    <!-- Pro -->
+    <div class="price-card featured p-8">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-sm font-bold text-white/80 uppercase tracking-wider">Pro</span>
+        <span class="text-xs bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">Popular</span>
+      </div>
+      <div class="text-5xl font-black mb-1">$5</div>
+      <div class="text-sm text-white/40 mb-8">per month</div>
+      <ul class="space-y-3 mb-8 text-sm text-white/70">
+        <li class="check-item">Unlimited subscribers</li>
+        <li class="check-item">Multiple waitlist pages</li>
+        <li class="check-item">CSV export</li>
+        <li class="check-item">Email notifications</li>
+        <li class="check-item">Advanced analytics</li>
+        <li class="check-item">Priority support</li>
       </ul>
-      <a href="https://t.me/uzlaunch" target="_blank" class="price-btn primary">Upgrade to Pro</a>
+      <a href="https://t.me/uzlaunch" target="_blank" class="btn-primary w-full text-center block">Upgrade to Pro</a>
     </div>
-    <div class="price-card">
-      <div class="price-name">Team</div>
-      <div class="price-amount">$20</div>
-      <div class="price-period">per month</div>
-      <ul class="price-features">
-        <li>Everything in Pro</li>
-        <li>Team members access</li>
-        <li>Custom domain <span class="badge">Soon</span></li>
-        <li>White-label pages <span class="badge">Soon</span></li>
-        <li>API access <span class="badge">Soon</span></li>
+    <!-- Team -->
+    <div class="price-card p-8">
+      <div class="text-sm font-bold text-white/50 uppercase tracking-wider mb-2">Team</div>
+      <div class="text-5xl font-black mb-1">$20</div>
+      <div class="text-sm text-white/40 mb-8">per month</div>
+      <ul class="space-y-3 mb-8 text-sm text-white/70">
+        <li class="check-item">Everything in Pro</li>
+        <li class="check-item">Team members access</li>
+        <li class="flex items-center gap-2">Custom domain <span class="text-xs bg-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded-full font-bold ml-1">Soon</span></li>
+        <li class="flex items-center gap-2">White-label pages <span class="text-xs bg-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded-full font-bold ml-1">Soon</span></li>
+        <li class="flex items-center gap-2">API access <span class="text-xs bg-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded-full font-bold ml-1">Soon</span></li>
       </ul>
-      <a href="https://t.me/uzlaunch" target="_blank" class="price-btn">Contact us</a>
+      <a href="https://t.me/uzlaunch" target="_blank" class="btn-glass w-full text-center block">Contact us</a>
     </div>
   </div>
 </section>
 
-<section class="cta-banner">
-  <h2>Start validating your idea today</h2>
-  <p>Join 100+ Uzbek founders who launched their waitlist with UZLaunch</p>
-  <a href="/register" class="btn-white">Create your page — it's free →</a>
+<!-- CTA BANNER -->
+<section class="mx-6 mb-24 max-w-4xl md:mx-auto rounded-3xl p-12 text-center relative overflow-hidden" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+  <div class="absolute inset-0 opacity-20" style="background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22><circle cx=%2230%22 cy=%2230%22 r=%221.5%22 fill=%22white%22/></svg>')"></div>
+  <div class="relative">
+    <h2 class="text-3xl md:text-4xl font-black mb-3 tracking-tight">Start validating your idea today</h2>
+    <p class="text-white/75 mb-8">Join 100+ Uzbek founders who launched their waitlist with UZLaunch</p>
+    <a href="/register" class="inline-flex items-center gap-2 bg-white text-indigo-600 font-bold px-8 py-4 rounded-xl hover:shadow-2xl transition-all hover:-translate-y-0.5 text-sm">
+      Create your page — it's free
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+  </div>
 </section>
 
-<footer>
-  <div class="footer-logo">UZLaunch</div>
-  <div class="footer-links">
-    <a href="/">Home</a>
-    <a href="/register">Get started</a>
-    <a href="/login">Log in</a>
-    <a href="https://t.me/uzlaunch" target="_blank">Support</a>
+<!-- FOOTER -->
+<footer class="border-t border-white/10 px-6 py-10 text-center">
+  <div class="logo-text text-lg mb-4 block">UZLaunch</div>
+  <div class="flex justify-center gap-6 mb-6 flex-wrap">
+    <a href="/" class="text-sm text-white/40 hover:text-white transition-colors">Home</a>
+    <a href="/register" class="text-sm text-white/40 hover:text-white transition-colors">Get started</a>
+    <a href="/login" class="text-sm text-white/40 hover:text-white transition-colors">Log in</a>
+    <a href="https://t.me/uzlaunch" target="_blank" class="text-sm text-white/40 hover:text-white transition-colors">Support</a>
   </div>
-  <div class="footer-copy">© 2024 UZLaunch. Built for Uzbek founders.</div>
+  <p class="text-xs text-white/25">© 2026 UZLaunch. Built for Uzbek founders.</p>
 </footer>
 
 </body>
