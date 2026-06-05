@@ -23,6 +23,7 @@ public class SubscriberService {
     @Autowired private ProjectRepository projectRepo;
     @Autowired private SubscriberRepository subscriberRepo;
     @Autowired private EmailService emailService;
+    @Autowired private SseService sseService;
 
     @Autowired
     @Qualifier("subscribeRateLimiter")
@@ -63,11 +64,13 @@ public class SubscriberService {
 
         Project p = sub.getProject();
         projectRepo.incrementSubscriberCount(p.getId());
+        long newCount = p.getSubscriberCount() + 1;
+        sseService.broadcast(p.getId(), newCount);
 
         emailService.sendSubscriptionConfirmed(sub.getEmail(), sub.getName(), p.getName(), p.getSlug(), sub.getToken());
         emailService.sendOwnerNotification(
             p.getUser().getEmail(), p.getUser().getName(),
-            sub.getEmail(), sub.getName(), p.getName(), p.getSubscriberCount() + 1
+            sub.getEmail(), sub.getName(), p.getName(), newCount
         );
 
         return slug;

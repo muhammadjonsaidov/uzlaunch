@@ -55,7 +55,7 @@ public class AdminService {
         return new AdminStats(
             userRepo.count(),
             projectRepo.count(),
-            subscriberRepo.countByConfirmed(true),
+            subscriberRepo.count(),
             userRepo.countByCreatedAtAfter(startOfDay),
             userRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt")),
             projectRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt")),

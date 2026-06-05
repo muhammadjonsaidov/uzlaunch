@@ -32,7 +32,7 @@
       </div>
     </div>
     <div class="text-right flex-shrink-0">
-      <div class="text-3xl font-black text-indigo-600 leading-none" th:text="${project.subscriberCount}">0</div>
+      <div id="sub-count" class="text-3xl font-black text-indigo-600 leading-none" th:text="${project.subscriberCount}">0</div>
       <div class="text-xs text-slate-400 mt-1">subscribers</div>
     </div>
   </div>
@@ -147,6 +147,16 @@
 <footer class="border-t border-slate-100 py-5 text-center">
   <p class="text-xs text-slate-300">© 2026 UZLaunch · Built for Uzbek founders</p>
 </footer>
+
+<script th:inline="javascript">
+  var projectId = /*[[${project.id}]]*/ 0;
+  var es = new EventSource('/projects/' + projectId + '/stream');
+  es.addEventListener('count', function(e) {
+    var el = document.getElementById('sub-count');
+    if (el) el.textContent = e.data;
+  });
+  es.onerror = function() { es.close(); };
+</script>
 
 </body>
 </html>

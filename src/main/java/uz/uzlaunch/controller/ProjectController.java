@@ -5,16 +5,19 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import uz.uzlaunch.dto.ProjectCreateRequest;
 import uz.uzlaunch.model.Project;
 import uz.uzlaunch.model.User;
 import uz.uzlaunch.service.AuthService;
 import uz.uzlaunch.service.ProjectService;
+import uz.uzlaunch.service.SseService;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,6 +27,7 @@ public class ProjectController {
 
     @Autowired private AuthService authService;
     @Autowired private ProjectService projectService;
+    @Autowired private SseService sseService;
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
@@ -110,6 +114,15 @@ public class ProjectController {
         String name = projectService.delete(id, user);
         ra.addFlashAttribute("success", "Project \"" + name + "\" deleted");
         return "redirect:/dashboard";
+    }
+
+    @GetMapping(value = "/projects/{id}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @ResponseBody
+    public SseEmitter stream(@PathVariable Long id, HttpSession session) {
+        User user = authService.getSessionUser(session);
+        if (user == null) return null;
+        projectService.getOwned(id, user);
+        return sseService.subscribe(id);
     }
 
     @GetMapping("/projects/{id}/export")
