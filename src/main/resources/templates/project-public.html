@@ -4,132 +4,138 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title th:text="${project.name} + ' — Coming Soon'">Coming Soon</title>
-  <meta th:if="${project.tagline}" property="og:title" th:content="${project.name}"/>
-  <meta th:if="${project.tagline}" property="og:description" th:content="${project.tagline}"/>
+  <meta property="og:title" th:content="${project.name}"/>
+  <meta property="og:description" th:content="${project.tagline}"/>
   <link rel="stylesheet" th:href="@{/css/app.css}"/>
   <script>tailwind={config:{theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}}</script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    html, body { height: 100%; overflow: hidden; }
     .page-bg {
       background: linear-gradient(135deg, #0f0f23 0%, #1a1040 45%, #0f1a40 100%);
-      min-height: 100vh;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+      position: relative;
+      overflow: hidden;
     }
     .subscribe-card {
       background: rgba(255,255,255,0.06);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 28px;
+      border-radius: 20px;
+      padding: 20px;
+      width: 100%;
     }
     .cd-box {
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      padding: 16px 20px;
-      min-width: 72px;
+      border-radius: 12px;
+      padding: 10px 8px;
+      flex: 1;
       text-align: center;
     }
     .success-card {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 16px;
+      background: rgba(16,185,129,0.15);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 14px;
       padding: 20px;
+      text-align: center;
     }
   </style>
 </head>
-<body class="page-bg flex flex-col relative overflow-hidden">
+<body>
+<div class="page-bg">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
 
-  <main class="flex-1 flex flex-col items-center justify-center px-5 py-16 relative z-10">
-    <div class="w-full max-w-lg">
+  <div class="w-full max-w-sm relative z-10 flex flex-col gap-3">
 
-      <!-- Avatar -->
-      <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black text-white mx-auto mb-8"
-           style="background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 8px 32px rgba(99,102,241,0.4)"
+    <!-- Avatar + title -->
+    <div class="text-center">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-black text-white mx-auto mb-3"
+           style="background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 6px 24px rgba(99,102,241,0.4)"
            th:text="${not #strings.isEmpty(project.name) ? project.name.substring(0,1).toUpperCase() : '?'}">A</div>
-
-      <!-- Name + tagline -->
-      <h1 class="text-4xl md:text-5xl font-black text-white text-center mb-3 tracking-tight"
+      <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight mb-1"
           th:text="${project.name}">Project Name</h1>
-      <p class="text-lg text-white/60 text-center mb-4 leading-relaxed"
+      <p class="text-sm text-white/60 leading-snug"
          th:text="${project.tagline}">Tagline</p>
-      <p th:if="${project.description != null and !project.description.empty}"
-         class="text-sm text-white/40 text-center mb-8 leading-relaxed max-w-md mx-auto"
-         th:text="${project.description}"></p>
-
-      <!-- Countdown -->
-      <div th:if="${project.launchDate != null}" id="countdown-container"
-           th:attr="data-launch=${project.launchDate}" class="mb-10">
-        <p class="text-xs font-bold text-white/40 uppercase tracking-widest text-center mb-4">Launching in</p>
-        <div class="flex items-center justify-center gap-3">
-          <div class="cd-box">
-            <div class="text-3xl font-black text-white" id="cd-days">00</div>
-            <div class="text-xs text-white/40 uppercase tracking-wider mt-1">Days</div>
-          </div>
-          <span class="text-2xl font-black text-white/30">:</span>
-          <div class="cd-box">
-            <div class="text-3xl font-black text-white" id="cd-hours">00</div>
-            <div class="text-xs text-white/40 uppercase tracking-wider mt-1">Hours</div>
-          </div>
-          <span class="text-2xl font-black text-white/30">:</span>
-          <div class="cd-box">
-            <div class="text-3xl font-black text-white" id="cd-mins">00</div>
-            <div class="text-xs text-white/40 uppercase tracking-wider mt-1">Mins</div>
-          </div>
-          <span class="text-2xl font-black text-white/30">:</span>
-          <div class="cd-box">
-            <div class="text-3xl font-black text-white" id="cd-secs">00</div>
-            <div class="text-xs text-white/40 uppercase tracking-wider mt-1">Secs</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Subscribe card -->
-      <div class="subscribe-card p-8">
-
-        <!-- Success state -->
-        <div th:if="${message}" class="success-card text-center">
-          <div class="text-3xl mb-3">🎉</div>
-          <p class="text-emerald-300 font-semibold text-base" th:text="${message}"></p>
-        </div>
-
-        <!-- Form -->
-        <div th:unless="${message}">
-          <p class="text-sm font-semibold text-white/70 text-center mb-5">Join the waitlist — be first to know at launch</p>
-          <form method="post" th:action="'/p/' + ${project.slug} + '/subscribe'" class="space-y-3">
-            <input type="text" name="name" class="glass-input" placeholder="Your name (optional)" autocomplete="name"/>
-            <input type="email" name="email" class="glass-input" placeholder="Your email address" required autocomplete="email"/>
-            <button type="submit" class="btn-primary w-full text-center mt-1" style="padding:14px">
-              Notify me at launch →
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <!-- Subscriber count -->
-      <div class="flex justify-center mt-6">
-        <div class="flex items-center gap-2 px-4 py-2 rounded-full glass text-sm">
-          <span class="font-black text-white text-base"
-                id="sub-count"
-                th:attr="data-count=${project.subscriberCount}"
-                th:text="${project.subscriberCount}">0</span>
-          <span class="text-white/50">people already waiting</span>
-        </div>
-      </div>
-
     </div>
-  </main>
 
-  <!-- Footer badge -->
-  <footer class="relative z-10 py-6 text-center">
-    <a href="/" target="_blank" rel="noopener noreferrer"
-       class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-xs text-white/40 hover:text-white/70 transition-colors">
-      ⚡ Powered by <span class="font-bold text-indigo-400">UZLaunch</span>
-    </a>
-  </footer>
+    <!-- Countdown -->
+    <div th:if="${project.launchDate != null}"
+         id="countdown-container"
+         th:attr="data-launch=${project.launchDate}">
+      <p class="text-xs font-bold text-white/30 uppercase tracking-widest text-center mb-2">Launching in</p>
+      <div class="flex items-center gap-1.5">
+        <div class="cd-box">
+          <div class="text-xl font-black text-white leading-none" id="cd-days">00</div>
+          <div class="text-xs text-white/40 uppercase mt-1">Days</div>
+        </div>
+        <span class="text-lg font-black text-white/20">:</span>
+        <div class="cd-box">
+          <div class="text-xl font-black text-white leading-none" id="cd-hours">00</div>
+          <div class="text-xs text-white/40 uppercase mt-1">Hrs</div>
+        </div>
+        <span class="text-lg font-black text-white/20">:</span>
+        <div class="cd-box">
+          <div class="text-xl font-black text-white leading-none" id="cd-mins">00</div>
+          <div class="text-xs text-white/40 uppercase mt-1">Min</div>
+        </div>
+        <span class="text-lg font-black text-white/20">:</span>
+        <div class="cd-box">
+          <div class="text-xl font-black text-white leading-none" id="cd-secs">00</div>
+          <div class="text-xs text-white/40 uppercase mt-1">Sec</div>
+        </div>
+      </div>
+    </div>
 
-  <script th:src="@{/js/countdown.js}"></script>
-  <script th:src="@{/js/counter.js}"></script>
+    <!-- Subscribe card -->
+    <div class="subscribe-card">
+      <!-- Success -->
+      <div th:if="${message}" class="success-card">
+        <div class="text-3xl mb-2">🎉</div>
+        <p class="text-emerald-300 font-semibold text-sm" th:text="${message}"></p>
+      </div>
+      <!-- Form -->
+      <div th:unless="${message}">
+        <p class="text-xs font-semibold text-white/50 text-center mb-3">Join the waitlist — be first to know</p>
+        <form method="post" th:action="'/p/' + ${project.slug} + '/subscribe'" class="space-y-2">
+          <input type="text" name="name" class="glass-input" placeholder="Your name (optional)" autocomplete="name" style="padding:11px 14px;font-size:14px"/>
+          <input type="email" name="email" class="glass-input" placeholder="Your email address" required autocomplete="email" style="padding:11px 14px;font-size:14px"/>
+          <button type="submit" class="btn-primary w-full text-center" style="padding:12px;font-size:14px">
+            Notify me at launch →
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Subscriber count -->
+    <div class="flex justify-center">
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs">
+        <span class="font-black text-white"
+              id="sub-count"
+              th:attr="data-count=${project.subscriberCount}"
+              th:text="${project.subscriberCount}">0</span>
+        <span class="text-white/50">people already waiting</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center">
+      <a href="/" class="inline-flex items-center gap-1 text-xs text-white/30 hover:text-white/50 transition-colors">
+        ⚡ Powered by <span class="font-bold text-indigo-400">UZLaunch</span>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script th:src="@{/js/countdown.js}"></script>
+<script th:src="@{/js/counter.js}"></script>
 </body>
 </html>
