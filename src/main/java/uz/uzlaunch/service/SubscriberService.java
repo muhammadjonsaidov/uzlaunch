@@ -62,13 +62,12 @@ public class SubscriberService {
         subscriberRepo.save(sub);
 
         Project p = sub.getProject();
-        p.setSubscriberCount(p.getSubscriberCount() + 1);
-        projectRepo.save(p);
+        projectRepo.incrementSubscriberCount(p.getId());
 
         emailService.sendSubscriptionConfirmed(sub.getEmail(), sub.getName(), p.getName(), p.getSlug(), sub.getToken());
         emailService.sendOwnerNotification(
             p.getUser().getEmail(), p.getUser().getName(),
-            sub.getEmail(), sub.getName(), p.getName(), p.getSubscriberCount()
+            sub.getEmail(), sub.getName(), p.getName(), p.getSubscriberCount() + 1
         );
 
         return slug;
@@ -80,9 +79,7 @@ public class SubscriberService {
         String projectName = sub.getProject().getName();
 
         if (sub.isConfirmed()) {
-            Project p = sub.getProject();
-            p.setSubscriberCount(Math.max(0, p.getSubscriberCount() - 1));
-            projectRepo.save(p);
+            projectRepo.decrementSubscriberCount(sub.getProject().getId());
         }
 
         subscriberRepo.delete(sub);

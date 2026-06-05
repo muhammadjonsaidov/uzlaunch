@@ -20,7 +20,7 @@ public class AdminService {
     public record AdminStats(long userCount, long projectCount, long subscriberCount, List<User> users) {}
 
     public AdminStats getStats() {
-        long confirmedSubs = subscriberRepo.findAll().stream().filter(s -> s.isConfirmed()).count();
+        long confirmedSubs = subscriberRepo.countByConfirmed(true);
         return new AdminStats(
             userRepo.count(),
             projectRepo.count(),

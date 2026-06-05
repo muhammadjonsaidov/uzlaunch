@@ -16,4 +16,5 @@ public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
     Optional<Subscriber> findByProjectAndEmail(Project project, String email);
     Optional<Subscriber> findByToken(String token);
     long countByProjectAndConfirmed(Project project, boolean confirmed);
+    long countByConfirmed(boolean confirmed);
 }
