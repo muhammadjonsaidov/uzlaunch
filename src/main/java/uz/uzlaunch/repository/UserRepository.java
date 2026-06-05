@@ -15,11 +15,11 @@ public interface UserRepository extends JpaRepository<User, String> {
     long countByCreatedAtAfter(LocalDateTime dateTime);
 
     @Query(value = """
-        SELECT created_at::date::text AS day, COUNT(*)::bigint AS cnt
+        SELECT TO_CHAR(created_at, 'YYYY-MM-DD') AS day, COUNT(*) AS cnt
         FROM users
         WHERE created_at >= :since
-        GROUP BY created_at::date
-        ORDER BY created_at::date
+        GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD')
+        ORDER BY TO_CHAR(created_at, 'YYYY-MM-DD')
         """, nativeQuery = true)
     List<Object[]> countDailySignupsSince(@Param("since") LocalDateTime since);
 }
