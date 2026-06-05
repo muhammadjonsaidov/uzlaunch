@@ -90,6 +90,27 @@
     </div>
   </div>
 
+  <!-- Pending subscribers -->
+  <div th:if="${not #lists.isEmpty(pending)}" class="bg-white rounded-2xl border border-amber-200 overflow-hidden mb-4">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-amber-100 bg-amber-50">
+      <span class="text-sm font-bold text-amber-700">Awaiting confirmation</span>
+      <span class="text-xs text-amber-500" th:text="${#lists.size(pending)} + ' pending'"></span>
+    </div>
+    <div th:each="sub : ${pending}"
+         class="flex items-center justify-between px-5 py-3.5 border-b border-amber-50 last:border-0">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600"
+             th:text="${sub.name != null and !#strings.isEmpty(sub.name) ? sub.name.substring(0,1).toUpperCase() : sub.email.substring(0,1).toUpperCase()}">?</div>
+        <div>
+          <div class="text-sm font-semibold text-slate-700"
+               th:text="${sub.name != null and !#strings.isEmpty(sub.name) ? sub.name : 'Anonymous'}"></div>
+          <div class="text-xs text-slate-400" th:text="${sub.email}"></div>
+        </div>
+      </div>
+      <span class="text-xs text-amber-500 font-medium">Email not confirmed</span>
+    </div>
+  </div>
+
   <!-- Pagination -->
   <div th:if="${totalPages > 1}" class="flex items-center gap-1.5 mb-4 flex-wrap">
     <a th:href="'/projects/' + ${project.id} + '?page=' + ${currentPage - 1}"

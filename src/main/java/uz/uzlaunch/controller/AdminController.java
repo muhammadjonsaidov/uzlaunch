@@ -57,6 +57,7 @@ public class AdminController {
                 .collect(Collectors.joining(",", "[", "]"));
             model.addAttribute("chartLabels", chartLabels);
             model.addAttribute("chartData", chartData);
+            model.addAttribute("pendingByProject", stats.pendingByProject());
         } catch (Exception e) {
             log.error("Admin stats error: {}", e.getMessage());
             model.addAttribute("userCount", 0L);
@@ -68,6 +69,7 @@ public class AdminController {
             model.addAttribute("topProjects", Collections.emptyList());
             model.addAttribute("chartLabels", "[]");
             model.addAttribute("chartData", "[]");
+            model.addAttribute("pendingByProject", Collections.emptyMap());
             model.addAttribute("error", "Stats loading failed: " + e.getMessage());
         }
         return "admin";

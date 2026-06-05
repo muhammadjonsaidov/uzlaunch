@@ -14,6 +14,7 @@ import uz.uzlaunch.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,7 +37,8 @@ public class AdminService {
         List<User> users,
         List<Project> projects,
         List<DailyCount> dailySignups,
-        List<Project> topProjects
+        List<Project> topProjects,
+        Map<Long, Long> pendingByProject
     ) {}
 
     public AdminStats getStats() {
@@ -52,6 +54,11 @@ public class AdminService {
             daily.add(new DailyCount(day.toString(), countByDay.getOrDefault(day, 0L)));
         }
 
+        Map<Long, Long> pendingByProject = new HashMap<>();
+        for (Object[] row : subscriberRepo.countPendingGroupByProject()) {
+            pendingByProject.put((Long) row[0], (Long) row[1]);
+        }
+
         return new AdminStats(
             userRepo.count(),
             projectRepo.count(),
@@ -60,7 +67,8 @@ public class AdminService {
             userRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt")),
             projectRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt")),
             daily,
-            projectRepo.findTop5ByOrderBySubscriberCountDesc()
+            projectRepo.findTop5ByOrderBySubscriberCountDesc(),
+            pendingByProject
         );
     }
 

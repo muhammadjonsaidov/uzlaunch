@@ -186,7 +186,10 @@
           <div class="text-xs text-slate-400 mt-0.5">
             <span th:text="${p.user.email}"></span>
             <span class="mx-1">&#183;</span>
-            <span th:text="${p.subscriberCount} + ' subs'"></span>
+            <span th:text="${p.subscriberCount} + ' confirmed'"></span>
+            <span th:if="${pendingByProject[p.id] != null and pendingByProject[p.id] > 0}"
+                  class="ml-1 text-amber-500"
+                  th:text="'+ ' + ${pendingByProject[p.id]} + ' pending'"></span>
           </div>
         </div>
         <form th:action="@{'/admin/projects/' + ${p.id} + '/delete'}" method="post"

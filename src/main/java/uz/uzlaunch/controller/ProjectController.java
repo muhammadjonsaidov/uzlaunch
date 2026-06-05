@@ -76,6 +76,7 @@ public class ProjectController {
         model.addAttribute("total", detail.total());
         model.addAttribute("currentPage", detail.page());
         model.addAttribute("totalPages", detail.totalPages());
+        model.addAttribute("pending", detail.pending());
         model.addAttribute("user", user);
         model.addAttribute("baseUrl", baseUrl);
         return "project-detail";

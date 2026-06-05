@@ -30,7 +30,8 @@ public class ProjectService {
     @Autowired private SubscriberRepository subscriberRepo;
 
     public record ProjectDetail(Project project, List<Subscriber> subscribers,
-                                boolean locked, long total, int page, int totalPages) {}
+                                boolean locked, long total, int page, int totalPages,
+                                List<Subscriber> pending) {}
     public record ExportData(Project project, List<Subscriber> subscribers) {}
 
     public List<Project> listByUser(User user) {
@@ -67,10 +68,15 @@ public class ProjectService {
         boolean locked = !isPaid && total > 100;
         int displayTotalPages = isPaid ? result.getTotalPages() : Math.min(result.getTotalPages(), 4);
 
-        return new ProjectDetail(p, result.getContent(), locked, total, effectivePage, displayTotalPages);
+        List<Subscriber> pending = subscriberRepo.findByProjectAndConfirmed(p, false);
+
+        return new ProjectDetail(p, result.getContent(), locked, total, effectivePage, displayTotalPages, pending);
     }
 
     public Project create(ProjectCreateRequest req, User user) {
+        if (user.getPlan() == User.Plan.FREE && projectRepo.countByUser(user) >= 1) {
+            throw new ForbiddenException("Free plan allows only 1 waitlist. Upgrade to Pro for unlimited.");
+        }
         Project p = new Project();
         p.setUser(user);
         p.setSlug(generateSlug(req.getName()));

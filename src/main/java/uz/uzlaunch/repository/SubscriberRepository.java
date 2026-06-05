@@ -3,6 +3,7 @@ package uz.uzlaunch.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import uz.uzlaunch.model.Project;
 import uz.uzlaunch.model.Subscriber;
 
@@ -18,4 +19,7 @@ public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
     long countByProjectAndConfirmed(Project project, boolean confirmed);
     long countByConfirmed(boolean confirmed);
     void deleteByProject(Project project);
+
+    @Query("SELECT s.project.id, COUNT(s) FROM Subscriber s WHERE s.confirmed = false GROUP BY s.project.id")
+    List<Object[]> countPendingGroupByProject();
 }
