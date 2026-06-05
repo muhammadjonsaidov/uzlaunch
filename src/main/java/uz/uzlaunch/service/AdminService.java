@@ -43,14 +43,13 @@ public class AdminService {
         LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
         LocalDateTime since7Days = LocalDate.now().minusDays(6).atStartOfDay();
 
-        List<Object[]> rows = userRepo.countDailySignupsSince(since7Days);
-        Map<String, Long> countByDay = rows.stream()
-            .collect(Collectors.toMap(r -> (String) r[0], r -> (Long) r[1]));
+        Map<LocalDate, Long> countByDay = userRepo.findByCreatedAtAfter(since7Days).stream()
+            .collect(Collectors.groupingBy(u -> u.getCreatedAt().toLocalDate(), Collectors.counting()));
 
         List<DailyCount> daily = new ArrayList<>();
         for (int i = 6; i >= 0; i--) {
-            String day = LocalDate.now().minusDays(i).toString();
-            daily.add(new DailyCount(day, countByDay.getOrDefault(day, 0L)));
+            LocalDate day = LocalDate.now().minusDays(i);
+            daily.add(new DailyCount(day.toString(), countByDay.getOrDefault(day, 0L)));
         }
 
         return new AdminStats(
