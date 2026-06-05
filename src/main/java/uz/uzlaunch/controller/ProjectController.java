@@ -19,6 +19,7 @@ import uz.uzlaunch.service.AuthService;
 import uz.uzlaunch.service.ProjectService;
 import uz.uzlaunch.service.SseService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -119,10 +120,15 @@ public class ProjectController {
 
     @GetMapping(value = "/projects/{id}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ResponseBody
-    public SseEmitter stream(@PathVariable Long id, HttpSession session) {
+    public SseEmitter stream(@PathVariable Long id, HttpSession session, HttpServletResponse response) throws IOException {
         User user = authService.getSessionUser(session);
-        if (user == null) return null;
-        projectService.getOwned(id, user);
+        if (user == null) { response.sendError(HttpServletResponse.SC_UNAUTHORIZED); return null; }
+        try {
+            projectService.getOwned(id, user);
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return null;
+        }
         return sseService.subscribe(id);
     }
 

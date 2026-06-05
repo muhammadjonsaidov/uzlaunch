@@ -12,7 +12,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FlashRedirectException.class)
     public String handleFlash(FlashRedirectException e, RedirectAttributes ra) {
         String url = e.getRedirectUrl();
-        if (!url.startsWith("/")) throw new IllegalStateException("Unsafe redirect: " + url);
+        if (!url.startsWith("/") || url.startsWith("//")) throw new IllegalStateException("Unsafe redirect: " + url);
         ra.addFlashAttribute(e.getFlashKey(), e.getMessage());
         return "redirect:" + url;
     }
