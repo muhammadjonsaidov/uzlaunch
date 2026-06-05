@@ -64,7 +64,7 @@ public class SubscriberService {
 
         Project p = sub.getProject();
         projectRepo.incrementSubscriberCount(p.getId());
-        long newCount = p.getSubscriberCount() + 1;
+        int newCount = p.getSubscriberCount() + 1;
         sseService.broadcast(p.getId(), newCount);
 
         emailService.sendSubscriptionConfirmed(sub.getEmail(), sub.getName(), p.getName(), p.getSlug(), sub.getToken());
