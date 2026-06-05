@@ -22,7 +22,7 @@ public class AdminController {
     @Qualifier("adminRateLimiter")
     private RateLimiter adminRateLimiter;
 
-    @Value("${admin.secret:uzlaunch-admin-2024}")
+    @Value("${admin.secret}")
     private String adminSecret;
 
     @GetMapping({"", "/"})
@@ -32,7 +32,9 @@ public class AdminController {
         model.addAttribute("userCount", stats.userCount());
         model.addAttribute("projectCount", stats.projectCount());
         model.addAttribute("subscriberCount", stats.subscriberCount());
+        model.addAttribute("todaySignups", stats.todaySignups());
         model.addAttribute("users", stats.users());
+        model.addAttribute("projects", stats.projects());
         return "admin";
     }
 
@@ -67,7 +69,49 @@ public class AdminController {
         if (!isAdmin(session)) return "redirect:/admin";
         try {
             String email = adminService.upgradeUser(id);
-            ra.addFlashAttribute("success", email + " upgraded to PAID");
+            ra.addFlashAttribute("success", email + " upgraded to Pro");
+        } catch (IllegalArgumentException e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/users/{id}/downgrade")
+    public String downgradeUser(@PathVariable String id,
+                                HttpSession session,
+                                RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin";
+        try {
+            String email = adminService.downgradeUser(id);
+            ra.addFlashAttribute("success", email + " downgraded to Free");
+        } catch (IllegalArgumentException e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/users/{id}/delete")
+    public String deleteUser(@PathVariable String id,
+                             HttpSession session,
+                             RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin";
+        try {
+            String email = adminService.deleteUser(id);
+            ra.addFlashAttribute("success", "User " + email + " deleted");
+        } catch (IllegalArgumentException e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/projects/{id}/delete")
+    public String deleteProject(@PathVariable Long id,
+                                HttpSession session,
+                                RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin";
+        try {
+            String name = adminService.deleteProject(id);
+            ra.addFlashAttribute("success", "Project \"" + name + "\" deleted");
         } catch (IllegalArgumentException e) {
             ra.addFlashAttribute("error", e.getMessage());
         }
