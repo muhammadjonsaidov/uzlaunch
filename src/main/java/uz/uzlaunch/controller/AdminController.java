@@ -12,14 +12,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uz.uzlaunch.service.AdminService;
 import uz.uzlaunch.service.RateLimiter;
+
+import java.util.Collections;
 
 import java.nio.charset.StandardCharsets;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+
+    private static final Logger log = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired private AdminService adminService;
 
@@ -33,15 +39,28 @@ public class AdminController {
     @GetMapping({"", "/"})
     public String adminPage(HttpSession session, Model model) {
         if (!isAdmin(session)) return "admin-login";
-        AdminService.AdminStats stats = adminService.getStats();
-        model.addAttribute("userCount", stats.userCount());
-        model.addAttribute("projectCount", stats.projectCount());
-        model.addAttribute("subscriberCount", stats.subscriberCount());
-        model.addAttribute("todaySignups", stats.todaySignups());
-        model.addAttribute("users", stats.users());
-        model.addAttribute("projects", stats.projects());
-        model.addAttribute("dailySignups", stats.dailySignups());
-        model.addAttribute("topProjects", stats.topProjects());
+        try {
+            AdminService.AdminStats stats = adminService.getStats();
+            model.addAttribute("userCount", stats.userCount());
+            model.addAttribute("projectCount", stats.projectCount());
+            model.addAttribute("subscriberCount", stats.subscriberCount());
+            model.addAttribute("todaySignups", stats.todaySignups());
+            model.addAttribute("users", stats.users());
+            model.addAttribute("projects", stats.projects());
+            model.addAttribute("dailySignups", stats.dailySignups());
+            model.addAttribute("topProjects", stats.topProjects());
+        } catch (Exception e) {
+            log.error("Admin stats error: {}", e.getMessage());
+            model.addAttribute("userCount", 0L);
+            model.addAttribute("projectCount", 0L);
+            model.addAttribute("subscriberCount", 0L);
+            model.addAttribute("todaySignups", 0L);
+            model.addAttribute("users", Collections.emptyList());
+            model.addAttribute("projects", Collections.emptyList());
+            model.addAttribute("dailySignups", Collections.emptyList());
+            model.addAttribute("topProjects", Collections.emptyList());
+            model.addAttribute("error", "Stats loading failed: " + e.getMessage());
+        }
         return "admin";
     }
 
