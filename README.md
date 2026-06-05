@@ -124,6 +124,7 @@ MAIL_FROM=UZLaunch <noreply@uzlaunch.uz>
 # App
 BASE_URL=http://localhost:8080
 PORT=8080
+TRUST_PROXY=false
 
 # Admin
 ADMIN_SECRET=your_strong_admin_secret
@@ -142,6 +143,14 @@ docker compose up db -d
 ```
 
 Brauzerda oching: `http://localhost:8080`
+
+### Docker bilan (to'liq stack)
+
+```bash
+docker compose up --build
+```
+
+App + PostgreSQL birgalikda ishga tushadi. `BASE_URL` ni `http://localhost:8080` ga o'rnating.
 
 ---
 
@@ -202,6 +211,7 @@ uzlaunch/
 │   │   ├── V1__init.sql              # Asosiy schema
 │   │   └── V2__subscriber_double_optin.sql
 │   └── templates/                    # Thymeleaf HTML shablonlar
+├── Dockerfile
 ├── docker-compose.yml
 ├── pom.xml
 └── .env                              # Maxfiy sozlamalar (git'ga qo'shilmaydi)
@@ -216,7 +226,8 @@ uzlaunch/
 - Rate limiting: obuna 3 req/soat/IP, admin login 5 req/15 daqiqa/IP
 - Double opt-in: faqat email tasdiqlagan foydalanuvchilar sanaladi
 - `ADMIN_SECRET` env var orqali (default yo'q)
-- X-Forwarded-For faqat `TRUST_PROXY=true` bo'lganda ishlatiladi
+- X-Forwarded-For faqat `TRUST_PROXY=true` bo'lganda ishlatiladi (reverse proxy orqasida ishlanganda o'rnating)
+- `subscriber_count` atomic DB-level `UPDATE` orqali yangilanadi (race condition yo'q)
 
 ---
 
