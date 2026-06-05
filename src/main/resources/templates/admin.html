@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -8,12 +7,21 @@
   <link rel="stylesheet" th:href="@{/css/app.css}"/>
   <script>tailwind={config:{theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}}</script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
 
 <nav class="app-nav">
   <a href="/" class="logo-text">UZLaunch</a>
   <div class="flex items-center gap-3">
+    <a th:href="@{/admin/export/users}"
+       class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200 transition-colors">
+      ↓ Users CSV
+    </a>
+    <a th:href="@{/admin/export/subscribers}"
+       class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200 transition-colors">
+      ↓ Subscribers CSV
+    </a>
     <span class="text-xs font-bold bg-red-100 text-red-700 px-3 py-1 rounded-full">Admin</span>
     <a href="/admin/logout" class="text-sm text-slate-400 hover:text-slate-600 transition-colors">Logout</a>
   </div>
@@ -46,87 +54,157 @@
     </div>
   </div>
 
+  <!-- Chart + Top projects -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+
+    <!-- 7-day signups chart -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-5">
+      <h2 class="text-sm font-bold text-slate-700 mb-4">New users — last 7 days</h2>
+      <canvas id="signupsChart" height="160"></canvas>
+    </div>
+
+    <!-- Top 5 projects -->
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100">
+        <h2 class="text-sm font-bold text-slate-700">Top projects by subscribers</h2>
+      </div>
+      <div th:if="${topProjects.empty}" class="py-8 text-center text-sm text-slate-400">No projects yet</div>
+      <div th:each="p,i : ${topProjects}"
+           class="flex items-center justify-between px-5 py-3 border-b border-slate-50 last:border-0">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="text-xs font-black text-slate-300 w-5 text-right flex-shrink-0"
+                th:text="${i.index + 1}"></span>
+          <div class="min-w-0">
+            <a th:href="@{'/p/' + ${p.slug}}" target="_blank"
+               class="text-sm font-semibold text-indigo-600 hover:underline truncate block"
+               th:text="${p.name}"></a>
+            <div class="text-xs text-slate-400" th:text="${p.user.email}"></div>
+          </div>
+        </div>
+        <span class="text-sm font-black text-slate-700 flex-shrink-0 ml-3"
+              th:text="${p.subscriberCount}"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Broadcast email -->
+  <div class="bg-white rounded-2xl border border-slate-200 p-5 mb-8">
+    <h2 class="text-sm font-bold text-slate-700 mb-4">Broadcast email to all users</h2>
+    <form th:action="@{/admin/broadcast}" method="post" class="space-y-3">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <input type="text" name="subject" placeholder="Subject" required
+             class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
+      <textarea name="body" placeholder="Message body" rows="4" required
+                class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"></textarea>
+      <button type="submit"
+              class="text-sm font-bold text-white bg-indigo-600 px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors"
+              onclick="return confirm('Send broadcast to ALL non-banned users?')">
+        Send broadcast
+      </button>
+    </form>
+  </div>
+
   <!-- Users table -->
   <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-8">
-    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-      <h2 class="text-sm font-bold text-slate-700">Users</h2>
-      <span class="text-xs text-slate-400" th:text="${userCount} + ' total'"></span>
+    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+      <h2 class="text-sm font-bold text-slate-700 flex-shrink-0">Users
+        <span class="font-normal text-slate-400 ml-1" th:text="'(' + ${userCount} + ')'"></span>
+      </h2>
+      <input type="text" id="userSearch" placeholder="Search by email or name…"
+             oninput="filterTable('userSearch','userRows')"
+             class="border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-56 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
     </div>
     <div th:if="${users.empty}" class="py-10 text-center text-sm text-slate-400">No users yet</div>
-    <div th:each="u : ${users}"
-         class="flex items-center justify-between px-5 py-3.5 border-b border-slate-50 hover:bg-slate-50/50 last:border-0">
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600 flex-shrink-0"
-             th:text="${not #strings.isEmpty(u.name) ? u.name.substring(0,1).toUpperCase() : 'U'}">U</div>
-        <div class="min-w-0">
-          <div class="text-sm font-semibold text-slate-800 truncate" th:text="${u.name}"></div>
-          <div class="text-xs text-slate-400 truncate" th:text="${u.email}"></div>
+    <div id="userRows">
+      <div th:each="u : ${users}"
+           class="user-row flex items-center justify-between px-5 py-3.5 border-b border-slate-50 hover:bg-slate-50/50 last:border-0"
+           th:data-search="${u.email + ' ' + u.name}">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+               th:classappend="${u.banned} ? 'bg-red-100 text-red-500' : 'bg-indigo-100 text-indigo-600'"
+               th:text="${not #strings.isEmpty(u.name) ? u.name.substring(0,1).toUpperCase() : 'U'}">U</div>
+          <div class="min-w-0">
+            <div class="text-sm font-semibold text-slate-800 truncate" th:text="${u.name}"></div>
+            <div class="text-xs text-slate-400 truncate" th:text="${u.email}"></div>
+          </div>
         </div>
-      </div>
-      <div class="flex items-center gap-2 flex-shrink-0 ml-4">
-        <span th:if="${u.plan.name() == 'PAID'}" class="badge-pro">Pro</span>
-        <span th:if="${u.plan.name() == 'FREE'}" class="badge-free">Free</span>
-        <form th:if="${u.plan.name() == 'FREE'}"
-              th:action="@{'/admin/users/' + ${u.id} + '/upgrade'}" method="post">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <button type="submit"
-                  class="text-xs font-bold text-white bg-indigo-600 px-2.5 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors">
-            → Pro
-          </button>
-        </form>
-        <form th:if="${u.plan.name() == 'PAID'}"
-              th:action="@{'/admin/users/' + ${u.id} + '/downgrade'}" method="post">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <button type="submit"
-                  class="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition-colors">
-            → Free
-          </button>
-        </form>
-        <form th:action="@{'/admin/users/' + ${u.id} + '/delete'}" method="post"
-              onsubmit="return confirm('Delete user ' + this.dataset.email + ' and all their projects?')"
-              th:data-email="${u.email}">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <button type="submit"
-                  class="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1.5 rounded-lg hover:bg-red-100 transition-colors">
-            Delete
-          </button>
-        </form>
+        <div class="flex items-center gap-1.5 flex-shrink-0 ml-3 flex-wrap justify-end">
+          <span th:if="${u.plan.name() == 'PAID'}" class="badge-pro">Pro</span>
+          <span th:if="${u.plan.name() == 'FREE'}" class="badge-free">Free</span>
+          <span th:if="${u.banned}"
+                class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">Banned</span>
+
+          <form th:if="${u.plan.name() == 'FREE'}"
+                th:action="@{'/admin/users/' + ${u.id} + '/upgrade'}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="admin-btn-indigo">→ Pro</button>
+          </form>
+          <form th:if="${u.plan.name() == 'PAID'}"
+                th:action="@{'/admin/users/' + ${u.id} + '/downgrade'}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="admin-btn-gray">→ Free</button>
+          </form>
+
+          <form th:if="${!u.banned}"
+                th:action="@{'/admin/users/' + ${u.id} + '/ban'}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="admin-btn-orange"
+                    th:onclick="'return confirm(\'Ban ' + ${u.email} + '?\')'"
+                    >Ban</button>
+          </form>
+          <form th:if="${u.banned}"
+                th:action="@{'/admin/users/' + ${u.id} + '/unban'}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="admin-btn-gray">Unban</button>
+          </form>
+
+          <form th:action="@{'/admin/users/' + ${u.id} + '/delete'}" method="post"
+                th:data-email="${u.email}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="admin-btn-red"
+                    th:onclick="'return confirm(\'Delete user ' + ${u.email} + ' and all their data?\')'"
+                    >Delete</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Projects table -->
   <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-      <h2 class="text-sm font-bold text-slate-700">Projects</h2>
-      <span class="text-xs text-slate-400" th:text="${projectCount} + ' total'"></span>
+    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+      <h2 class="text-sm font-bold text-slate-700 flex-shrink-0">Projects
+        <span class="font-normal text-slate-400 ml-1" th:text="'(' + ${projectCount} + ')'"></span>
+      </h2>
+      <input type="text" id="projectSearch" placeholder="Search by name, slug or owner…"
+             oninput="filterTable('projectSearch','projectRows')"
+             class="border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-56 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
     </div>
     <div th:if="${projects.empty}" class="py-10 text-center text-sm text-slate-400">No projects yet</div>
-    <div th:each="p : ${projects}"
-         class="flex items-center justify-between px-5 py-3.5 border-b border-slate-50 hover:bg-slate-50/50 last:border-0">
-      <div class="min-w-0 flex-1">
-        <div class="flex items-center gap-2">
-          <a th:href="@{'/p/' + ${p.slug}}" target="_blank"
-             class="text-sm font-semibold text-indigo-600 hover:underline truncate" th:text="${p.name}"></a>
-          <span class="text-xs text-slate-400 flex-shrink-0" th:text="'/' + ${p.slug}"></span>
+    <div id="projectRows">
+      <div th:each="p : ${projects}"
+           class="project-row flex items-center justify-between px-5 py-3.5 border-b border-slate-50 hover:bg-slate-50/50 last:border-0"
+           th:data-search="${p.name + ' ' + p.slug + ' ' + p.user.email}">
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2">
+            <a th:href="@{'/p/' + ${p.slug}}" target="_blank"
+               class="text-sm font-semibold text-indigo-600 hover:underline truncate" th:text="${p.name}"></a>
+            <span class="text-xs text-slate-400 flex-shrink-0" th:text="'/' + ${p.slug}"></span>
+          </div>
+          <div class="text-xs text-slate-400 mt-0.5">
+            <span th:text="${p.user.email}"></span>
+            <span class="mx-1">·</span>
+            <span th:text="${p.subscriberCount} + ' subs'"></span>
+            <span th:if="${p.launchDate != null}" class="mx-1">·</span>
+            <span th:if="${p.launchDate != null}" th:text="'Launch: ' + ${p.launchDate}"></span>
+          </div>
         </div>
-        <div class="text-xs text-slate-400 mt-0.5">
-          <span th:text="${p.user.email}"></span>
-          <span class="mx-1">·</span>
-          <span th:text="${p.subscriberCount} + ' subscribers'"></span>
-          <span th:if="${p.launchDate != null}" class="mx-1">·</span>
-          <span th:if="${p.launchDate != null}" th:text="'Launch: ' + ${p.launchDate}"></span>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 flex-shrink-0 ml-4">
         <form th:action="@{'/admin/projects/' + ${p.id} + '/delete'}" method="post"
-              onsubmit="return confirm('Delete project ' + this.dataset.name + '?')"
-              th:data-name="${p.name}">
+              th:data-name="${p.name}" class="ml-3 flex-shrink-0">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <button type="submit"
-                  class="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1.5 rounded-lg hover:bg-red-100 transition-colors">
-            Delete
-          </button>
+          <button type="submit" class="admin-btn-red"
+                  th:onclick="'return confirm(\'Delete project ' + ${p.name} + '?\')'"
+                  >Delete</button>
         </form>
       </div>
     </div>
@@ -137,6 +215,48 @@
 <footer class="border-t border-slate-100 py-5 text-center">
   <p class="text-xs text-slate-300">© 2026 UZLaunch · Admin</p>
 </footer>
+
+<script th:inline="javascript">
+  // Chart
+  const labels = /*[[${dailySignups.![date]}]]*/ [];
+  const data   = /*[[${dailySignups.![count]}]]*/ [];
+  new Chart(document.getElementById('signupsChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'New users',
+        data,
+        backgroundColor: 'rgba(99,102,241,0.7)',
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Search filter
+  function filterTable(inputId, containerId) {
+    const q = document.getElementById(inputId).value.toLowerCase();
+    document.querySelectorAll('#' + containerId + ' > div[data-search]').forEach(row => {
+      row.style.display = row.dataset.search.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+</script>
+
+<style>
+  .admin-btn-indigo { @apply text-xs font-bold text-white bg-indigo-600 px-2.5 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors; }
+  .admin-btn-gray   { @apply text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition-colors; }
+  .admin-btn-orange { @apply text-xs font-bold text-orange-600 bg-orange-50 px-2.5 py-1.5 rounded-lg hover:bg-orange-100 transition-colors; }
+  .admin-btn-red    { @apply text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1.5 rounded-lg hover:bg-red-100 transition-colors; }
+</style>
 
 </body>
 </html>

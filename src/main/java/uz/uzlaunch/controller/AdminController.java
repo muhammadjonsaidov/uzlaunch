@@ -5,12 +5,17 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uz.uzlaunch.service.AdminService;
 import uz.uzlaunch.service.RateLimiter;
+
+import java.nio.charset.StandardCharsets;
 
 @Controller
 @RequestMapping("/admin")
@@ -35,6 +40,8 @@ public class AdminController {
         model.addAttribute("todaySignups", stats.todaySignups());
         model.addAttribute("users", stats.users());
         model.addAttribute("projects", stats.projects());
+        model.addAttribute("dailySignups", stats.dailySignups());
+        model.addAttribute("topProjects", stats.topProjects());
         return "admin";
     }
 
@@ -63,59 +70,86 @@ public class AdminController {
     }
 
     @PostMapping("/users/{id}/upgrade")
-    public String upgradeUser(@PathVariable String id,
-                              HttpSession session,
-                              RedirectAttributes ra) {
+    public String upgradeUser(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/admin";
-        try {
-            String email = adminService.upgradeUser(id);
-            ra.addFlashAttribute("success", email + " upgraded to Pro");
-        } catch (IllegalArgumentException e) {
-            ra.addFlashAttribute("error", e.getMessage());
-        }
+        try { ra.addFlashAttribute("success", adminService.upgradeUser(id) + " upgraded to Pro"); }
+        catch (IllegalArgumentException e) { ra.addFlashAttribute("error", e.getMessage()); }
         return "redirect:/admin";
     }
 
     @PostMapping("/users/{id}/downgrade")
-    public String downgradeUser(@PathVariable String id,
-                                HttpSession session,
-                                RedirectAttributes ra) {
+    public String downgradeUser(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/admin";
-        try {
-            String email = adminService.downgradeUser(id);
-            ra.addFlashAttribute("success", email + " downgraded to Free");
-        } catch (IllegalArgumentException e) {
-            ra.addFlashAttribute("error", e.getMessage());
-        }
+        try { ra.addFlashAttribute("success", adminService.downgradeUser(id) + " downgraded to Free"); }
+        catch (IllegalArgumentException e) { ra.addFlashAttribute("error", e.getMessage()); }
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/users/{id}/ban")
+    public String banUser(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin";
+        try { ra.addFlashAttribute("success", adminService.banUser(id) + " banned"); }
+        catch (IllegalArgumentException e) { ra.addFlashAttribute("error", e.getMessage()); }
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/users/{id}/unban")
+    public String unbanUser(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin";
+        try { ra.addFlashAttribute("success", adminService.unbanUser(id) + " unbanned"); }
+        catch (IllegalArgumentException e) { ra.addFlashAttribute("error", e.getMessage()); }
         return "redirect:/admin";
     }
 
     @PostMapping("/users/{id}/delete")
-    public String deleteUser(@PathVariable String id,
-                             HttpSession session,
-                             RedirectAttributes ra) {
+    public String deleteUser(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/admin";
-        try {
-            String email = adminService.deleteUser(id);
-            ra.addFlashAttribute("success", "User " + email + " deleted");
-        } catch (IllegalArgumentException e) {
-            ra.addFlashAttribute("error", e.getMessage());
-        }
+        try { ra.addFlashAttribute("success", "User " + adminService.deleteUser(id) + " deleted"); }
+        catch (IllegalArgumentException e) { ra.addFlashAttribute("error", e.getMessage()); }
         return "redirect:/admin";
     }
 
     @PostMapping("/projects/{id}/delete")
-    public String deleteProject(@PathVariable Long id,
-                                HttpSession session,
-                                RedirectAttributes ra) {
+    public String deleteProject(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/admin";
-        try {
-            String name = adminService.deleteProject(id);
-            ra.addFlashAttribute("success", "Project \"" + name + "\" deleted");
-        } catch (IllegalArgumentException e) {
-            ra.addFlashAttribute("error", e.getMessage());
-        }
+        try { ra.addFlashAttribute("success", "Project \"" + adminService.deleteProject(id) + "\" deleted"); }
+        catch (IllegalArgumentException e) { ra.addFlashAttribute("error", e.getMessage()); }
         return "redirect:/admin";
+    }
+
+    @PostMapping("/broadcast")
+    public String broadcast(@RequestParam String subject,
+                            @RequestParam String body,
+                            HttpSession session,
+                            RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin";
+        if (subject.isBlank() || body.isBlank()) {
+            ra.addFlashAttribute("error", "Subject and body required");
+            return "redirect:/admin";
+        }
+        int sent = adminService.broadcastEmail(subject, body);
+        ra.addFlashAttribute("success", "Broadcast sent to " + sent + " users");
+        return "redirect:/admin";
+    }
+
+    @GetMapping("/export/users")
+    public ResponseEntity<byte[]> exportUsers(HttpSession session) {
+        if (!isAdmin(session)) return ResponseEntity.status(403).build();
+        byte[] csv = adminService.exportUsersCsv().getBytes(StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"users.csv\"")
+            .contentType(MediaType.parseMediaType("text/csv"))
+            .body(csv);
+    }
+
+    @GetMapping("/export/subscribers")
+    public ResponseEntity<byte[]> exportSubscribers(HttpSession session) {
+        if (!isAdmin(session)) return ResponseEntity.status(403).build();
+        byte[] csv = adminService.exportSubscribersCsv().getBytes(StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"subscribers.csv\"")
+            .contentType(MediaType.parseMediaType("text/csv"))
+            .body(csv);
     }
 
     private boolean isAdmin(HttpSession session) {

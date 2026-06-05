@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uz.uzlaunch.dto.LoginRequest;
 import uz.uzlaunch.dto.RegisterRequest;
+import uz.uzlaunch.exception.BannedUserException;
 import uz.uzlaunch.exception.InvalidCredentialsException;
 import uz.uzlaunch.exception.UserAlreadyExistsException;
 import uz.uzlaunch.model.User;
@@ -38,7 +39,9 @@ public class AuthService {
         if (opt.isEmpty() || !encoder.matches(req.getPassword(), opt.get().getPasswordHash())) {
             throw new InvalidCredentialsException();
         }
-        return opt.get();
+        User user = opt.get();
+        if (user.isBanned()) throw new BannedUserException();
+        return user;
     }
 
     public User getSessionUser(HttpSession session) {

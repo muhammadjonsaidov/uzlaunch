@@ -14,6 +14,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByUser(User user);
     boolean existsBySlug(String slug);
 
+    List<Project> findTop5ByOrderBySubscriberCountDesc();
+
     @Modifying
     @Query("UPDATE Project p SET p.subscriberCount = p.subscriberCount + 1 WHERE p.id = :id")
     void incrementSubscriberCount(@Param("id") Long id);

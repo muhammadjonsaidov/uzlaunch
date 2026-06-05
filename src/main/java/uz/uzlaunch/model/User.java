@@ -20,6 +20,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Plan plan = Plan.FREE;
 
+    private boolean banned = false;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Plan { FREE, PAID }
@@ -34,5 +36,7 @@ public class User {
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
     public Plan getPlan() { return plan; }
     public void setPlan(Plan plan) { this.plan = plan; }
+    public boolean isBanned() { return banned; }
+    public void setBanned(boolean banned) { this.banned = banned; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

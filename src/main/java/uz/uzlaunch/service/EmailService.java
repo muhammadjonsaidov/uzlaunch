@@ -71,6 +71,15 @@ public class EmailService {
         send(ownerEmail, "New subscriber for " + projectName + "!", text);
     }
 
+    public int broadcastToUsers(List<String> emails, String subject, String body) {
+        int sent = 0;
+        for (String email : emails) {
+            send(email, subject, body);
+            sent++;
+        }
+        return sent;
+    }
+
     private void send(String to, String subject, String text) {
         if (apiKey.isBlank()) return;
         try {
