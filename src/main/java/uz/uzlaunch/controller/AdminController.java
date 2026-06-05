@@ -58,6 +58,7 @@ public class AdminController {
             model.addAttribute("chartLabels", chartLabels);
             model.addAttribute("chartData", chartData);
             model.addAttribute("pendingByProject", stats.pendingByProject());
+            model.addAttribute("pendingSubscribers", stats.pendingSubscribers());
         } catch (Exception e) {
             log.error("Admin stats error: {}", e.getMessage());
             model.addAttribute("userCount", 0L);
@@ -70,6 +71,7 @@ public class AdminController {
             model.addAttribute("chartLabels", "[]");
             model.addAttribute("chartData", "[]");
             model.addAttribute("pendingByProject", Collections.emptyMap());
+            model.addAttribute("pendingSubscribers", Collections.emptyList());
             model.addAttribute("error", "Stats loading failed: " + e.getMessage());
         }
         return "admin";
@@ -143,6 +145,22 @@ public class AdminController {
     public String deleteProject(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/admin";
         try { ra.addFlashAttribute("success", "Project \"" + adminService.deleteProject(id) + "\" deleted"); }
+        catch (IllegalArgumentException e) { ra.addFlashAttribute("error", e.getMessage()); }
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/subscribers/{id}/confirm")
+    public String confirmSubscriber(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin";
+        try { ra.addFlashAttribute("success", adminService.confirmSubscriber(id) + " confirmed"); }
+        catch (IllegalArgumentException e) { ra.addFlashAttribute("error", e.getMessage()); }
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/subscribers/{id}/delete")
+    public String deletePendingSubscriber(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin";
+        try { ra.addFlashAttribute("success", adminService.deletePendingSubscriber(id) + " deleted"); }
         catch (IllegalArgumentException e) { ra.addFlashAttribute("error", e.getMessage()); }
         return "redirect:/admin";
     }

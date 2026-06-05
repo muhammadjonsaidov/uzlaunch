@@ -26,6 +26,7 @@ public class AdminService {
     @Autowired private ProjectRepository projectRepo;
     @Autowired private SubscriberRepository subscriberRepo;
     @Autowired private EmailService emailService;
+    @Autowired private SseService sseService;
 
     public record DailyCount(String date, long count) {}
 
@@ -38,7 +39,8 @@ public class AdminService {
         List<Project> projects,
         List<DailyCount> dailySignups,
         List<Project> topProjects,
-        Map<Long, Long> pendingByProject
+        Map<Long, Long> pendingByProject,
+        List<Subscriber> pendingSubscribers
     ) {}
 
     public AdminStats getStats() {
@@ -68,7 +70,8 @@ public class AdminService {
             projectRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt")),
             daily,
             projectRepo.findTop5ByOrderBySubscriberCountDesc(),
-            pendingByProject
+            pendingByProject,
+            subscriberRepo.findPendingWithProject()
         );
     }
 
@@ -124,6 +127,27 @@ public class AdminService {
         subscriberRepo.deleteByProject(project);
         projectRepo.delete(project);
         return project.getName();
+    }
+
+    @Transactional
+    public String confirmSubscriber(Long id) {
+        Subscriber sub = subscriberRepo.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Subscriber not found: " + id));
+        if (sub.isConfirmed()) return sub.getEmail();
+        sub.setConfirmed(true);
+        subscriberRepo.save(sub);
+        projectRepo.incrementSubscriberCount(sub.getProject().getId());
+        sseService.broadcast(sub.getProject().getId(), sub.getProject().getSubscriberCount() + 1);
+        return sub.getEmail();
+    }
+
+    @Transactional
+    public String deletePendingSubscriber(Long id) {
+        Subscriber sub = subscriberRepo.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Subscriber not found: " + id));
+        String email = sub.getEmail();
+        subscriberRepo.delete(sub);
+        return email;
     }
 
     public int broadcastEmail(String subject, String body) {

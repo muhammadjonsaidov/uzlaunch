@@ -111,6 +111,47 @@
     </form>
   </div>
 
+  <!-- Pending subscribers -->
+  <div th:if="${not #lists.isEmpty(pendingSubscribers)}"
+       class="bg-white rounded-2xl border border-amber-200 overflow-hidden mb-8">
+    <div class="px-5 py-4 border-b border-amber-100 bg-amber-50 flex items-center justify-between">
+      <h2 class="text-sm font-bold text-amber-700">Pending subscribers (awaiting email confirmation)
+        <span class="font-normal text-amber-500 ml-1" th:text="'(' + ${#lists.size(pendingSubscribers)} + ')'"></span>
+      </h2>
+    </div>
+    <div th:each="s : ${pendingSubscribers}"
+         class="flex items-center justify-between px-5 py-3.5 border-b border-amber-50 hover:bg-amber-50/50 last:border-0">
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-semibold text-slate-800" th:text="${s.email}"></span>
+          <span th:if="${s.name != null and !#strings.isEmpty(s.name)}"
+                class="text-xs text-slate-400" th:text="'(' + ${s.name} + ')'"></span>
+        </div>
+        <div class="text-xs text-slate-400 mt-0.5">
+          <span th:text="${s.project.name}"></span>
+          <span class="mx-1">&#183;</span>
+          <span th:text="${#temporals.format(s.subscribedAt, 'dd MMM yyyy HH:mm')}"></span>
+        </div>
+      </div>
+      <div class="flex gap-2 ml-3 flex-shrink-0">
+        <form th:action="@{'/admin/subscribers/' + ${s.id} + '/confirm'}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button type="submit"
+                  class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors">
+            Confirm
+          </button>
+        </form>
+        <form th:action="@{'/admin/subscribers/' + ${s.id} + '/delete'}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button type="submit"
+                  class="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1.5 rounded-lg hover:bg-red-100 transition-colors">
+            Delete
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Users table -->
   <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-8">
     <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">

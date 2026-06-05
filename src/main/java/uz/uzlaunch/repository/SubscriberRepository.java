@@ -22,4 +22,7 @@ public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
 
     @Query("SELECT s.project.id, COUNT(s) FROM Subscriber s WHERE s.confirmed = false GROUP BY s.project.id")
     List<Object[]> countPendingGroupByProject();
+
+    @Query("SELECT s FROM Subscriber s JOIN FETCH s.project WHERE s.confirmed = false ORDER BY s.subscribedAt DESC")
+    List<Subscriber> findPendingWithProject();
 }
