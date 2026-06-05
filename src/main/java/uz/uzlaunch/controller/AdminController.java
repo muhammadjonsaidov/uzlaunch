@@ -18,6 +18,7 @@ import uz.uzlaunch.service.AdminService;
 import uz.uzlaunch.service.RateLimiter;
 
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import java.nio.charset.StandardCharsets;
 
@@ -47,8 +48,15 @@ public class AdminController {
             model.addAttribute("todaySignups", stats.todaySignups());
             model.addAttribute("users", stats.users());
             model.addAttribute("projects", stats.projects());
-            model.addAttribute("dailySignups", stats.dailySignups());
             model.addAttribute("topProjects", stats.topProjects());
+            String chartLabels = stats.dailySignups().stream()
+                .map(d -> "\"" + d.date() + "\"")
+                .collect(Collectors.joining(",", "[", "]"));
+            String chartData = stats.dailySignups().stream()
+                .map(d -> String.valueOf(d.count()))
+                .collect(Collectors.joining(",", "[", "]"));
+            model.addAttribute("chartLabels", chartLabels);
+            model.addAttribute("chartData", chartData);
         } catch (Exception e) {
             log.error("Admin stats error: {}", e.getMessage());
             model.addAttribute("userCount", 0L);
@@ -57,8 +65,9 @@ public class AdminController {
             model.addAttribute("todaySignups", 0L);
             model.addAttribute("users", Collections.emptyList());
             model.addAttribute("projects", Collections.emptyList());
-            model.addAttribute("dailySignups", Collections.emptyList());
             model.addAttribute("topProjects", Collections.emptyList());
+            model.addAttribute("chartLabels", "[]");
+            model.addAttribute("chartData", "[]");
             model.addAttribute("error", "Stats loading failed: " + e.getMessage());
         }
         return "admin";
