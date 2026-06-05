@@ -137,33 +137,33 @@
           <form th:if="${u.plan.name() == 'FREE'}"
                 th:action="@{'/admin/users/' + ${u.id} + '/upgrade'}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <button type="submit" class="admin-btn-indigo">→ Pro</button>
+            <button type="submit" class="text-xs font-bold text-white bg-indigo-600 px-2.5 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors">→ Pro</button>
           </form>
           <form th:if="${u.plan.name() == 'PAID'}"
                 th:action="@{'/admin/users/' + ${u.id} + '/downgrade'}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <button type="submit" class="admin-btn-gray">→ Free</button>
+            <button type="submit" class="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition-colors">→ Free</button>
           </form>
 
           <form th:if="${!u.banned}"
                 th:action="@{'/admin/users/' + ${u.id} + '/ban'}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <button type="submit" class="admin-btn-orange"
-                    th:onclick="'return confirm(\'Ban ' + ${u.email} + '?\')'"
-                    >Ban</button>
+            <button type="submit"
+                    class="text-xs font-bold text-orange-600 bg-orange-50 px-2.5 py-1.5 rounded-lg hover:bg-orange-100 transition-colors"
+                    th:onclick="|return confirm('Ban ${u.email}?')|">Ban</button>
           </form>
           <form th:if="${u.banned}"
                 th:action="@{'/admin/users/' + ${u.id} + '/unban'}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <button type="submit" class="admin-btn-gray">Unban</button>
+            <button type="submit" class="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition-colors">Unban</button>
           </form>
 
           <form th:action="@{'/admin/users/' + ${u.id} + '/delete'}" method="post"
                 th:data-email="${u.email}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <button type="submit" class="admin-btn-red"
-                    th:onclick="'return confirm(\'Delete user ' + ${u.email} + ' and all their data?\')'"
-                    >Delete</button>
+            <button type="submit"
+                    class="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1.5 rounded-lg hover:bg-red-100 transition-colors"
+                    th:onclick="|return confirm('Delete user ${u.email} and all their data?')|">Delete</button>
           </form>
         </div>
       </div>
@@ -202,9 +202,9 @@
         <form th:action="@{'/admin/projects/' + ${p.id} + '/delete'}" method="post"
               th:data-name="${p.name}" class="ml-3 flex-shrink-0">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <button type="submit" class="admin-btn-red"
-                  th:onclick="'return confirm(\'Delete project ' + ${p.name} + '?\')'"
-                  >Delete</button>
+          <button type="submit"
+                  class="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1.5 rounded-lg hover:bg-red-100 transition-colors"
+                  th:onclick="|return confirm('Delete project ${p.name}?')|">Delete</button>
         </form>
       </div>
     </div>
@@ -217,9 +217,12 @@
 </footer>
 
 <script th:inline="javascript">
-  // Chart
-  const labels = /*[[${dailySignups.![date]}]]*/ [];
-  const data   = /*[[${dailySignups.![count]}]]*/ [];
+  const labels = [];
+  const data = [];
+  /*[# th:each="d : ${dailySignups}"]*/
+  labels.push([[${d.date}]]);
+  data.push([[${d.count}]]);
+  /*[/]*/
   new Chart(document.getElementById('signupsChart'), {
     type: 'bar',
     data: {
@@ -251,12 +254,6 @@
   }
 </script>
 
-<style>
-  .admin-btn-indigo { @apply text-xs font-bold text-white bg-indigo-600 px-2.5 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors; }
-  .admin-btn-gray   { @apply text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition-colors; }
-  .admin-btn-orange { @apply text-xs font-bold text-orange-600 bg-orange-50 px-2.5 py-1.5 rounded-lg hover:bg-orange-100 transition-colors; }
-  .admin-btn-red    { @apply text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1.5 rounded-lg hover:bg-red-100 transition-colors; }
-</style>
 
 </body>
 </html>
