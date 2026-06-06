@@ -14,9 +14,9 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
 
-<nav class="app-nav">
+<nav class="app-nav" id="main-nav">
   <a href="/" class="logo-text" style="display:inline-flex;align-items:center;gap:7px"><img src="/favicon-32.png" width="22" height="22" style="border-radius:6px;flex-shrink:0" alt=""/>UZLaunch</a>
-  <div class="flex items-center gap-3">
+  <div class="nav-items flex items-center gap-3">
     <a href="/dashboard" class="text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors">← Dashboard</a>
     <button onclick="toggleDark()" title="Toggle dark/light mode"
         class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
@@ -24,6 +24,9 @@
   <svg class="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
 </button>
   </div>
+  <button class="hamburger sm:hidden" onclick="toggleNav()" aria-label="Menu">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </nav>
 
 <main class="flex-1 max-w-xl mx-auto w-full px-5 py-10">
@@ -66,6 +69,6 @@
   <p class="text-xs text-slate-300">© 2026 UZLaunch</p>
 </footer>
 
-<script>function toggleDark(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.theme=d?'dark':'light';}document.querySelectorAll('.app-toast').forEach(function(t){setTimeout(function(){t.classList.add('hiding');setTimeout(function(){t.remove();},300);},5000);});</script>
+<script>function toggleDark(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.theme=d?'dark':'light';}function toggleNav(){document.getElementById('main-nav').classList.toggle('nav-open');}document.querySelectorAll('.app-toast').forEach(function(t){setTimeout(function(){t.classList.add('hiding');setTimeout(function(){t.remove();},300);},5000);});</script>
 </body>
 </html>

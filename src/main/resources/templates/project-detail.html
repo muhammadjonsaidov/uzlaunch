@@ -14,9 +14,9 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
 
-<nav class="app-nav">
+<nav class="app-nav" id="main-nav">
   <a href="/" class="logo-text" style="display:inline-flex;align-items:center;gap:7px"><img src="/favicon-32.png" width="22" height="22" style="border-radius:6px;flex-shrink:0" alt=""/>UZLaunch</a>
-  <div class="flex items-center gap-4">
+  <div class="nav-items flex items-center gap-4">
     <a href="/dashboard" class="text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors">← Dashboard</a>
     <button onclick="toggleDark()" title="Toggle dark/light mode"
         class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
@@ -25,6 +25,9 @@
 </button>
     <a th:href="'/p/' + ${project.slug}" target="_blank" class="text-sm text-indigo-500 hover:text-indigo-600 font-semibold transition-colors">View page →</a>
   </div>
+  <button class="hamburger sm:hidden" onclick="toggleNav()" aria-label="Menu">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </nav>
 
 <main class="flex-1 max-w-3xl mx-auto w-full px-5 py-8">
@@ -260,7 +263,7 @@
   });
   es.onerror = function() { es.close(); };
 </script>
-<script>function toggleDark(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.theme=d?'dark':'light';}</script>
+<script>function toggleDark(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.theme=d?'dark':'light';}function toggleNav(){document.getElementById('main-nav').classList.toggle('nav-open');}</script>
 <script>
 (function(){
   var banner = document.getElementById('launch-banner');
