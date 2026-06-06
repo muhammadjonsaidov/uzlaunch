@@ -56,8 +56,8 @@
         <p class="text-xs text-slate-400 mt-1">Subscribers notified automatically at this time. Changing resets notification.</p>
       </div>
 
-      <!-- Launch email customization -->
-      <div class="border-t border-slate-100 pt-5">
+      <!-- Launch email customization — PAID only -->
+      <div class="border-t border-slate-100 pt-5" th:if="${project.user.plan.name() == 'PAID'}">
         <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Launch announcement email <span class="text-slate-300 font-normal normal-case">(optional — uses default if blank)</span></p>
         <div class="space-y-3">
           <div>
@@ -72,6 +72,13 @@
                       placeholder="Write your launch message here. Tell subscribers what's new, what they can do, or how to get started..."
                       th:text="${project.launchEmailBody}"></textarea>
           </div>
+        </div>
+      </div>
+      <div class="border-t border-slate-100 pt-5" th:unless="${project.user.plan.name() == 'PAID'}">
+        <div class="rounded-xl p-4" style="background:#faf5ff;border:1px solid #e9d5ff">
+          <p class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">Custom launch email</p>
+          <p class="text-xs text-purple-500">Customize your launch announcement email with Pro plan.</p>
+          <a href="https://t.me/uzlaunch" target="_blank" class="inline-block mt-2 text-xs font-bold text-purple-600 hover:text-purple-700">Upgrade to Pro →</a>
         </div>
       </div>
 

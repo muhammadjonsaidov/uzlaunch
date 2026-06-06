@@ -106,10 +106,12 @@ public class ProjectService {
         } else {
             p.setLaunchAt(null);
         }
-        p.setLaunchEmailSubject(req.getLaunchEmailSubject() != null && !req.getLaunchEmailSubject().isBlank()
-            ? req.getLaunchEmailSubject().trim() : null);
-        p.setLaunchEmailBody(req.getLaunchEmailBody() != null && !req.getLaunchEmailBody().isBlank()
-            ? req.getLaunchEmailBody().trim() : null);
+        if (user.getPlan() == User.Plan.PAID) {
+            p.setLaunchEmailSubject(req.getLaunchEmailSubject() != null && !req.getLaunchEmailSubject().isBlank()
+                ? req.getLaunchEmailSubject().trim() : null);
+            p.setLaunchEmailBody(req.getLaunchEmailBody() != null && !req.getLaunchEmailBody().isBlank()
+                ? req.getLaunchEmailBody().trim() : null);
+        }
         return projectRepo.save(p);
     }
 
@@ -130,11 +132,13 @@ public class ProjectService {
 
     public Map<String, Object> getStats(String slug, User user) {
         Project p = getOwnedBySlug(slug, user);
+        boolean isPaid = user.getPlan() == User.Plan.PAID;
+        int days = isPaid ? 30 : 7;
         List<Subscriber> allSubs = subscriberRepo.findByProjectAndConfirmed(p, true);
 
         LocalDate today = LocalDate.now();
         Map<LocalDate, Long> rawCounts = new LinkedHashMap<>();
-        for (int i = 6; i >= 0; i--) rawCounts.put(today.minusDays(i), 0L);
+        for (int i = days - 1; i >= 0; i--) rawCounts.put(today.minusDays(i), 0L);
         for (Subscriber s : allSubs)
             rawCounts.computeIfPresent(s.getSubscribedAt().toLocalDate(), (k, v) -> v + 1);
 
@@ -153,6 +157,7 @@ public class ProjectService {
         stats.put("project", p);
         stats.put("chartData", chartData);
         stats.put("totalSubscribers", allSubs.size());
+        stats.put("statsDays", days);
         stats.put("last7Days", rawCounts.values().stream().mapToLong(Long::longValue).sum());
         return stats;
     }

@@ -138,7 +138,7 @@
     </div>
 
     <!-- Footer -->
-    <div class="text-center">
+    <div th:unless="${project.user.plan.name() == 'PAID'}" class="text-center">
       <a href="/" class="inline-flex items-center gap-1 text-xs text-white/30 hover:text-white/50 transition-colors">
         ⚡ Powered by <span class="font-bold text-indigo-400">UZLaunch</span>
       </a>
