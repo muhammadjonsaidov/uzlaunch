@@ -67,7 +67,8 @@ public class SubscriberService {
         int newCount = p.getSubscriberCount() + 1;
         sseService.broadcast(p.getId(), newCount);
 
-        emailService.sendSubscriptionConfirmed(sub.getEmail(), sub.getName(), p.getName(), p.getSlug(), sub.getToken());
+        emailService.sendSubscriptionConfirmed(sub.getEmail(), sub.getName(), p.getName(), p.getSlug(), sub.getToken(),
+            p.getConfirmEmailSubject(), p.getConfirmEmailBody());
         emailService.sendOwnerNotification(
             p.getUser().getEmail(), p.getUser().getName(),
             sub.getEmail(), sub.getName(), p.getName(), newCount

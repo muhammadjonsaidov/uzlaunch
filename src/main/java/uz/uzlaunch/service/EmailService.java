@@ -47,10 +47,17 @@ public class EmailService {
     }
 
     public void sendSubscriptionConfirmed(String toEmail, String toName,
-                                          String projectName, String projectSlug, String token) {
+                                          String projectName, String projectSlug, String token,
+                                          String customSubject, String customMessage) {
         String name    = (toName != null && !toName.isBlank()) ? toName : "there";
         String pageUrl = baseUrl + "/p/" + projectSlug;
         String unsubUrl = baseUrl + "/unsubscribe?token=" + token;
+
+        String subject = (customSubject != null && !customSubject.isBlank())
+            ? customSubject : "You're confirmed on the " + projectName + " waitlist! 🎉";
+        String messageHtml = (customMessage != null && !customMessage.isBlank())
+            ? "<p style='margin:0 0 24px;color:#475569'>" + esc(customMessage).replace("\n", "<br/>") + "</p>"
+            : "<p style='margin:0 0 24px;color:#475569'>We'll notify you the moment we launch. Stay tuned!</p>";
 
         String body = "<p style='margin:0 0 16px'>Hi <strong>" + esc(name) + "</strong>,</p>"
             + "<div style='background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin:0 0 24px;text-align:center'>"
@@ -58,13 +65,11 @@ public class EmailService {
             + "<p style='margin:8px 0 0;font-weight:700;color:#15803d;font-size:16px'>You're on the waitlist!</p>"
             + "<p style='margin:6px 0 0;color:#166534;font-size:14px'>You're confirmed for <strong>" + esc(projectName) + "</strong></p>"
             + "</div>"
-            + "<p style='margin:0 0 24px;color:#475569'>We'll notify you the moment we launch. Stay tuned!</p>"
+            + messageHtml
             + btn(pageUrl, "View the page")
             + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>You're receiving this because you subscribed to " + esc(projectName) + ".</p>";
 
-        send(toEmail,
-             "You're confirmed on the " + projectName + " waitlist! 🎉",
-             wrap(projectName, body, unsubUrl), unsubUrl);
+        send(toEmail, subject, wrap(projectName, body, unsubUrl), unsubUrl);
     }
 
     public void sendOwnerNotification(String ownerEmail, String ownerName,

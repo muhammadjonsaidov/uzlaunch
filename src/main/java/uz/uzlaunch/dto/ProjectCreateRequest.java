@@ -23,6 +23,12 @@ public class ProjectCreateRequest {
     @Size(max = 2000, message = "Email body must be under 2000 characters")
     private String launchEmailBody;
 
+    @Size(max = 200, message = "Confirmation email subject must be under 200 characters")
+    private String confirmEmailSubject;
+
+    @Size(max = 2000, message = "Confirmation email body must be under 2000 characters")
+    private String confirmEmailBody;
+
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public String getTagline() { return tagline; }
@@ -35,4 +41,8 @@ public class ProjectCreateRequest {
     public void setLaunchEmailSubject(String launchEmailSubject) { this.launchEmailSubject = launchEmailSubject; }
     public String getLaunchEmailBody() { return launchEmailBody; }
     public void setLaunchEmailBody(String launchEmailBody) { this.launchEmailBody = launchEmailBody; }
+    public String getConfirmEmailSubject() { return confirmEmailSubject; }
+    public void setConfirmEmailSubject(String confirmEmailSubject) { this.confirmEmailSubject = confirmEmailSubject; }
+    public String getConfirmEmailBody() { return confirmEmailBody; }
+    public void setConfirmEmailBody(String confirmEmailBody) { this.confirmEmailBody = confirmEmailBody; }
 }

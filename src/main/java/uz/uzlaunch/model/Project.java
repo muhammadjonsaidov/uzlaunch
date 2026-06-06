@@ -37,6 +37,11 @@ public class Project {
     @Column(length = 2000)
     private String launchEmailBody;
 
+    private String confirmEmailSubject;
+
+    @Column(length = 2000)
+    private String confirmEmailBody;
+
     private int subscriberCount = 0;
 
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -63,6 +68,10 @@ public class Project {
     public void setLaunchEmailSubject(String launchEmailSubject) { this.launchEmailSubject = launchEmailSubject; }
     public String getLaunchEmailBody() { return launchEmailBody; }
     public void setLaunchEmailBody(String launchEmailBody) { this.launchEmailBody = launchEmailBody; }
+    public String getConfirmEmailSubject() { return confirmEmailSubject; }
+    public void setConfirmEmailSubject(String confirmEmailSubject) { this.confirmEmailSubject = confirmEmailSubject; }
+    public String getConfirmEmailBody() { return confirmEmailBody; }
+    public void setConfirmEmailBody(String confirmEmailBody) { this.confirmEmailBody = confirmEmailBody; }
     public int getSubscriberCount() { return subscriberCount; }
     public void setSubscriberCount(int subscriberCount) { this.subscriberCount = subscriberCount; }
     public LocalDateTime getCreatedAt() { return createdAt; }

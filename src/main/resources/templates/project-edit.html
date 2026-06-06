@@ -74,10 +74,30 @@
           </div>
         </div>
       </div>
+
+      <!-- Confirmation email customization — PAID only -->
+      <div class="border-t border-slate-100 pt-5" th:if="${project.user.plan.name() == 'PAID'}">
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Confirmation email <span class="text-slate-300 font-normal normal-case">(sent when subscriber confirms — uses default if blank)</span></p>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Email subject</label>
+            <input type="text" name="confirmEmailSubject" class="app-input" maxlength="200"
+                   th:value="${project.confirmEmailSubject}"
+                   th:placeholder="'You\'re confirmed on the ' + ${project.name} + ' waitlist! 🎉'"/>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Welcome message</label>
+            <textarea name="confirmEmailBody" class="app-input" rows="3" maxlength="2000" style="resize:vertical"
+                      placeholder="What do you want subscribers to know after they confirm? e.g. early access details, what to expect..."
+                      th:text="${project.confirmEmailBody}"></textarea>
+          </div>
+        </div>
+      </div>
+
       <div class="border-t border-slate-100 pt-5" th:unless="${project.user.plan.name() == 'PAID'}">
         <div class="rounded-xl p-4" style="background:#faf5ff;border:1px solid #e9d5ff">
-          <p class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">Custom launch email</p>
-          <p class="text-xs text-purple-500">Customize your launch announcement email with Pro plan.</p>
+          <p class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">Custom emails</p>
+          <p class="text-xs text-purple-500">Customize confirmation and launch announcement emails with Pro plan.</p>
           <a href="https://t.me/uzlaunch" target="_blank" class="inline-block mt-2 text-xs font-bold text-purple-600 hover:text-purple-700">Upgrade to Pro →</a>
         </div>
       </div>

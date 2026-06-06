@@ -111,6 +111,10 @@ public class ProjectService {
                 ? req.getLaunchEmailSubject().trim() : null);
             p.setLaunchEmailBody(req.getLaunchEmailBody() != null && !req.getLaunchEmailBody().isBlank()
                 ? req.getLaunchEmailBody().trim() : null);
+            p.setConfirmEmailSubject(req.getConfirmEmailSubject() != null && !req.getConfirmEmailSubject().isBlank()
+                ? req.getConfirmEmailSubject().trim() : null);
+            p.setConfirmEmailBody(req.getConfirmEmailBody() != null && !req.getConfirmEmailBody().isBlank()
+                ? req.getConfirmEmailBody().trim() : null);
         }
         return projectRepo.save(p);
     }
