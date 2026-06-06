@@ -93,31 +93,57 @@ public class EmailService {
              wrap("UZLaunch", body, null));
     }
 
-    public void sendLaunchAnnouncement(String toEmail, String toName,
-                                       String projectName, String projectSlug, String token,
-                                       String customSubject, String customMessage) {
-        String name = (toName != null && !toName.isBlank()) ? toName : "there";
-        String pageUrl = baseUrl + "/p/" + projectSlug;
-        String unsubUrl = baseUrl + "/unsubscribe?token=" + token;
+    public int sendLaunchAnnouncementBatch(List<uz.uzlaunch.model.Subscriber> subscribers,
+                                            String projectName, String projectSlug,
+                                            String customSubject, String customMessage) {
+        if (subscribers.isEmpty()) return 0;
+        if (apiKey.isBlank()) { log.warn("RESEND_API_KEY not set, skipping launch batch"); return 0; }
 
+        String pageUrl = baseUrl + "/p/" + projectSlug;
         String subject = (customSubject != null && !customSubject.isBlank())
             ? customSubject : "🚀 " + projectName + " is live!";
-
         String messageHtml = (customMessage != null && !customMessage.isBlank())
             ? "<p style='margin:0 0 24px;color:#475569'>" + esc(customMessage).replace("\n", "<br/>") + "</p>"
             : "<p style='margin:0 0 24px;color:#475569'>The wait is over. Head over to the page and check it out — you're among the first to know!</p>";
 
-        String body = "<p style='margin:0 0 16px'>Hi <strong>" + esc(name) + "</strong>,</p>"
-            + "<div style='background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center'>"
-            + "<p style='margin:0;font-size:36px'>🚀</p>"
-            + "<p style='margin:10px 0 4px;font-weight:900;color:#15803d;font-size:20px'>We're live!</p>"
-            + "<p style='margin:0;color:#166534;font-size:15px'><strong>" + esc(projectName) + "</strong> has officially launched!</p>"
-            + "</div>"
-            + messageHtml
-            + btn(pageUrl, "Visit " + esc(projectName) + " →")
-            + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>You're receiving this because you joined the <strong>" + esc(projectName) + "</strong> waitlist.</p>";
+        try {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+            httpHeaders.setBearerAuth(apiKey);
 
-        send(toEmail, subject, wrap(projectName, body, unsubUrl), unsubUrl);
+            List<Map<String, Object>> batch = new java.util.ArrayList<>();
+            for (uz.uzlaunch.model.Subscriber s : subscribers) {
+                String name = (s.getName() != null && !s.getName().isBlank()) ? s.getName() : "there";
+                String unsubUrl = baseUrl + "/unsubscribe?token=" + s.getToken();
+                String body = "<p style='margin:0 0 16px'>Hi <strong>" + esc(name) + "</strong>,</p>"
+                    + "<div style='background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center'>"
+                    + "<p style='margin:0;font-size:36px'>🚀</p>"
+                    + "<p style='margin:10px 0 4px;font-weight:900;color:#15803d;font-size:20px'>We're live!</p>"
+                    + "<p style='margin:0;color:#166534;font-size:15px'><strong>" + esc(projectName) + "</strong> has officially launched!</p>"
+                    + "</div>" + messageHtml
+                    + btn(pageUrl, "Visit " + esc(projectName) + " →")
+                    + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>You're receiving this because you joined the <strong>" + esc(projectName) + "</strong> waitlist.</p>";
+
+                Map<String, Object> msg = new HashMap<>();
+                msg.put("from", fromAddress);
+                msg.put("to", List.of(s.getEmail()));
+                msg.put("subject", subject);
+                msg.put("html", wrap(projectName, body, unsubUrl));
+                Map<String, String> hdrs = new HashMap<>();
+                hdrs.put("List-Unsubscribe", "<" + unsubUrl + ">");
+                hdrs.put("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
+                msg.put("headers", hdrs);
+                batch.add(msg);
+            }
+
+            rest.exchange("https://api.resend.com/emails/batch",
+                HttpMethod.POST, new HttpEntity<>(batch, httpHeaders), List.class);
+            log.info("Launch batch sent: {} subscribers, project='{}'", subscribers.size(), projectName);
+            return subscribers.size();
+        } catch (Exception e) {
+            log.warn("Launch batch failed for '{}': {}", projectName, e.getMessage());
+            return 0;
+        }
     }
 
     public int broadcastToUsers(List<String> emails, String subject, String body) {
@@ -127,13 +153,42 @@ public class EmailService {
             "<p style='margin:0 0 16px;color:#475569'>" + esc(body).replace("\n", "<br/>") + "</p>"
             + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>You're receiving this as a registered UZLaunch user.</p>",
             null);
-        int sent = 0;
-        for (String email : emails) {
-            if (sendTracked(email, subject, html)) sent++;
-            try { Thread.sleep(600); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
-        }
+        int sent = sendBatch(emails, subject, html, null);
         log.info("Broadcast done: sent={}/{}", sent, emails.size());
         return sent;
+    }
+
+    private int sendBatch(List<String> toList, String subject, String html, String unsubUrl) {
+        if (apiKey.isBlank()) { log.warn("RESEND_API_KEY not set, skipping batch"); return 0; }
+        try {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+            httpHeaders.setBearerAuth(apiKey);
+
+            List<Map<String, Object>> batch = new java.util.ArrayList<>();
+            for (String to : toList) {
+                Map<String, Object> msg = new HashMap<>();
+                msg.put("from", fromAddress);
+                msg.put("to", List.of(to));
+                msg.put("subject", subject);
+                msg.put("html", html);
+                if (unsubUrl != null) {
+                    Map<String, String> hdrs = new HashMap<>();
+                    hdrs.put("List-Unsubscribe", "<" + unsubUrl + ">");
+                    hdrs.put("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
+                    msg.put("headers", hdrs);
+                }
+                batch.add(msg);
+            }
+
+            rest.exchange("https://api.resend.com/emails/batch",
+                HttpMethod.POST, new HttpEntity<>(batch, httpHeaders), List.class);
+            log.info("Batch sent: {} emails, subject='{}'", toList.size(), subject);
+            return toList.size();
+        } catch (Exception e) {
+            log.warn("Batch send failed: {}", e.getMessage());
+            return 0;
+        }
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
