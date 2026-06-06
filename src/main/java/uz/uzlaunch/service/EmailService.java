@@ -121,14 +121,18 @@ public class EmailService {
     }
 
     public int broadcastToUsers(List<String> emails, String subject, String body) {
+        if (emails.isEmpty()) { log.warn("Broadcast: no recipients"); return 0; }
+        log.info("Broadcast '{}' → {} recipients", subject, emails.size());
         String html = wrap("UZLaunch",
-            "<p style='margin:0 0 16px;color:#475569'>" + esc(body).replace("\n", "<br/>") + "</p>",
+            "<p style='margin:0 0 16px;color:#475569'>" + esc(body).replace("\n", "<br/>") + "</p>"
+            + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>You're receiving this as a registered UZLaunch user.</p>",
             null);
         int sent = 0;
         for (String email : emails) {
             send(email, subject, html);
             sent++;
         }
+        log.info("Broadcast done: sent={}", sent);
         return sent;
     }
 

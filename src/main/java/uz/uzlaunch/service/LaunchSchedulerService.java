@@ -23,7 +23,7 @@ public class LaunchSchedulerService {
     @Autowired private SubscriberRepository subscriberRepo;
     @Autowired private EmailService emailService;
 
-    @Scheduled(fixedDelay = 60_000)
+    @Scheduled(fixedDelay = 10_000)
     @Transactional
     public void checkAndNotify() {
         LocalDateTime now = LocalDateTime.now();
