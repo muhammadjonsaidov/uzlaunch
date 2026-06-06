@@ -43,7 +43,7 @@ public class EmailService {
 
         send(toEmail,
              "Confirm your spot on the " + projectName + " waitlist",
-             wrap(projectName, body, unsubUrl));
+             wrap(projectName, body, unsubUrl), unsubUrl);
     }
 
     public void sendSubscriptionConfirmed(String toEmail, String toName,
@@ -64,7 +64,7 @@ public class EmailService {
 
         send(toEmail,
              "You're confirmed on the " + projectName + " waitlist! 🎉",
-             wrap(projectName, body, unsubUrl));
+             wrap(projectName, body, unsubUrl), unsubUrl);
     }
 
     public void sendOwnerNotification(String ownerEmail, String ownerName,
@@ -111,7 +111,7 @@ public class EmailService {
 
         send(toEmail,
              "🚀 " + projectName + " is live!",
-             wrap(projectName, body, unsubUrl));
+             wrap(projectName, body, unsubUrl), unsubUrl);
     }
 
     public int broadcastToUsers(List<String> emails, String subject, String body) {
@@ -167,11 +167,15 @@ public class EmailService {
     }
 
     private void send(String to, String subject, String html) {
+        send(to, subject, html, null);
+    }
+
+    private void send(String to, String subject, String html, String unsubUrl) {
         if (apiKey.isBlank()) { log.warn("RESEND_API_KEY not set, skipping email to {}", to); return; }
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(apiKey);
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+            httpHeaders.setBearerAuth(apiKey);
 
             Map<String, Object> body = new HashMap<>();
             body.put("from", fromAddress);
@@ -179,8 +183,15 @@ public class EmailService {
             body.put("subject", subject);
             body.put("html", html);
 
+            if (unsubUrl != null) {
+                Map<String, String> emailHeaders = new HashMap<>();
+                emailHeaders.put("List-Unsubscribe", "<" + unsubUrl + ">");
+                emailHeaders.put("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
+                body.put("headers", emailHeaders);
+            }
+
             rest.exchange("https://api.resend.com/emails",
-                HttpMethod.POST, new HttpEntity<>(body, headers), Map.class);
+                HttpMethod.POST, new HttpEntity<>(body, httpHeaders), Map.class);
             log.info("Email sent to {}: {}", to, subject);
         } catch (Exception e) {
             log.warn("Email send failed to {}: {}", to, e.getMessage());
