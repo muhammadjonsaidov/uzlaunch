@@ -287,7 +287,24 @@ html.dark select {
 html.dark input::placeholder,
 html.dark textarea::placeholder { color: #475569 !important; }
 
-/* Countdown banner dark mode */
+/* Countdown banner dark mode — slate-based, consistent with other cards */
+html.dark .launch-cd-wrap {
+  background-color: #1e293b !important;
+  border-color: #4338ca !important;
+}
+html.dark .launch-cd-box {
+  background-color: #0f172a !important;
+  border-color: #4338ca !important;
+}
+html.dark .launch-notified-wrap {
+  background-color: #1e293b !important;
+  border-color: #166534 !important;
+}
+html.dark .launch-notified-wrap .bg-green-100 {
+  background-color: #14532d !important;
+}
+
+/* Generic dark overrides still needed for other uses */
 html.dark .bg-indigo-50  { background-color: #1e1b4b !important; }
 html.dark .bg-green-50   { background-color: #052e16 !important; }
 html.dark .border-indigo-200 { border-color: #3730a3 !important; }

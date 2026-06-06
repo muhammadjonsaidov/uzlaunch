@@ -77,7 +77,7 @@
        class="rounded-2xl p-4 mb-6">
 
     <!-- Already notified (server state) -->
-    <div th:if="${project.launchNotified}" class="flex items-center justify-between bg-green-50 border border-green-200 rounded-2xl p-4 -m-4">
+    <div th:if="${project.launchNotified}" class="launch-notified-wrap flex items-center justify-between bg-green-50 border border-green-200 rounded-2xl p-4 -m-4">
       <div>
         <p class="text-xs font-bold text-green-600 uppercase tracking-wider">Launch announced 🚀</p>
         <p class="text-sm font-semibold text-slate-700 mt-0.5"
@@ -87,7 +87,7 @@
     </div>
 
     <!-- Countdown (not yet notified) -->
-    <div th:unless="${project.launchNotified}" id="launch-countdown-wrap" class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 -m-4">
+    <div th:unless="${project.launchNotified}" id="launch-countdown-wrap" class="launch-cd-wrap bg-indigo-50 border border-indigo-200 rounded-2xl p-4 -m-4">
       <div class="flex items-center justify-between mb-3">
         <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Scheduled launch</p>
         <p class="text-xs text-slate-500 font-medium"
@@ -95,22 +95,22 @@
       </div>
       <!-- JS countdown -->
       <div id="launch-cd" class="flex items-center gap-2">
-        <div class="text-center bg-white border border-indigo-100 rounded-xl px-3 py-2 min-w-[52px]">
+        <div class="launch-cd-box text-center bg-white border border-indigo-100 rounded-xl px-3 py-2 min-w-[52px]">
           <div class="text-lg font-black text-indigo-600 leading-none" id="lcd-days">--</div>
           <div class="text-xs text-slate-400 mt-0.5">Days</div>
         </div>
         <span class="text-indigo-300 font-black">:</span>
-        <div class="text-center bg-white border border-indigo-100 rounded-xl px-3 py-2 min-w-[52px]">
+        <div class="launch-cd-box text-center bg-white border border-indigo-100 rounded-xl px-3 py-2 min-w-[52px]">
           <div class="text-lg font-black text-indigo-600 leading-none" id="lcd-hours">--</div>
           <div class="text-xs text-slate-400 mt-0.5">Hrs</div>
         </div>
         <span class="text-indigo-300 font-black">:</span>
-        <div class="text-center bg-white border border-indigo-100 rounded-xl px-3 py-2 min-w-[52px]">
+        <div class="launch-cd-box text-center bg-white border border-indigo-100 rounded-xl px-3 py-2 min-w-[52px]">
           <div class="text-lg font-black text-indigo-600 leading-none" id="lcd-mins">--</div>
           <div class="text-xs text-slate-400 mt-0.5">Min</div>
         </div>
         <span class="text-indigo-300 font-black">:</span>
-        <div class="text-center bg-white border border-indigo-100 rounded-xl px-3 py-2 min-w-[52px]">
+        <div class="launch-cd-box text-center bg-white border border-indigo-100 rounded-xl px-3 py-2 min-w-[52px]">
           <div class="text-lg font-black text-indigo-600 leading-none" id="lcd-secs">--</div>
           <div class="text-xs text-slate-400 mt-0.5">Sec</div>
         </div>

@@ -9,10 +9,12 @@
   function pad(n) { return String(n).padStart(2, '0'); }
 
   function showLaunched() {
-    var live = document.getElementById('cd-live');
+    var live     = document.getElementById('cd-live');
     var launched = document.getElementById('cd-launched');
-    if (live) live.style.display = 'none';
+    var subCard  = document.getElementById('subscribe-card');
+    if (live)     live.style.display = 'none';
     if (launched) launched.style.display = 'block';
+    if (subCard)  subCard.style.display = 'none';
   }
 
   function update() {
