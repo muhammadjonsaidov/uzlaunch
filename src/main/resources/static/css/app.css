@@ -114,13 +114,16 @@ body {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid #e2e8f0;
   height: 60px;
-  padding: 0 32px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 50;
+}
+@media (min-width: 640px) {
+  .app-nav { padding: 0 32px; }
 }
 
 /* ── LOGO ── */

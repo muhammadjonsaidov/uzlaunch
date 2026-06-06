@@ -157,7 +157,7 @@
       </h2>
       <input type="text" id="userSearch" placeholder="Search by email or name"
              oninput="filterTable('userSearch','userRows')"
-             class="border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-56 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
+             class="border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
     </div>
     <div th:if="${users.empty}" class="py-10 text-center text-sm text-slate-400">No users yet</div>
     <div id="userRows">
@@ -212,7 +212,7 @@
       </h2>
       <input type="text" id="projectSearch" placeholder="Search by name, slug or owner"
              oninput="filterTable('projectSearch','projectRows')"
-             class="border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-56 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
+             class="border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
     </div>
     <div th:if="${projects.empty}" class="py-10 text-center text-sm text-slate-400">No projects yet</div>
     <div id="projectRows">
