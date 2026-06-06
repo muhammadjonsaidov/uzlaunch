@@ -50,7 +50,7 @@
 
   <!-- Empty state -->
   <div th:if="${projects.empty}"
-       class="border-2 border-dashed border-slate-200 rounded-2xl p-16 text-center bg-white">
+       class="border-2 border-dashed border-slate-200 rounded-2xl p-8 sm:p-16 text-center bg-white">
     <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
     </div>
@@ -96,7 +96,7 @@
 
   <!-- Upgrade banner (Free only) -->
   <div th:if="${user.plan.name() == 'FREE'}"
-       class="mt-8 rounded-2xl p-5 flex items-center justify-between gap-4"
+       class="mt-8 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4"
        style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fcd34d">
     <div>
       <h3 class="font-bold text-amber-900 text-sm">Upgrade to Pro</h3>
