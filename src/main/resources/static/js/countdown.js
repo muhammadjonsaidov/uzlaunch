@@ -8,20 +8,23 @@
 
   function pad(n) { return String(n).padStart(2, '0'); }
 
-  function update() {
-    var now = new Date();
-    var diff = launch - now;
-    if (diff <= 0) { container.style.display = 'none'; return; }
-    var days  = Math.floor(diff / 86400000);
-    var hours = Math.floor((diff % 86400000) / 3600000);
-    var mins  = Math.floor((diff % 3600000) / 60000);
-    var secs  = Math.floor((diff % 60000) / 1000);
-    document.getElementById('cd-days').textContent  = pad(days);
-    document.getElementById('cd-hours').textContent = pad(hours);
-    document.getElementById('cd-mins').textContent  = pad(mins);
-    document.getElementById('cd-secs').textContent  = pad(secs);
+  function showLaunched() {
+    var live = document.getElementById('cd-live');
+    var launched = document.getElementById('cd-launched');
+    if (live) live.style.display = 'none';
+    if (launched) launched.style.display = 'block';
   }
 
+  function update() {
+    var diff = launch - new Date();
+    if (diff <= 0) { showLaunched(); return; }
+    document.getElementById('cd-days').textContent  = pad(Math.floor(diff / 86400000));
+    document.getElementById('cd-hours').textContent = pad(Math.floor((diff % 86400000) / 3600000));
+    document.getElementById('cd-mins').textContent  = pad(Math.floor((diff % 3600000) / 60000));
+    document.getElementById('cd-secs').textContent  = pad(Math.floor((diff % 60000) / 1000));
+    setTimeout(update, 1000);
+  }
+
+  if (launch <= new Date()) { showLaunched(); return; }
   update();
-  setInterval(update, 1000);
 })();

@@ -32,6 +32,11 @@ public class Project {
 
     private boolean launchNotified = false;
 
+    private String launchEmailSubject;
+
+    @Column(length = 2000)
+    private String launchEmailBody;
+
     private int subscriberCount = 0;
 
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -54,6 +59,10 @@ public class Project {
     public void setLaunchAt(LocalDateTime launchAt) { this.launchAt = launchAt; }
     public boolean isLaunchNotified() { return launchNotified; }
     public void setLaunchNotified(boolean launchNotified) { this.launchNotified = launchNotified; }
+    public String getLaunchEmailSubject() { return launchEmailSubject; }
+    public void setLaunchEmailSubject(String launchEmailSubject) { this.launchEmailSubject = launchEmailSubject; }
+    public String getLaunchEmailBody() { return launchEmailBody; }
+    public void setLaunchEmailBody(String launchEmailBody) { this.launchEmailBody = launchEmailBody; }
     public int getSubscriberCount() { return subscriberCount; }
     public void setSubscriberCount(int subscriberCount) { this.subscriberCount = subscriberCount; }
     public LocalDateTime getCreatedAt() { return createdAt; }

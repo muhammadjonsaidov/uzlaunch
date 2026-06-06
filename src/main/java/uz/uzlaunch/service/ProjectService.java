@@ -106,19 +106,11 @@ public class ProjectService {
         } else {
             p.setLaunchAt(null);
         }
+        p.setLaunchEmailSubject(req.getLaunchEmailSubject() != null && !req.getLaunchEmailSubject().isBlank()
+            ? req.getLaunchEmailSubject().trim() : null);
+        p.setLaunchEmailBody(req.getLaunchEmailBody() != null && !req.getLaunchEmailBody().isBlank()
+            ? req.getLaunchEmailBody().trim() : null);
         return projectRepo.save(p);
-    }
-
-    @Transactional
-    public int notifySubscribers(Long id, User user) {
-        Project p = getOwned(id, user);
-        List<Subscriber> confirmed = subscriberRepo.findByProjectAndConfirmed(p, true);
-        for (Subscriber s : confirmed) {
-            emailService.sendLaunchAnnouncement(s.getEmail(), s.getName(), p.getName(), p.getSlug(), s.getToken());
-        }
-        p.setLaunchNotified(true);
-        projectRepo.save(p);
-        return confirmed.size();
     }
 
     @Transactional

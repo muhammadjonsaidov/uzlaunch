@@ -17,6 +17,12 @@ public class ProjectCreateRequest {
 
     private String launchAt;
 
+    @Size(max = 200, message = "Email subject must be under 200 characters")
+    private String launchEmailSubject;
+
+    @Size(max = 2000, message = "Email body must be under 2000 characters")
+    private String launchEmailBody;
+
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public String getTagline() { return tagline; }
@@ -25,4 +31,8 @@ public class ProjectCreateRequest {
     public void setDescription(String description) { this.description = description; }
     public String getLaunchAt() { return launchAt; }
     public void setLaunchAt(String launchAt) { this.launchAt = launchAt; }
+    public String getLaunchEmailSubject() { return launchEmailSubject; }
+    public void setLaunchEmailSubject(String launchEmailSubject) { this.launchEmailSubject = launchEmailSubject; }
+    public String getLaunchEmailBody() { return launchEmailBody; }
+    public void setLaunchEmailBody(String launchEmailBody) { this.launchEmailBody = launchEmailBody; }
 }

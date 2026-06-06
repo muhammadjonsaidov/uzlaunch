@@ -286,3 +286,16 @@ html.dark select {
 }
 html.dark input::placeholder,
 html.dark textarea::placeholder { color: #475569 !important; }
+
+/* Countdown banner dark mode */
+html.dark .bg-indigo-50  { background-color: #1e1b4b !important; }
+html.dark .bg-green-50   { background-color: #052e16 !important; }
+html.dark .border-indigo-200 { border-color: #3730a3 !important; }
+html.dark .border-green-200  { border-color: #166534 !important; }
+html.dark .border-indigo-100 { border-color: #312e81 !important; }
+html.dark .bg-indigo-100 { background-color: #312e81 !important; }
+html.dark .bg-green-100  { background-color: #14532d !important; }
+html.dark .text-indigo-400 { color: #818cf8 !important; }
+html.dark .text-green-600  { color: #4ade80 !important; }
+html.dark .text-indigo-300 { color: #a5b4fc !important; }
+html.dark .border-t { border-top-color: #1e293b !important; }

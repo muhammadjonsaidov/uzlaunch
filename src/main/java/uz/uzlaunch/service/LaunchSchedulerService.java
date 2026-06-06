@@ -34,7 +34,8 @@ public class LaunchSchedulerService {
             List<Subscriber> confirmed = subscriberRepo.findByProjectAndConfirmed(p, true);
             log.info("Launch notification for '{}': sending to {} subscribers", p.getName(), confirmed.size());
             for (Subscriber s : confirmed) {
-                emailService.sendLaunchAnnouncement(s.getEmail(), s.getName(), p.getName(), p.getSlug(), s.getToken());
+                emailService.sendLaunchAnnouncement(s.getEmail(), s.getName(), p.getName(), p.getSlug(), s.getToken(),
+                    p.getLaunchEmailSubject(), p.getLaunchEmailBody());
             }
             p.setLaunchNotified(true);
             projectRepo.save(p);
