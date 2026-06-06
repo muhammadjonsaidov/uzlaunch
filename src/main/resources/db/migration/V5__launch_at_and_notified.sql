@@ -1,0 +1,3 @@
+ALTER TABLE projects RENAME COLUMN launch_date TO launch_at;
+ALTER TABLE projects ALTER COLUMN launch_at TYPE TIMESTAMP USING launch_at::TIMESTAMP;
+ALTER TABLE projects ADD COLUMN launch_notified BOOLEAN NOT NULL DEFAULT FALSE;

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import uz.uzlaunch.model.Project;
 import uz.uzlaunch.model.User;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +17,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findTop5ByOrderBySubscriberCountDesc();
     long countByUser(User user);
+
+    List<Project> findByLaunchAtBeforeAndLaunchNotifiedFalse(LocalDateTime now);
 
     @Modifying
     @Query("UPDATE Project p SET p.subscriberCount = p.subscriberCount + 1 WHERE p.id = :id")

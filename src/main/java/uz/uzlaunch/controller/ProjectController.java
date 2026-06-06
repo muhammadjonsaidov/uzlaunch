@@ -109,6 +109,19 @@ public class ProjectController {
         return "redirect:/projects/" + id;
     }
 
+    @PostMapping("/projects/{id}/notify-subscribers")
+    public String notifySubscribers(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
+        User user = authService.getSessionUser(session);
+        if (user == null) return "redirect:/login";
+        try {
+            int count = projectService.notifySubscribers(id, user);
+            ra.addFlashAttribute("success", "Launch email sent to " + count + " subscribers!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/projects/" + id;
+    }
+
     @PostMapping("/projects/{id}/delete")
     public String deleteProject(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
         User user = authService.getSessionUser(session);

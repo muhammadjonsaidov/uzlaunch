@@ -70,9 +70,9 @@
     </div>
 
     <!-- Countdown -->
-    <div th:if="${project.launchDate != null}"
+    <div th:if="${project.launchAt != null}"
          id="countdown-container"
-         th:attr="data-launch=${project.launchDate}">
+         th:attr="data-launch=${project.launchAt}">
       <p class="text-xs font-bold text-white/30 uppercase tracking-widest text-center mb-2">Launching in</p>
       <div class="flex items-center gap-1.5">
         <div class="cd-box">

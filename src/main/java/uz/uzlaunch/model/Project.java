@@ -1,7 +1,6 @@
 package uz.uzlaunch.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,7 +28,9 @@ public class Project {
 
     private String logoUrl;
 
-    private LocalDate launchDate;
+    private LocalDateTime launchAt;
+
+    private boolean launchNotified = false;
 
     private int subscriberCount = 0;
 
@@ -49,8 +50,10 @@ public class Project {
     public void setDescription(String description) { this.description = description; }
     public String getLogoUrl() { return logoUrl; }
     public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
-    public LocalDate getLaunchDate() { return launchDate; }
-    public void setLaunchDate(LocalDate launchDate) { this.launchDate = launchDate; }
+    public LocalDateTime getLaunchAt() { return launchAt; }
+    public void setLaunchAt(LocalDateTime launchAt) { this.launchAt = launchAt; }
+    public boolean isLaunchNotified() { return launchNotified; }
+    public void setLaunchNotified(boolean launchNotified) { this.launchNotified = launchNotified; }
     public int getSubscriberCount() { return subscriberCount; }
     public void setSubscriberCount(int subscriberCount) { this.subscriberCount = subscriberCount; }
     public LocalDateTime getCreatedAt() { return createdAt; }

@@ -50,9 +50,9 @@
         <textarea name="description" class="app-input" rows="3" placeholder="Tell visitors more about your project..." maxlength="1000" style="resize:vertical"></textarea>
       </div>
       <div>
-        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Expected launch date <span class="text-slate-300 font-normal normal-case">(optional)</span></label>
-        <input type="date" name="launchDate" class="app-input"/>
-        <p class="text-xs text-slate-400 mt-1">Shows a countdown timer on your page</p>
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Launch date &amp; time <span class="text-slate-300 font-normal normal-case">(optional)</span></label>
+        <input type="datetime-local" name="launchAt" class="app-input"/>
+        <p class="text-xs text-slate-400 mt-1">Shows countdown on your page. Subscribers notified automatically at this time.</p>
       </div>
       <div class="pt-2">
         <button type="submit" class="btn-primary w-full text-center" style="padding:13px">Create project →</button>

@@ -93,6 +93,27 @@ public class EmailService {
              wrap("UZLaunch", body, null));
     }
 
+    public void sendLaunchAnnouncement(String toEmail, String toName,
+                                       String projectName, String projectSlug, String token) {
+        String name = (toName != null && !toName.isBlank()) ? toName : "there";
+        String pageUrl = baseUrl + "/p/" + projectSlug;
+        String unsubUrl = baseUrl + "/unsubscribe?token=" + token;
+
+        String body = "<p style='margin:0 0 16px'>Hi <strong>" + esc(name) + "</strong>,</p>"
+            + "<div style='background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center'>"
+            + "<p style='margin:0;font-size:36px'>🚀</p>"
+            + "<p style='margin:10px 0 4px;font-weight:900;color:#15803d;font-size:20px'>We're live!</p>"
+            + "<p style='margin:0;color:#166534;font-size:15px'><strong>" + esc(projectName) + "</strong> has officially launched!</p>"
+            + "</div>"
+            + "<p style='margin:0 0 24px;color:#475569'>The wait is over. Head over to the page and check it out — you're among the first to know!</p>"
+            + btn(pageUrl, "Visit " + esc(projectName) + " →")
+            + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>You're receiving this because you joined the <strong>" + esc(projectName) + "</strong> waitlist.</p>";
+
+        send(toEmail,
+             "🚀 " + projectName + " is live!",
+             wrap(projectName, body, unsubUrl));
+    }
+
     public int broadcastToUsers(List<String> emails, String subject, String body) {
         String html = wrap("UZLaunch",
             "<p style='margin:0 0 16px;color:#475569'>" + esc(body).replace("\n", "<br/>") + "</p>",

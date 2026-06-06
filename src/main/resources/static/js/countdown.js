@@ -4,7 +4,7 @@
   var launchStr = container.getAttribute('data-launch');
   if (!launchStr) return;
 
-  var launch = new Date(launchStr + 'T00:00:00');
+  var launch = new Date(launchStr.includes('T') ? launchStr : launchStr + 'T00:00:00');
 
   function pad(n) { return String(n).padStart(2, '0'); }
 

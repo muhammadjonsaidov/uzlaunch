@@ -50,8 +50,10 @@
         <textarea name="description" class="app-input" rows="3" maxlength="1000" style="resize:vertical" th:text="${project.description}"></textarea>
       </div>
       <div>
-        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Expected launch date <span class="text-slate-300 font-normal normal-case">(optional)</span></label>
-        <input type="date" name="launchDate" class="app-input" th:value="${project.launchDate}"/>
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Launch date &amp; time <span class="text-slate-300 font-normal normal-case">(optional)</span></label>
+        <input type="datetime-local" name="launchAt" class="app-input"
+               th:value="${project.launchAt != null ? #temporals.format(project.launchAt, 'yyyy-MM-dd''T''HH:mm') : ''}"/>
+        <p class="text-xs text-slate-400 mt-1">Subscribers notified automatically at this time. Changing resets notification.</p>
       </div>
       <div class="pt-2">
         <button type="submit" class="btn-primary w-full text-center" style="padding:13px">Save changes</button>

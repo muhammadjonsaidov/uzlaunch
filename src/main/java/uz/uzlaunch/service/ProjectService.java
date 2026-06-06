@@ -18,6 +18,7 @@ import uz.uzlaunch.repository.ProjectRepository;
 import uz.uzlaunch.repository.SubscriberRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -28,6 +29,7 @@ public class ProjectService {
 
     @Autowired private ProjectRepository projectRepo;
     @Autowired private SubscriberRepository subscriberRepo;
+    @Autowired private EmailService emailService;
 
     public record ProjectDetail(Project project, List<Subscriber> subscribers,
                                 boolean locked, long total, int page, int totalPages,
@@ -84,8 +86,8 @@ public class ProjectService {
         p.setTagline(req.getTagline().trim());
         if (req.getDescription() != null && !req.getDescription().isBlank())
             p.setDescription(req.getDescription().trim());
-        if (req.getLaunchDate() != null && !req.getLaunchDate().isEmpty()) {
-            try { p.setLaunchDate(LocalDate.parse(req.getLaunchDate())); } catch (Exception ignored) {}
+        if (req.getLaunchAt() != null && !req.getLaunchAt().isEmpty()) {
+            try { p.setLaunchAt(LocalDateTime.parse(req.getLaunchAt())); } catch (Exception ignored) {}
         }
         return projectRepo.save(p);
     }
@@ -96,12 +98,27 @@ public class ProjectService {
         p.setTagline(req.getTagline().trim());
         p.setDescription(req.getDescription() != null && !req.getDescription().isBlank()
             ? req.getDescription().trim() : null);
-        if (req.getLaunchDate() != null && !req.getLaunchDate().isEmpty()) {
-            try { p.setLaunchDate(LocalDate.parse(req.getLaunchDate())); } catch (Exception ignored) {}
+        if (req.getLaunchAt() != null && !req.getLaunchAt().isEmpty()) {
+            try {
+                p.setLaunchAt(LocalDateTime.parse(req.getLaunchAt()));
+                p.setLaunchNotified(false);
+            } catch (Exception ignored) {}
         } else {
-            p.setLaunchDate(null);
+            p.setLaunchAt(null);
         }
         return projectRepo.save(p);
+    }
+
+    @Transactional
+    public int notifySubscribers(Long id, User user) {
+        Project p = getOwned(id, user);
+        List<Subscriber> confirmed = subscriberRepo.findByProjectAndConfirmed(p, true);
+        for (Subscriber s : confirmed) {
+            emailService.sendLaunchAnnouncement(s.getEmail(), s.getName(), p.getName(), p.getSlug(), s.getToken());
+        }
+        p.setLaunchNotified(true);
+        projectRepo.save(p);
+        return confirmed.size();
     }
 
     @Transactional
