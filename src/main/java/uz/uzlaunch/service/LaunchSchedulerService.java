@@ -26,8 +26,11 @@ public class LaunchSchedulerService {
     @Scheduled(fixedDelay = 60_000)
     @Transactional
     public void checkAndNotify() {
-        List<Project> due = projectRepo.findByLaunchAtBeforeAndLaunchNotifiedFalse(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        List<Project> due = projectRepo.findByLaunchAtBeforeAndLaunchNotifiedFalse(now);
+        log.info("Launch scheduler tick: now={}, due={}", now, due.size());
         for (Project p : due) {
+            log.info("Sending launch notifications for project '{}' (id={})", p.getName(), p.getId());
             List<Subscriber> confirmed = subscriberRepo.findByProjectAndConfirmed(p, true);
             log.info("Launch notification for '{}': sending to {} subscribers", p.getName(), confirmed.size());
             for (Subscriber s : confirmed) {
