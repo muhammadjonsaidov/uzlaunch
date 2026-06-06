@@ -33,7 +33,7 @@ public class ProjectService {
 
     public record ProjectDetail(Project project, List<Subscriber> subscribers,
                                 boolean locked, long total, int page, int totalPages,
-                                List<Subscriber> pending) {}
+                                List<Subscriber> pending, String q) {}
     public record ExportData(Project project, List<Subscriber> subscribers) {}
 
     public List<Project> listByUser(User user) {
@@ -56,15 +56,19 @@ public class ProjectService {
         return p;
     }
 
-    public ProjectDetail getProjectDetail(Long id, User user, int page) {
+    public ProjectDetail getProjectDetail(Long id, User user, int page, String q) {
         Project p = getOwned(id, user);
         boolean isPaid = user.getPlan() == User.Plan.PAID;
 
-        // FREE users capped at 100 confirmed subscribers (4 pages × 25)
         int effectivePage = (!isPaid && page > 3) ? 3 : page;
-
         Pageable pageable = PageRequest.of(effectivePage, PAGE_SIZE, Sort.by("subscribedAt").descending());
-        Page<Subscriber> result = subscriberRepo.findByProjectAndConfirmed(p, true, pageable);
+
+        Page<Subscriber> result;
+        if (q != null && !q.isBlank()) {
+            result = subscriberRepo.searchConfirmedByProject(p, q.trim(), pageable);
+        } else {
+            result = subscriberRepo.findByProjectAndConfirmed(p, true, pageable);
+        }
 
         long total = result.getTotalElements();
         boolean locked = !isPaid && total > 100;
@@ -72,7 +76,7 @@ public class ProjectService {
 
         List<Subscriber> pending = subscriberRepo.findByProjectAndConfirmed(p, false);
 
-        return new ProjectDetail(p, result.getContent(), locked, total, effectivePage, displayTotalPages, pending);
+        return new ProjectDetail(p, result.getContent(), locked, total, effectivePage, displayTotalPages, pending, q);
     }
 
     public Project create(ProjectCreateRequest req, User user) {
@@ -143,8 +147,10 @@ public class ProjectService {
         LocalDate today = LocalDate.now();
         Map<LocalDate, Long> rawCounts = new LinkedHashMap<>();
         for (int i = days - 1; i >= 0; i--) rawCounts.put(today.minusDays(i), 0L);
-        for (Subscriber s : allSubs)
-            rawCounts.computeIfPresent(s.getSubscribedAt().toLocalDate(), (k, v) -> v + 1);
+        for (Subscriber s : allSubs) {
+            LocalDate date = s.getConfirmedAt() != null ? s.getConfirmedAt().toLocalDate() : s.getSubscribedAt().toLocalDate();
+            rawCounts.computeIfPresent(date, (k, v) -> v + 1);
+        }
 
         long max = Math.max(rawCounts.values().stream().mapToLong(Long::longValue).max().orElse(1), 1);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MMM d");

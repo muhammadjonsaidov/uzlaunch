@@ -59,7 +59,13 @@ public class SubscriberService {
         String slug = sub.getProject().getSlug();
         if (sub.isConfirmed()) return slug;
 
+        if (sub.getSubscribedAt().isBefore(java.time.LocalDateTime.now().minusDays(7))) {
+            subscriberRepo.delete(sub);
+            throw new uz.uzlaunch.exception.PageNotFoundException();
+        }
+
         sub.setConfirmed(true);
+        sub.setConfirmedAt(java.time.LocalDateTime.now());
         subscriberRepo.save(sub);
 
         Project p = sub.getProject();
@@ -75,6 +81,25 @@ public class SubscriberService {
         );
 
         return slug;
+    }
+
+    @Transactional
+    public void deleteSubscriber(Long subId, Project project) {
+        Subscriber sub = subscriberRepo.findByIdAndProject(subId, project)
+            .orElseThrow(uz.uzlaunch.exception.PageNotFoundException::new);
+        if (sub.isConfirmed()) {
+            projectRepo.decrementSubscriberCount(project.getId());
+        }
+        subscriberRepo.delete(sub);
+    }
+
+    public void resendConfirmation(Long subId, Project project) {
+        Subscriber sub = subscriberRepo.findByIdAndProject(subId, project)
+            .orElseThrow(uz.uzlaunch.exception.PageNotFoundException::new);
+        if (!sub.isConfirmed()) {
+            emailService.sendSubscriberConfirmation(sub.getEmail(), sub.getName(),
+                project.getName(), project.getSlug(), sub.getToken());
+        }
     }
 
     @Transactional

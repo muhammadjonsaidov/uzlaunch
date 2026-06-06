@@ -18,6 +18,7 @@ import uz.uzlaunch.model.User;
 import uz.uzlaunch.service.AuthService;
 import uz.uzlaunch.service.ProjectService;
 import uz.uzlaunch.service.SseService;
+import uz.uzlaunch.service.SubscriberService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class ProjectController {
     @Autowired private AuthService authService;
     @Autowired private ProjectService projectService;
     @Autowired private SseService sseService;
+    @Autowired private SubscriberService subscriberService;
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
@@ -72,10 +74,11 @@ public class ProjectController {
     @GetMapping("/projects/{id}")
     public String projectDetail(@PathVariable Long id,
                                 @RequestParam(defaultValue = "0") int page,
+                                @RequestParam(defaultValue = "") String q,
                                 HttpSession session, Model model) {
         User user = authService.getSessionUser(session);
         if (user == null) return "redirect:/login";
-        ProjectService.ProjectDetail detail = projectService.getProjectDetail(id, user, page);
+        ProjectService.ProjectDetail detail = projectService.getProjectDetail(id, user, page, q);
         model.addAttribute("project", detail.project());
         model.addAttribute("subscribers", detail.subscribers());
         model.addAttribute("locked", detail.locked());
@@ -85,6 +88,7 @@ public class ProjectController {
         model.addAttribute("pending", detail.pending());
         model.addAttribute("user", user);
         model.addAttribute("baseUrl", baseUrl);
+        model.addAttribute("q", detail.q());
         return "project-detail";
     }
 
@@ -121,6 +125,28 @@ public class ProjectController {
         String name = projectService.delete(id, user);
         ra.addFlashAttribute("success", "Project \"" + name + "\" deleted");
         return "redirect:/dashboard";
+    }
+
+    @PostMapping("/projects/{id}/subscribers/{subId}/delete")
+    public String deleteSubscriber(@PathVariable Long id, @PathVariable Long subId,
+                                   HttpSession session, RedirectAttributes ra) {
+        User user = authService.getSessionUser(session);
+        if (user == null) return "redirect:/login";
+        Project project = projectService.getOwned(id, user);
+        subscriberService.deleteSubscriber(subId, project);
+        ra.addFlashAttribute("success", "Subscriber removed");
+        return "redirect:/projects/" + id;
+    }
+
+    @PostMapping("/projects/{id}/subscribers/{subId}/resend")
+    public String resendConfirmation(@PathVariable Long id, @PathVariable Long subId,
+                                     HttpSession session, RedirectAttributes ra) {
+        User user = authService.getSessionUser(session);
+        if (user == null) return "redirect:/login";
+        Project project = projectService.getOwned(id, user);
+        subscriberService.resendConfirmation(subId, project);
+        ra.addFlashAttribute("success", "Confirmation email resent");
+        return "redirect:/projects/" + id;
     }
 
     @GetMapping(value = "/projects/{id}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

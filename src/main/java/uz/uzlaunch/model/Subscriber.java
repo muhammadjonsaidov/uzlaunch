@@ -26,6 +26,8 @@ public class Subscriber {
 
     private LocalDateTime subscribedAt = LocalDateTime.now();
 
+    private LocalDateTime confirmedAt;
+
     public Long getId() { return id; }
     public Project getProject() { return project; }
     public void setProject(Project project) { this.project = project; }
@@ -38,4 +40,6 @@ public class Subscriber {
     public boolean isConfirmed() { return confirmed; }
     public void setConfirmed(boolean confirmed) { this.confirmed = confirmed; }
     public LocalDateTime getSubscribedAt() { return subscribedAt; }
+    public LocalDateTime getConfirmedAt() { return confirmedAt; }
+    public void setConfirmedAt(LocalDateTime confirmedAt) { this.confirmedAt = confirmedAt; }
 }
