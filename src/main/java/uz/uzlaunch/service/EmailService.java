@@ -129,10 +129,10 @@ public class EmailService {
             null);
         int sent = 0;
         for (String email : emails) {
-            send(email, subject, html);
-            sent++;
+            if (sendTracked(email, subject, html)) sent++;
+            try { Thread.sleep(600); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
         }
-        log.info("Broadcast done: sent={}", sent);
+        log.info("Broadcast done: sent={}/{}", sent, emails.size());
         return sent;
     }
 
@@ -180,8 +180,16 @@ public class EmailService {
         send(to, subject, html, null);
     }
 
+    private boolean sendTracked(String to, String subject, String html) {
+        return sendTracked(to, subject, html, null);
+    }
+
     private void send(String to, String subject, String html, String unsubUrl) {
-        if (apiKey.isBlank()) { log.warn("RESEND_API_KEY not set, skipping email to {}", to); return; }
+        sendTracked(to, subject, html, unsubUrl);
+    }
+
+    private boolean sendTracked(String to, String subject, String html, String unsubUrl) {
+        if (apiKey.isBlank()) { log.warn("RESEND_API_KEY not set, skipping email to {}", to); return false; }
         try {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -203,8 +211,10 @@ public class EmailService {
             rest.exchange("https://api.resend.com/emails",
                 HttpMethod.POST, new HttpEntity<>(body, httpHeaders), Map.class);
             log.info("Email sent to {}: {}", to, subject);
+            return true;
         } catch (Exception e) {
             log.warn("Email send failed to {}: {}", to, e.getMessage());
+            return false;
         }
     }
 }
