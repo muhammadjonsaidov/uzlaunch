@@ -43,8 +43,13 @@ public class ProjectController {
     }
 
     @GetMapping("/projects/new")
-    public String newProjectPage(HttpSession session) {
-        if (authService.getSessionUser(session) == null) return "redirect:/login";
+    public String newProjectPage(HttpSession session, RedirectAttributes ra) {
+        User user = authService.getSessionUser(session);
+        if (user == null) return "redirect:/login";
+        if (user.getPlan() == User.Plan.FREE && projectService.listByUser(user).size() >= 1) {
+            ra.addFlashAttribute("error", "Free plan allows only 1 waitlist. Upgrade to Pro for unlimited.");
+            return "redirect:/dashboard";
+        }
         return "project-new";
     }
 
