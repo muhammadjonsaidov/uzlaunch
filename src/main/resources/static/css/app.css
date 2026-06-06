@@ -153,7 +153,7 @@ body {
   font-weight: 700;
 }
 
-/* ── ALERTS ── */
+/* ── ALERTS (inline, auth pages) ── */
 .alert-success {
   background: linear-gradient(135deg, #d1fae5, #a7f3d0);
   border: 1px solid #6ee7b7;
@@ -172,6 +172,39 @@ body {
   font-size: 14px;
   font-weight: 500;
 }
+
+/* ── TOAST (fixed top-right) ── */
+.app-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  max-width: 360px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.app-toast-success {
+  background: #fff;
+  border: 1px solid #bbf7d0;
+  color: #065f46;
+}
+.app-toast-success::before { content: '✓'; font-weight: 900; color: #10b981; font-size: 16px; }
+.app-toast-error {
+  background: #fff;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+}
+.app-toast-error::before { content: '✕'; font-weight: 900; color: #ef4444; font-size: 16px; }
+html.dark .app-toast-success { background: #1e293b; border-color: #065f46; color: #86efac; }
+html.dark .app-toast-error   { background: #1e293b; border-color: #7f1d1d; color: #fca5a5; }
+.app-toast.hiding { opacity: 0; transform: translateX(20px); }
 
 /* ── APP CARD ── */
 .app-card {

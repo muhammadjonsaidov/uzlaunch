@@ -38,8 +38,8 @@
 
 <main class="flex-1 max-w-5xl mx-auto w-full px-5 py-8">
 
-  <div th:if="${success}" class="alert-success mb-6" th:text="${success}"></div>
-  <div th:if="${error}" class="alert-error mb-6" th:text="${error}"></div>
+  <div th:if="${success}" class="app-toast app-toast-success" th:text="${success}"></div>
+  <div th:if="${error}" class="app-toast app-toast-error" th:text="${error}"></div>
 
   <h1 class="text-2xl font-black text-slate-900 tracking-tight mb-6">Admin panel</h1>
 
@@ -284,6 +284,7 @@
       row.style.display = row.getAttribute('data-search').toLowerCase().indexOf(q) >= 0 ? '' : 'none';
     });
   }
+  document.querySelectorAll('.app-toast').forEach(function(t){setTimeout(function(){t.classList.add('hiding');setTimeout(function(){t.remove();},300);},5000);});
 </script>
 <script>function toggleDark(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.theme=d?'dark':'light';}</script>
 

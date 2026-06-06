@@ -32,8 +32,8 @@
 
 <main class="flex-1 max-w-3xl mx-auto w-full px-5 py-10">
 
-  <div th:if="${success}" class="alert-success mb-6" th:text="${success}"></div>
-  <div th:if="${error}" class="alert-error mb-6" th:text="${error}"></div>
+  <div th:if="${success}" class="app-toast app-toast-success" th:text="${success}"></div>
+  <div th:if="${error}" class="app-toast app-toast-error" th:text="${error}"></div>
 
   <!-- Header -->
   <div class="flex items-center justify-between mb-7">
@@ -114,6 +114,6 @@
   <p class="text-xs text-slate-300">© 2026 UZLaunch · Built for Uzbek founders</p>
 </footer>
 
-<script>function toggleDark(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.theme=d?'dark':'light';}</script>
+<script>function toggleDark(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.theme=d?'dark':'light';}document.querySelectorAll('.app-toast').forEach(function(t){setTimeout(function(){t.classList.add('hiding');setTimeout(function(){t.remove();},300);},5000);});</script>
 </body>
 </html>

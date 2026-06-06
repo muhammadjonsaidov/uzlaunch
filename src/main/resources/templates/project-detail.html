@@ -201,8 +201,8 @@
 </main>
 
 <!-- Flash messages -->
-<div th:if="${success}" class="fixed top-4 right-4 z-50 bg-green-500 text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-lg" th:text="${success}"></div>
-<div th:if="${error}" class="fixed top-4 right-4 z-50 bg-red-500 text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-lg" th:text="${error}"></div>
+<div th:if="${success}" class="app-toast app-toast-success" th:text="${success}"></div>
+<div th:if="${error}" class="app-toast app-toast-error" th:text="${error}"></div>
 
 <!-- Delete modal -->
 <div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4"
@@ -271,6 +271,7 @@
   }
   tick();
 })();
+document.querySelectorAll('.app-toast').forEach(function(t){setTimeout(function(){t.classList.add('hiding');setTimeout(function(){t.remove();},300);},5000);});
 </script>
 
 </body>
