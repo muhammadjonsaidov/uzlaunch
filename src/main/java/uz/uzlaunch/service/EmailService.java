@@ -137,7 +137,7 @@ public class EmailService {
             }
 
             rest.exchange("https://api.resend.com/emails/batch",
-                HttpMethod.POST, new HttpEntity<>(batch, httpHeaders), List.class);
+                HttpMethod.POST, new HttpEntity<>(batch, httpHeaders), Map.class);
             log.info("Launch batch sent: {} subscribers, project='{}'", subscribers.size(), projectName);
             return subscribers.size();
         } catch (Exception e) {
@@ -182,7 +182,7 @@ public class EmailService {
             }
 
             rest.exchange("https://api.resend.com/emails/batch",
-                HttpMethod.POST, new HttpEntity<>(batch, httpHeaders), List.class);
+                HttpMethod.POST, new HttpEntity<>(batch, httpHeaders), Map.class);
             log.info("Batch sent: {} emails, subject='{}'", toList.size(), subject);
             return toList.size();
         } catch (Exception e) {
