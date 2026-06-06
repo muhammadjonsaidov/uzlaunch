@@ -21,6 +21,7 @@
     <h1 class="text-2xl font-black text-white mb-1 tracking-tight">Welcome back</h1>
     <p class="text-white/50 text-sm mb-7">Log in to your account</p>
 
+    <div th:if="${success}" class="alert-success mb-5 text-sm" th:text="${success}"></div>
     <div th:if="${error}" class="alert-error mb-5 text-sm" th:text="${error}"></div>
 
     <form method="post" th:action="@{/login}" class="space-y-4">

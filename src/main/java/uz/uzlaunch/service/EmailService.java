@@ -98,6 +98,18 @@ public class EmailService {
              wrap("UZLaunch", body, null));
     }
 
+    public void sendVerificationEmail(String toEmail, String name, String token) {
+        String verifyUrl = baseUrl + "/verify-email?token=" + token;
+        String displayName = (name != null && !name.isBlank()) ? name : "there";
+        String body = "<p style='margin:0 0 16px'>Hi <strong>" + esc(displayName) + "</strong>,</p>"
+            + "<p style='margin:0 0 24px;color:#475569'>Thanks for signing up for <strong>UZLaunch</strong>! Please verify your email address to get started:</p>"
+            + btn(verifyUrl, "Verify my email")
+            + "<p style='margin:24px 0 0;font-size:13px;color:#94a3b8'>Or paste this link in your browser:<br/>"
+            + "<a href='" + verifyUrl + "' style='color:#6366f1;word-break:break-all'>" + verifyUrl + "</a></p>"
+            + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>Didn't sign up for UZLaunch? Ignore this email.</p>";
+        send(toEmail, "Verify your UZLaunch email address", wrap("UZLaunch", body, null));
+    }
+
     public int sendLaunchAnnouncementBatch(List<uz.uzlaunch.model.Subscriber> subscribers,
                                             String projectName, String projectSlug,
                                             String customSubject, String customMessage) {

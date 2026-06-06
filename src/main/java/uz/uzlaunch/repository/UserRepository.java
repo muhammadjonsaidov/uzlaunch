@@ -12,4 +12,5 @@ public interface UserRepository extends JpaRepository<User, String> {
     boolean existsByEmail(String email);
     long countByCreatedAtAfter(LocalDateTime dateTime);
     List<User> findByCreatedAtAfter(LocalDateTime dateTime);
+    java.util.Optional<User> findByVerificationToken(String token);
 }

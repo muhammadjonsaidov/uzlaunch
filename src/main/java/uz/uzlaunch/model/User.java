@@ -21,6 +21,8 @@ public class User {
     private Plan plan = Plan.FREE;
 
     private boolean banned = false;
+    private boolean emailVerified = false;
+    private String verificationToken;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -38,5 +40,9 @@ public class User {
     public void setPlan(Plan plan) { this.plan = plan; }
     public boolean isBanned() { return banned; }
     public void setBanned(boolean banned) { this.banned = banned; }
+    public boolean isEmailVerified() { return emailVerified; }
+    public void setEmailVerified(boolean emailVerified) { this.emailVerified = emailVerified; }
+    public String getVerificationToken() { return verificationToken; }
+    public void setVerificationToken(String verificationToken) { this.verificationToken = verificationToken; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }
