@@ -4,8 +4,8 @@
 
 > Kodlashdan oldin — tekshiring. Idea bormi? Avval auditoriyangizni yig'ing.
 
-[![Java](https://img.shields.io/badge/Java-17-orange?style=flat-square)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-green?style=flat-square)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-21-orange?style=flat-square)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0-green?style=flat-square)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?style=flat-square)](https://www.postgresql.org/)
 
 ---
@@ -49,7 +49,7 @@
 ## Texnologiyalar
 
 **Backend**
-- Java 17, Spring Boot 3.2
+- Java 21, Spring Boot 4.0.6
 - Spring Data JPA + Hibernate
 - Spring Security (sessiya autentifikatsiya, CSRF o'chirilgan)
 - Flyway (migratsiya boshqaruvi, V1–V9)
