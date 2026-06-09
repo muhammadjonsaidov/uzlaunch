@@ -31,6 +31,10 @@ FRONTEND.md
 # Frontend (not needed for backend Docker build)
 frontend/
 
+# Config files not needed in container
+.sdkmanrc
+*.toml
+
 # Logs
 *.log
 logs/
