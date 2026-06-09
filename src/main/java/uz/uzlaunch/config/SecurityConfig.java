@@ -1,6 +1,7 @@
 package uz.uzlaunch.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -28,6 +29,9 @@ public class SecurityConfig {
 
     @Autowired private JwtDecoder jwtDecoder;
     @Autowired private OAuth2SuccessHandler oAuth2SuccessHandler;
+
+    @Value("${app.frontend-url:http://localhost:3000}")
+    private String frontendUrl;
 
     @Bean
     @Order(1)
@@ -65,7 +69,7 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOrigins(List.of(frontendUrl, "http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -94,5 +98,10 @@ public class SecurityConfig {
     @Bean("adminRateLimiter")
     public RateLimiter adminRateLimiter() {
         return new RateLimiter(5, 900_000L);
+    }
+
+    @Bean("registerRateLimiter")
+    public RateLimiter registerRateLimiter() {
+        return new RateLimiter(5, 3_600_000L);
     }
 }

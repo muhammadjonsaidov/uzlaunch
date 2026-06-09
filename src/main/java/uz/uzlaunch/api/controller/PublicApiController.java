@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.uzlaunch.api.dto.request.SubscribeApiRequest;
+import uz.uzlaunch.api.dto.response.MessageResponse;
 import uz.uzlaunch.api.dto.response.ProjectResponse;
+import uz.uzlaunch.api.dto.response.SubscribeConfirmResponse;
 import uz.uzlaunch.dto.SubscribeRequest;
 import uz.uzlaunch.service.ProjectService;
 import uz.uzlaunch.service.SubscriberService;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/public")
@@ -35,28 +35,28 @@ public class PublicApiController {
 
     @PostMapping("/projects/{slug}/subscribe")
     @Operation(summary = "Subscribe to waitlist", description = "Sends double opt-in confirmation email. Rate limited: 3/hour per IP.")
-    public ResponseEntity<Map<String, String>> subscribe(@PathVariable String slug,
-                                                          @Valid @RequestBody SubscribeApiRequest req,
-                                                          HttpServletRequest request) {
+    public ResponseEntity<MessageResponse> subscribe(@PathVariable String slug,
+                                                      @Valid @RequestBody SubscribeApiRequest req,
+                                                      HttpServletRequest request) {
         SubscribeRequest dto = new SubscribeRequest();
         dto.setEmail(req.email());
         dto.setName(req.name());
         subscriberService.subscribe(slug, dto, resolveIp(request));
-        return ResponseEntity.ok(Map.of("message", "Confirmation email sent. Please check your inbox."));
+        return ResponseEntity.ok(new MessageResponse("Confirmation email sent. Please check your inbox."));
     }
 
     @GetMapping("/confirm")
     @Operation(summary = "Confirm subscription via email token", description = "?token=UUID")
-    public ResponseEntity<Map<String, String>> confirm(@RequestParam String token) {
+    public ResponseEntity<SubscribeConfirmResponse> confirm(@RequestParam String token) {
         String slug = subscriberService.confirmSubscription(token);
-        return ResponseEntity.ok(Map.of("message", "Subscription confirmed!", "slug", slug));
+        return ResponseEntity.ok(new SubscribeConfirmResponse("Subscription confirmed!", slug));
     }
 
     @GetMapping("/unsubscribe")
-    @Operation(summary = "Unsubscribe via token", description = "?token=UUID — works for both confirmed and pending subscribers")
-    public ResponseEntity<Map<String, String>> unsubscribe(@RequestParam String token) {
+    @Operation(summary = "Unsubscribe via token", description = "?token=UUID")
+    public ResponseEntity<MessageResponse> unsubscribe(@RequestParam String token) {
         String projectName = subscriberService.unsubscribe(token);
-        return ResponseEntity.ok(Map.of("message", "Unsubscribed from " + projectName));
+        return ResponseEntity.ok(new MessageResponse("Unsubscribed from " + projectName));
     }
 
     private String resolveIp(HttpServletRequest request) {

@@ -11,9 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import uz.uzlaunch.api.dto.request.ProjectApiRequest;
-import uz.uzlaunch.api.dto.response.PagedResponse;
-import uz.uzlaunch.api.dto.response.ProjectResponse;
-import uz.uzlaunch.api.dto.response.SubscriberResponse;
+import uz.uzlaunch.api.dto.response.*;
 import uz.uzlaunch.dto.ProjectCreateRequest;
 import uz.uzlaunch.exception.PageNotFoundException;
 import uz.uzlaunch.model.Project;
@@ -70,21 +68,20 @@ public class ProjectApiController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Project detail with paginated confirmed subscribers", description = "?page=0&q=search")
-    public ResponseEntity<Map<String, Object>> detail(@PathVariable Long id,
-                                                       @RequestParam(defaultValue = "0") int page,
-                                                       @RequestParam(required = false) String q,
-                                                       @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<ProjectDetailResponse> detail(@PathVariable Long id,
+                                                         @RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(required = false) String q,
+                                                         @AuthenticationPrincipal Jwt jwt) {
         User user = resolveUser(jwt);
         ProjectService.ProjectDetail detail = projectService.getProjectDetail(id, user, page, q);
-        PagedResponse<SubscriberResponse> paged = new PagedResponse<>(
-                detail.subscribers().stream().map(SubscriberResponse::from).toList(),
-                detail.page(), detail.totalPages(), detail.total()
-        );
-        return ResponseEntity.ok(Map.of(
-                "project", ProjectResponse.from(detail.project()),
-                "subscribers", paged,
-                "pendingCount", detail.pending().size(),
-                "locked", detail.locked()
+        return ResponseEntity.ok(new ProjectDetailResponse(
+                ProjectResponse.from(detail.project()),
+                new PagedResponse<>(
+                        detail.subscribers().stream().map(SubscriberResponse::from).toList(),
+                        detail.page(), detail.totalPages(), detail.total()
+                ),
+                detail.pending().size(),
+                detail.locked()
         ));
     }
 
@@ -114,13 +111,23 @@ public class ProjectApiController {
 
     @GetMapping("/{id}/stats")
     @Operation(summary = "Daily subscription chart data", description = "FREE: 7 days. PRO: 30 days.")
-    public ResponseEntity<Map<String, Object>> stats(@PathVariable Long id,
-                                                      @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<StatsResponse> stats(@PathVariable Long id,
+                                                @AuthenticationPrincipal Jwt jwt) {
         User user = resolveUser(jwt);
         Project p = projectService.getOwned(id, user);
-        Map<String, Object> stats = projectService.getStats(p.getSlug(), user);
-        stats.put("project", ProjectResponse.from(p));
-        return ResponseEntity.ok(stats);
+        Map<String, Object> raw = projectService.getStats(p.getSlug(), user);
+
+        @SuppressWarnings("unchecked")
+        List<ChartBar> chartData = ((List<Map<String, Object>>) raw.get("chartData"))
+                .stream().map(ChartBar::from).toList();
+
+        return ResponseEntity.ok(new StatsResponse(
+                ProjectResponse.from(p),
+                chartData,
+                ((Number) raw.get("totalSubscribers")).longValue(),
+                ((Number) raw.get("statsDays")).intValue(),
+                ((Number) raw.get("last7Days")).longValue()
+        ));
     }
 
     @DeleteMapping("/{id}/subscribers/{subId}")
