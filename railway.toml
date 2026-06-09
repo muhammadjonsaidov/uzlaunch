@@ -8,4 +8,4 @@ healthcheckPath = "/login"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
-watchPatterns = ["src/**", "pom.xml", "Dockerfile", "docker-compose.yml"]
+watchPatterns = ["src/**", "build.gradle.kts", "settings.gradle.kts", "gradle/**", "Dockerfile", "docker-compose.yml"]
