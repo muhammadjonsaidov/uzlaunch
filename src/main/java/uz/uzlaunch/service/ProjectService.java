@@ -85,7 +85,8 @@ public class ProjectService {
         if (req.getDescription() != null && !req.getDescription().isBlank())
             p.setDescription(req.getDescription().trim());
         if (req.getLaunchAt() != null && !req.getLaunchAt().isEmpty()) {
-            try { p.setLaunchAt(LocalDateTime.parse(req.getLaunchAt())); } catch (Exception ignored) {}
+            try { p.setLaunchAt(LocalDateTime.parse(req.getLaunchAt())); }
+            catch (Exception e) { throw new BadRequestException("Invalid launch date format. Use ISO-8601: yyyy-MM-ddTHH:mm:ss"); }
         }
         return projectRepo.save(p);
     }
@@ -100,7 +101,9 @@ public class ProjectService {
             try {
                 p.setLaunchAt(LocalDateTime.parse(req.getLaunchAt()));
                 p.setLaunchNotified(false);
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                throw new BadRequestException("Invalid launch date format. Use ISO-8601: yyyy-MM-ddTHH:mm:ss");
+            }
         } else {
             p.setLaunchAt(null);
         }

@@ -56,6 +56,11 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(409).body(new ErrorResponse("AWAITING_CONFIRMATION", "Confirmation email already sent"));
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handle(BadRequestException ex) {
+        return ResponseEntity.status(422).body(new ErrorResponse("BAD_REQUEST", ex.getMessage()));
+    }
+
     @ExceptionHandler(SubscribeRateLimitedException.class)
     public ResponseEntity<ErrorResponse> handle(SubscribeRateLimitedException ex) {
         return ResponseEntity.status(429).body(new ErrorResponse("RATE_LIMITED", "Too many requests. Try again later."));

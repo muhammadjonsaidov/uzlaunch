@@ -66,7 +66,13 @@ public class ProjectController {
             ra.addFlashAttribute("error", errors.getAllErrors().get(0).getDefaultMessage());
             return "redirect:/projects/new";
         }
-        Project p = projectService.create(req, user);
+        Project p;
+        try {
+            p = projectService.create(req, user);
+        } catch (uz.uzlaunch.exception.BadRequestException e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/projects/new";
+        }
         ra.addFlashAttribute("success", "Project created! Share: /p/" + p.getSlug());
         return "redirect:/dashboard";
     }
@@ -113,7 +119,12 @@ public class ProjectController {
             ra.addFlashAttribute("error", errors.getAllErrors().get(0).getDefaultMessage());
             return "redirect:/projects/" + id + "/edit";
         }
-        projectService.update(id, req, user);
+        try {
+            projectService.update(id, req, user);
+        } catch (uz.uzlaunch.exception.BadRequestException e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/projects/" + id + "/edit";
+        }
         ra.addFlashAttribute("success", "Project updated");
         return "redirect:/projects/" + id;
     }

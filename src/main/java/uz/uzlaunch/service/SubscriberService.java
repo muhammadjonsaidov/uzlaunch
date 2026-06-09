@@ -55,7 +55,7 @@ public class SubscriberService {
         String slug = sub.getProject().getSlug();
         if (sub.isConfirmed()) return slug;
 
-        if (sub.getSubscribedAt().isBefore(LocalDateTime.now().minusDays(7))) {
+        if (!sub.getSubscribedAt().isAfter(LocalDateTime.now().minusDays(7))) {
             subscriberRepo.delete(sub);
             throw new PageNotFoundException();
         }
