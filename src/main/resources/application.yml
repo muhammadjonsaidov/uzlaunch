@@ -27,6 +27,19 @@ spring:
     cache: false
     encoding: UTF-8
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
+            scope: openid,profile,email
+          github:
+            client-id: ${GITHUB_CLIENT_ID:}
+            client-secret: ${GITHUB_CLIENT_SECRET:}
+            scope: read:user,user:email
+
 server:
   port: ${PORT:8080}
   servlet:
@@ -41,6 +54,9 @@ app:
     from: ${MAIL_FROM:UZLaunch <noreply@uzlaunch.uz>}
   base-url: ${BASE_URL:http://localhost:8080}
   trust-proxy: ${TRUST_PROXY:false}
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  jwt:
+    expiration: 604800
 
 admin:
   secret: ${ADMIN_SECRET}
