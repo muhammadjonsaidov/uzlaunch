@@ -1,0 +1,36 @@
+# Git
+.git/
+.gitignore
+
+# Build output
+build/
+target/
+
+# Gradle cache
+.gradle/
+
+# Environment / secrets
+.env
+*.env
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs
+docs/
+README.md
+FRONTEND.md
+*.md
+
+# Frontend (not needed for backend Docker build)
+frontend/
+
+# Logs
+*.log
+logs/

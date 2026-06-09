@@ -1,6 +1,40 @@
+# Build output
+build/
 target/
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# Environment / secrets
 .env
 *.env
+
+# IDE
 .idea/
 *.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java
 *.class
+*.jar
+hs_err_pid*
+
+# Logs
+*.log
+logs/
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/.env.local
+frontend/.env*.local
