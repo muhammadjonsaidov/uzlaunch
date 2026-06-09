@@ -1,5 +1,8 @@
 package uz.uzlaunch.api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -7,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import uz.uzlaunch.api.dto.request.ProjectApiRequest;
 import uz.uzlaunch.api.dto.response.PagedResponse;
 import uz.uzlaunch.api.dto.response.ProjectResponse;
 import uz.uzlaunch.api.dto.response.SubscriberResponse;
@@ -23,6 +27,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/projects")
+@SecurityRequirement(name = "Bearer")
+@Tag(name = "Projects", description = "Project CRUD, subscribers, stats, export")
 public class ProjectApiController {
 
     @Autowired private ProjectService projectService;
@@ -33,33 +39,46 @@ public class ProjectApiController {
         return userRepo.findById(jwt.getSubject()).orElseThrow(PageNotFoundException::new);
     }
 
+    private ProjectCreateRequest toCreateRequest(ProjectApiRequest req) {
+        ProjectCreateRequest r = new ProjectCreateRequest();
+        r.setName(req.name());
+        r.setTagline(req.tagline());
+        r.setDescription(req.description());
+        r.setLaunchAt(req.launchAt());
+        r.setLaunchEmailSubject(req.launchEmailSubject());
+        r.setLaunchEmailBody(req.launchEmailBody());
+        r.setConfirmEmailSubject(req.confirmEmailSubject());
+        r.setConfirmEmailBody(req.confirmEmailBody());
+        return r;
+    }
+
     @GetMapping
+    @Operation(summary = "List user's projects")
     public ResponseEntity<List<ProjectResponse>> list(@AuthenticationPrincipal Jwt jwt) {
-        User user = resolveUser(jwt);
         return ResponseEntity.ok(
-                projectService.listByUser(user).stream().map(ProjectResponse::from).toList()
+                projectService.listByUser(resolveUser(jwt)).stream().map(ProjectResponse::from).toList()
         );
     }
 
     @PostMapping
-    public ResponseEntity<ProjectResponse> create(@Valid @RequestBody ProjectCreateRequest req,
+    @Operation(summary = "Create project", description = "FREE plan: max 1 project. PRO: unlimited.")
+    public ResponseEntity<ProjectResponse> create(@Valid @RequestBody ProjectApiRequest req,
                                                    @AuthenticationPrincipal Jwt jwt) {
-        User user = resolveUser(jwt);
-        Project p = projectService.create(req, user);
+        Project p = projectService.create(toCreateRequest(req), resolveUser(jwt));
         return ResponseEntity.status(HttpStatus.CREATED).body(ProjectResponse.from(p));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Project detail with paginated confirmed subscribers", description = "?page=0&q=search")
     public ResponseEntity<Map<String, Object>> detail(@PathVariable Long id,
                                                        @RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(required = false) String q,
                                                        @AuthenticationPrincipal Jwt jwt) {
         User user = resolveUser(jwt);
         ProjectService.ProjectDetail detail = projectService.getProjectDetail(id, user, page, q);
-        List<SubscriberResponse> subscribers = detail.subscribers().stream()
-                .map(SubscriberResponse::from).toList();
         PagedResponse<SubscriberResponse> paged = new PagedResponse<>(
-                subscribers, detail.page(), detail.totalPages(), detail.total()
+                detail.subscribers().stream().map(SubscriberResponse::from).toList(),
+                detail.page(), detail.totalPages(), detail.total()
         );
         return ResponseEntity.ok(Map.of(
                 "project", ProjectResponse.from(detail.project()),
@@ -70,30 +89,31 @@ public class ProjectApiController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update project")
     public ResponseEntity<ProjectResponse> update(@PathVariable Long id,
-                                                   @Valid @RequestBody ProjectCreateRequest req,
+                                                   @Valid @RequestBody ProjectApiRequest req,
                                                    @AuthenticationPrincipal Jwt jwt) {
-        User user = resolveUser(jwt);
-        Project p = projectService.update(id, req, user);
+        Project p = projectService.update(id, toCreateRequest(req), resolveUser(jwt));
         return ResponseEntity.ok(ProjectResponse.from(p));
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete project and all its subscribers")
     public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
-        User user = resolveUser(jwt);
-        projectService.delete(id, user);
+        projectService.delete(id, resolveUser(jwt));
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/export")
+    @Operation(summary = "Export confirmed subscribers as JSON list", description = "PRO plan only.")
     public ResponseEntity<List<SubscriberResponse>> export(@PathVariable Long id,
                                                             @AuthenticationPrincipal Jwt jwt) {
-        User user = resolveUser(jwt);
-        ProjectService.ExportData data = projectService.getExportData(id, user);
+        ProjectService.ExportData data = projectService.getExportData(id, resolveUser(jwt));
         return ResponseEntity.ok(data.subscribers().stream().map(SubscriberResponse::from).toList());
     }
 
     @GetMapping("/{id}/stats")
+    @Operation(summary = "Daily subscription chart data", description = "FREE: 7 days. PRO: 30 days.")
     public ResponseEntity<Map<String, Object>> stats(@PathVariable Long id,
                                                       @AuthenticationPrincipal Jwt jwt) {
         User user = resolveUser(jwt);
@@ -104,21 +124,21 @@ public class ProjectApiController {
     }
 
     @DeleteMapping("/{id}/subscribers/{subId}")
+    @Operation(summary = "Delete a subscriber")
     public ResponseEntity<Void> deleteSubscriber(@PathVariable Long id,
                                                   @PathVariable Long subId,
                                                   @AuthenticationPrincipal Jwt jwt) {
-        User user = resolveUser(jwt);
-        Project p = projectService.getOwned(id, user);
+        Project p = projectService.getOwned(id, resolveUser(jwt));
         subscriberService.deleteSubscriber(subId, p);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/subscribers/{subId}/resend")
+    @Operation(summary = "Resend confirmation email to unconfirmed subscriber")
     public ResponseEntity<Void> resendConfirmation(@PathVariable Long id,
                                                     @PathVariable Long subId,
                                                     @AuthenticationPrincipal Jwt jwt) {
-        User user = resolveUser(jwt);
-        Project p = projectService.getOwned(id, user);
+        Project p = projectService.getOwned(id, resolveUser(jwt));
         subscriberService.resendConfirmation(subId, p);
         return ResponseEntity.noContent().build();
     }

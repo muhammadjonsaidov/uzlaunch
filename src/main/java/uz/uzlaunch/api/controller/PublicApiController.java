@@ -1,11 +1,14 @@
 package uz.uzlaunch.api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.uzlaunch.api.dto.request.SubscribeApiRequest;
 import uz.uzlaunch.api.dto.response.ProjectResponse;
 import uz.uzlaunch.dto.SubscribeRequest;
 import uz.uzlaunch.service.ProjectService;
@@ -15,6 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/public")
+@Tag(name = "Public", description = "Public project page, subscribe, confirm, unsubscribe — no auth required")
 public class PublicApiController {
 
     @Autowired private ProjectService projectService;
@@ -24,25 +28,32 @@ public class PublicApiController {
     private boolean trustProxy;
 
     @GetMapping("/projects/{slug}")
+    @Operation(summary = "Get public project page by slug")
     public ResponseEntity<ProjectResponse> getProject(@PathVariable String slug) {
         return ResponseEntity.ok(ProjectResponse.from(projectService.getBySlug(slug)));
     }
 
     @PostMapping("/projects/{slug}/subscribe")
+    @Operation(summary = "Subscribe to waitlist", description = "Sends double opt-in confirmation email. Rate limited: 3/hour per IP.")
     public ResponseEntity<Map<String, String>> subscribe(@PathVariable String slug,
-                                                          @Valid @RequestBody SubscribeRequest req,
+                                                          @Valid @RequestBody SubscribeApiRequest req,
                                                           HttpServletRequest request) {
-        subscriberService.subscribe(slug, req, resolveIp(request));
+        SubscribeRequest dto = new SubscribeRequest();
+        dto.setEmail(req.email());
+        dto.setName(req.name());
+        subscriberService.subscribe(slug, dto, resolveIp(request));
         return ResponseEntity.ok(Map.of("message", "Confirmation email sent. Please check your inbox."));
     }
 
     @GetMapping("/confirm")
+    @Operation(summary = "Confirm subscription via email token", description = "?token=UUID")
     public ResponseEntity<Map<String, String>> confirm(@RequestParam String token) {
         String slug = subscriberService.confirmSubscription(token);
         return ResponseEntity.ok(Map.of("message", "Subscription confirmed!", "slug", slug));
     }
 
     @GetMapping("/unsubscribe")
+    @Operation(summary = "Unsubscribe via token", description = "?token=UUID — works for both confirmed and pending subscribers")
     public ResponseEntity<Map<String, String>> unsubscribe(@RequestParam String token) {
         String projectName = subscriberService.unsubscribe(token);
         return ResponseEntity.ok(Map.of("message", "Unsubscribed from " + projectName));
@@ -51,9 +62,7 @@ public class PublicApiController {
     private String resolveIp(HttpServletRequest request) {
         if (trustProxy) {
             String forwarded = request.getHeader("X-Forwarded-For");
-            if (forwarded != null && !forwarded.isBlank()) {
-                return forwarded.split(",")[0].trim();
-            }
+            if (forwarded != null && !forwarded.isBlank()) return forwarded.split(",")[0].trim();
         }
         return request.getRemoteAddr();
     }
