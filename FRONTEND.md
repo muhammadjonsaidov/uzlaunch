@@ -106,3 +106,18 @@ Same repo, two Railway services. Each service has its own `railway.toml` — dep
 
 **Setting config file path in Railway dashboard:**  
 Service → Settings → Source → Config File Path → set to `frontend/railway.toml` for the frontend service.
+
+`frontend/railway.toml` is already configured:
+```toml
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm run build"
+
+[deploy]
+startCommand = "npm run start"
+healthcheckPath = "/"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+watchPatterns = ["frontend/**"]
+```
