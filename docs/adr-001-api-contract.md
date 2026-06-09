@@ -7,7 +7,9 @@
 
 ## Context
 
-Frontend and backend split into separate apps communicating via REST API. Need agreed shapes for all requests and responses so both sides can develop independently without surprises.
+Frontend and backend split into separate apps in the same repo, communicating via REST API. Backend lives at repo root, frontend lives in `frontend/`. Each has its own `railway.toml` so Railway deploys them independently. See `FRONTEND.md` for repo structure and separation rules.
+
+Need agreed shapes for all requests and responses so both sides can develop independently without surprises.
 
 ---
 

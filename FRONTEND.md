@@ -8,7 +8,11 @@ uzlaunch/                          # existing Spring Boot root — unchanged
 ├── pom.xml
 ├── Dockerfile
 ├── docker-compose.yml
+├── railway.toml                   # backend Railway config (watchPatterns: src/**, pom.xml, Dockerfile)
+├── docs/
+│   └── adr-001-api-contract.md   # API contract — read this
 ├── frontend/                      # NEW — frontend lives here
+│   ├── railway.toml               # frontend Railway config (watchPatterns: frontend/**)
 │   └── ...                        # frontend collab owns this directory
 └── README.md
 ```
@@ -93,9 +97,12 @@ See [docs/adr-001-api-contract.md](docs/adr-001-api-contract.md) for the full ag
 
 ## Railway deployment
 
-| Service | Repo | Root dir | Domain |
-|---------|------|----------|--------|
-| Backend (existing) | `uzlaunch` | `/` | `api.uzlaunch.uz` |
-| Frontend (new) | `uzlaunch` | `/frontend` | `uzlaunch.uz` |
+| Service | Repo | Root dir | Config file | Domain |
+|---------|------|----------|-------------|--------|
+| Backend (existing) | `uzlaunch` | `/` | `railway.toml` | `api.uzlaunch.uz` |
+| Frontend (new) | `uzlaunch` | `/frontend` | `frontend/railway.toml` | `uzlaunch.uz` |
 
-Same repo, two Railway services. Backend service config unchanged.
+Same repo, two Railway services. Each service has its own `railway.toml` — deploys only when its own directory changes.
+
+**Setting config file path in Railway dashboard:**  
+Service → Settings → Source → Config File Path → set to `frontend/railway.toml` for the frontend service.

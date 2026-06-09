@@ -68,6 +68,7 @@
 
 **Deploy**
 - Docker & Docker Compose
+- Railway (ikki alohida service: backend + frontend)
 
 ---
 
@@ -167,6 +168,18 @@ docker compose up --build
 
 App + PostgreSQL birgalikda ishga tushadi. `BASE_URL` ni `http://localhost:8080` ga o'rnating.
 
+### Railway deploy
+
+Ikki alohida Railway service, bitta repo:
+
+| Service | Root dir | Config file | Domain |
+|---------|----------|-------------|--------|
+| Backend | `/` | `railway.toml` | `api.uzlaunch.uz` |
+| Frontend | `/frontend` | `frontend/railway.toml` | `uzlaunch.uz` |
+
+Har bir service faqat o'z papkasidagi o'zgarishlarda deploy qilinadi (`watchPatterns` orqali).  
+Frontend service sozlamasi: Service → Settings → Source → Config File Path → `frontend/railway.toml`.
+
 ---
 
 ## API Endpointlar
@@ -246,6 +259,11 @@ uzlaunch/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── pom.xml
+├── railway.toml                          # Backend Railway watch paths
+├── docs/
+│   └── adr-001-api-contract.md          # API kontrakt (front/back kelishuvi)
+├── frontend/                             # Next.js frontend (alohida Railway service)
+│   └── railway.toml                      # Frontend Railway watch paths
 └── .env                                  # Maxfiy sozlamalar (git'ga qo'shilmaydi)
 ```
 
