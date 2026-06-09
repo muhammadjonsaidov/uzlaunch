@@ -1,7 +1,7 @@
 package uz.uzlaunch.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -12,18 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class EmailService {
 
-    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
-
-    @Value("${resend.api-key:}")
-    private String apiKey;
-
-    @Value("${app.mail.from:noreply@uzlaunch.uz}")
-    private String fromAddress;
-
-    @Value("${app.base-url:http://localhost:8080}")
-    private String baseUrl;
+    @Value("${resend.api-key:}") private final String apiKey;
+    @Value("${app.mail.from:noreply@uzlaunch.uz}") private final String fromAddress;
+    @Value("${app.base-url:http://localhost:8080}") private final String baseUrl;
 
     private final RestTemplate rest = new RestTemplate();
 
@@ -208,8 +203,6 @@ public class EmailService {
         }
     }
 
-    // ── helpers ──────────────────────────────────────────────────────────────
-
     private String wrap(String projectName, String bodyHtml, String unsubUrl) {
         String logoUrl = baseUrl + "/favicon-512.png";
         String footer = unsubUrl != null
@@ -221,18 +214,15 @@ public class EmailService {
             + "<table width='100%' cellpadding='0' cellspacing='0' style='background:#f1f5f9'>"
             + "<tr><td align='center' style='padding:40px 16px'>"
             + "<table width='560' cellpadding='0' cellspacing='0' style='max-width:560px;width:100%'>"
-            // header
             + "<tr><td style='background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:16px 16px 0 0;"
             + "padding:28px 40px;text-align:center'>"
             + "<img src='" + logoUrl + "' width='48' height='48' style='border-radius:12px;display:block;margin:0 auto 10px'/>"
             + "<span style='color:white;font-size:20px;font-weight:900;letter-spacing:-0.5px'>UZLaunch</span>"
             + "</td></tr>"
-            // body
             + "<tr><td style='background:white;padding:36px 40px;border-radius:0 0 16px 16px;"
             + "color:#1e293b;font-size:15px;line-height:1.6'>"
             + bodyHtml
             + "</td></tr>"
-            // footer
             + "<tr><td style='padding:20px;text-align:center;font-size:12px;color:#94a3b8'>" + footer + "</td></tr>"
             + "</table></td></tr></table></body></html>";
     }
@@ -252,16 +242,8 @@ public class EmailService {
         send(to, subject, html, null);
     }
 
-    private boolean sendTracked(String to, String subject, String html) {
-        return sendTracked(to, subject, html, null);
-    }
-
     private void send(String to, String subject, String html, String unsubUrl) {
-        sendTracked(to, subject, html, unsubUrl);
-    }
-
-    private boolean sendTracked(String to, String subject, String html, String unsubUrl) {
-        if (apiKey.isBlank()) { log.warn("RESEND_API_KEY not set, skipping email to {}", to); return false; }
+        if (apiKey.isBlank()) { log.warn("RESEND_API_KEY not set, skipping email to {}", to); return; }
         try {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -283,10 +265,8 @@ public class EmailService {
             rest.exchange("https://api.resend.com/emails",
                 HttpMethod.POST, new HttpEntity<>(body, httpHeaders), Map.class);
             log.info("Email sent to {}: {}", to, subject);
-            return true;
         } catch (Exception e) {
             log.warn("Email send failed to {}: {}", to, e.getMessage());
-            return false;
         }
     }
 }

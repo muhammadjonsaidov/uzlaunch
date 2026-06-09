@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +19,14 @@ import uz.uzlaunch.service.SubscriberService;
 @RestController
 @RequestMapping("/api/public")
 @Tag(name = "Public", description = "Public project page, subscribe, confirm, unsubscribe — no auth required")
+@RequiredArgsConstructor
 public class PublicApiController {
 
-    @Autowired private ProjectService projectService;
-    @Autowired private SubscriberService subscriberService;
+    private final ProjectService projectService;
+    private final SubscriberService subscriberService;
 
     @Value("${app.trust-proxy:false}")
-    private boolean trustProxy;
+    private final boolean trustProxy;
 
     @GetMapping("/projects/{slug}")
     @Operation(summary = "Get public project page by slug")

@@ -1,27 +1,24 @@
 package uz.uzlaunch.service;
 
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uz.uzlaunch.dto.LoginRequest;
 import uz.uzlaunch.dto.RegisterRequest;
-import uz.uzlaunch.exception.BannedUserException;
-import uz.uzlaunch.exception.EmailNotVerifiedException;
-import uz.uzlaunch.exception.InvalidCredentialsException;
-import uz.uzlaunch.exception.UserAlreadyExistsException;
+import uz.uzlaunch.exception.*;
 import uz.uzlaunch.model.User;
 import uz.uzlaunch.repository.UserRepository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    @Autowired private UserRepository userRepo;
-    @Autowired private PasswordEncoder encoder;
-    @Autowired private EmailService emailService;
+    private final UserRepository userRepo;
+    private final PasswordEncoder encoder;
+    private final EmailService emailService;
 
     public User register(RegisterRequest req) {
         String email = req.getEmail().trim().toLowerCase();
@@ -42,7 +39,7 @@ public class AuthService {
 
     public User login(LoginRequest req) {
         String email = req.getEmail().trim().toLowerCase();
-        java.util.Optional<User> opt = userRepo.findByEmail(email);
+        var opt = userRepo.findByEmail(email);
         if (opt.isEmpty() || !encoder.matches(req.getPassword(), opt.get().getPasswordHash())) {
             throw new InvalidCredentialsException();
         }
@@ -60,7 +57,7 @@ public class AuthService {
 
     public User verifyEmail(String token) {
         User user = userRepo.findByVerificationToken(token)
-            .orElseThrow(uz.uzlaunch.exception.PageNotFoundException::new);
+            .orElseThrow(PageNotFoundException::new);
         user.setEmailVerified(true);
         user.setVerificationToken(null);
         return userRepo.save(user);

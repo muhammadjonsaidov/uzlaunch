@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -31,18 +31,18 @@ import uz.uzlaunch.service.RateLimiter;
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Auth", description = "Registration, login, email verification, profile")
+@RequiredArgsConstructor
 public class AuthApiController {
 
-    @Autowired private AuthService authService;
-    @Autowired private JwtTokenService jwtTokenService;
-    @Autowired private UserRepository userRepo;
+    private final AuthService authService;
+    private final JwtTokenService jwtTokenService;
+    private final UserRepository userRepo;
 
-    @Autowired
     @Qualifier("registerRateLimiter")
-    private RateLimiter registerRateLimiter;
+    private final RateLimiter registerRateLimiter;
 
     @Value("${app.trust-proxy:false}")
-    private boolean trustProxy;
+    private final boolean trustProxy;
 
     @PostMapping("/register")
     @Operation(summary = "Register new user", description = "Creates account and sends verification email. Login only after email confirmed.")

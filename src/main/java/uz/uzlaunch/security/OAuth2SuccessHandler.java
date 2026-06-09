@@ -2,7 +2,7 @@ package uz.uzlaunch.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -15,13 +15,14 @@ import java.io.IOException;
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    @Autowired private UserRepository userRepo;
-    @Autowired private JwtTokenService jwtTokenService;
+    private final UserRepository userRepo;
+    private final JwtTokenService jwtTokenService;
 
     @Value("${app.frontend-url}")
-    private String frontendUrl;
+    private final String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,

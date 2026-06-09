@@ -3,7 +3,7 @@ package uz.uzlaunch.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,14 +19,15 @@ import uz.uzlaunch.service.SubscriberService;
 import java.util.Map;
 
 @Controller
+@RequiredArgsConstructor
 public class PublicController {
 
-    @Autowired private AuthService authService;
-    @Autowired private ProjectService projectService;
-    @Autowired private SubscriberService subscriberService;
+    private final AuthService authService;
+    private final ProjectService projectService;
+    private final SubscriberService subscriberService;
 
     @Value("${app.trust-proxy:false}")
-    private boolean trustProxy;
+    private final boolean trustProxy;
 
     @GetMapping("/p/{slug}")
     public String publicPage(@PathVariable String slug, Model model) {

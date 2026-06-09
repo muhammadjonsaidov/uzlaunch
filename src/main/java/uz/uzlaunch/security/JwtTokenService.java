@@ -1,6 +1,6 @@
 package uz.uzlaunch.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -12,12 +12,13 @@ import java.time.Instant;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class JwtTokenService {
 
-    @Autowired private JwtEncoder encoder;
+    private final JwtEncoder encoder;
 
     @Value("${app.jwt.expiration:604800}")
-    private long expiration;
+    private final long expiration;
 
     public String issue(User user) {
         Instant now = Instant.now();

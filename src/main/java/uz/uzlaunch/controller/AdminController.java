@@ -2,7 +2,8 @@ package uz.uzlaunch.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -12,8 +13,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uz.uzlaunch.service.AdminService;
 import uz.uzlaunch.service.RateLimiter;
 
@@ -22,20 +21,19 @@ import java.util.stream.Collectors;
 
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @Controller
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class AdminController {
 
-    private static final Logger log = LoggerFactory.getLogger(AdminController.class);
+    private final AdminService adminService;
 
-    @Autowired private AdminService adminService;
-
-    @Autowired
     @Qualifier("adminRateLimiter")
-    private RateLimiter adminRateLimiter;
+    private final RateLimiter adminRateLimiter;
 
     @Value("${admin.secret}")
-    private String adminSecret;
+    private final String adminSecret;
 
     @GetMapping({"", "/"})
     public String adminPage(HttpSession session, Model model) {

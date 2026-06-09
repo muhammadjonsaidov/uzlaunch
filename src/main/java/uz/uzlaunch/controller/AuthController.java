@@ -2,7 +2,7 @@ package uz.uzlaunch.controller;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +13,10 @@ import uz.uzlaunch.model.User;
 import uz.uzlaunch.service.AuthService;
 
 @Controller
+@RequiredArgsConstructor
 public class AuthController {
 
-    @Autowired private AuthService authService;
+    private final AuthService authService;
 
     @GetMapping("/")
     public String home(HttpSession session) {

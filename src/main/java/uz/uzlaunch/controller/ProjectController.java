@@ -3,7 +3,7 @@ package uz.uzlaunch.controller;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -20,20 +20,20 @@ import uz.uzlaunch.service.ProjectService;
 import uz.uzlaunch.service.SseService;
 import uz.uzlaunch.service.SubscriberService;
 
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 @Controller
+@RequiredArgsConstructor
 public class ProjectController {
 
-    @Autowired private AuthService authService;
-    @Autowired private ProjectService projectService;
-    @Autowired private SseService sseService;
-    @Autowired private SubscriberService subscriberService;
+    private final AuthService authService;
+    private final ProjectService projectService;
+    private final SseService sseService;
+    private final SubscriberService subscriberService;
 
     @Value("${app.base-url:http://localhost:8080}")
-    private String baseUrl;
+    private final String baseUrl;
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {

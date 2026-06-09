@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,11 +27,12 @@ import java.util.Map;
 @RequestMapping("/api/projects")
 @SecurityRequirement(name = "Bearer")
 @Tag(name = "Projects", description = "Project CRUD, subscribers, stats, export")
+@RequiredArgsConstructor
 public class ProjectApiController {
 
-    @Autowired private ProjectService projectService;
-    @Autowired private SubscriberService subscriberService;
-    @Autowired private UserRepository userRepo;
+    private final ProjectService projectService;
+    private final SubscriberService subscriberService;
+    private final UserRepository userRepo;
 
     private User resolveUser(Jwt jwt) {
         return userRepo.findById(jwt.getSubject()).orElseThrow(PageNotFoundException::new);

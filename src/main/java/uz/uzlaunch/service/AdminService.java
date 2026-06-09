@@ -1,6 +1,6 @@
 package uz.uzlaunch.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,20 +13,18 @@ import uz.uzlaunch.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AdminService {
 
-    @Autowired private UserRepository userRepo;
-    @Autowired private ProjectRepository projectRepo;
-    @Autowired private SubscriberRepository subscriberRepo;
-    @Autowired private EmailService emailService;
-    @Autowired private SseService sseService;
+    private final UserRepository userRepo;
+    private final ProjectRepository projectRepo;
+    private final SubscriberRepository subscriberRepo;
+    private final EmailService emailService;
+    private final SseService sseService;
 
     public record DailyCount(String date, long count) {}
 
@@ -112,9 +110,7 @@ public class AdminService {
         User user = userRepo.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
         List<Project> projects = projectRepo.findByUser(user);
-        for (Project p : projects) {
-            subscriberRepo.deleteByProject(p);
-        }
+        for (Project p : projects) subscriberRepo.deleteByProject(p);
         projectRepo.deleteAll(projects);
         userRepo.delete(user);
         return user.getEmail();

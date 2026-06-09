@@ -25,6 +25,8 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")

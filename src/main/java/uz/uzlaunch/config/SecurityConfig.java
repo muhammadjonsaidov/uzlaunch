@@ -1,6 +1,6 @@
 package uz.uzlaunch.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,13 +25,14 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Autowired private JwtDecoder jwtDecoder;
-    @Autowired private OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final JwtDecoder jwtDecoder;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Value("${app.frontend-url:http://localhost:3000}")
-    private String frontendUrl;
+    private final String frontendUrl;
 
     @Bean
     @Order(1)

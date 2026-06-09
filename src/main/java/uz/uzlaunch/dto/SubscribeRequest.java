@@ -1,7 +1,9 @@
 package uz.uzlaunch.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.Data;
 
+@Data
 public class SubscribeRequest {
 
     @NotBlank(message = "Please enter a valid email address")
@@ -9,9 +11,4 @@ public class SubscribeRequest {
     private String email;
 
     private String name;
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
 }

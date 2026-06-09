@@ -1,7 +1,9 @@
 package uz.uzlaunch.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.Data;
 
+@Data
 public class ProjectCreateRequest {
 
     @NotBlank(message = "Project name is required")
@@ -28,21 +30,4 @@ public class ProjectCreateRequest {
 
     @Size(max = 2000, message = "Confirmation email body must be under 2000 characters")
     private String confirmEmailBody;
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getTagline() { return tagline; }
-    public void setTagline(String tagline) { this.tagline = tagline; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public String getLaunchAt() { return launchAt; }
-    public void setLaunchAt(String launchAt) { this.launchAt = launchAt; }
-    public String getLaunchEmailSubject() { return launchEmailSubject; }
-    public void setLaunchEmailSubject(String launchEmailSubject) { this.launchEmailSubject = launchEmailSubject; }
-    public String getLaunchEmailBody() { return launchEmailBody; }
-    public void setLaunchEmailBody(String launchEmailBody) { this.launchEmailBody = launchEmailBody; }
-    public String getConfirmEmailSubject() { return confirmEmailSubject; }
-    public void setConfirmEmailSubject(String confirmEmailSubject) { this.confirmEmailSubject = confirmEmailSubject; }
-    public String getConfirmEmailBody() { return confirmEmailBody; }
-    public void setConfirmEmailBody(String confirmEmailBody) { this.confirmEmailBody = confirmEmailBody; }
 }

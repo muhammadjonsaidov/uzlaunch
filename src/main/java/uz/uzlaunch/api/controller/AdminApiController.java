@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -19,20 +19,20 @@ import uz.uzlaunch.service.RateLimiter;
 @RestController
 @RequestMapping("/api/admin")
 @Tag(name = "Admin", description = "Admin-only endpoints. Get token via POST /api/admin/auth first.")
+@RequiredArgsConstructor
 public class AdminApiController {
 
-    @Autowired private AdminService adminService;
-    @Autowired private JwtTokenService jwtTokenService;
+    private final AdminService adminService;
+    private final JwtTokenService jwtTokenService;
 
-    @Autowired
     @Qualifier("adminRateLimiter")
-    private RateLimiter adminRateLimiter;
+    private final RateLimiter adminRateLimiter;
 
     @Value("${admin.secret}")
-    private String adminSecret;
+    private final String adminSecret;
 
     @Value("${app.trust-proxy:false}")
-    private boolean trustProxy;
+    private final boolean trustProxy;
 
     @PostMapping("/auth")
     @Operation(summary = "Get admin JWT", description = "Rate limited: 5/15 min per IP.")

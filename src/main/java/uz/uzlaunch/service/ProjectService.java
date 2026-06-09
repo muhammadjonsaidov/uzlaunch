@@ -1,35 +1,30 @@
 package uz.uzlaunch.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.uzlaunch.dto.ProjectCreateRequest;
-import uz.uzlaunch.exception.ForbiddenException;
-import uz.uzlaunch.exception.PageNotFoundException;
-import uz.uzlaunch.exception.ProjectNotFoundException;
+import uz.uzlaunch.exception.*;
 import uz.uzlaunch.model.Project;
 import uz.uzlaunch.model.Subscriber;
 import uz.uzlaunch.model.User;
 import uz.uzlaunch.repository.ProjectRepository;
 import uz.uzlaunch.repository.SubscriberRepository;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class ProjectService {
 
     private static final int PAGE_SIZE = 25;
 
-    @Autowired private ProjectRepository projectRepo;
-    @Autowired private SubscriberRepository subscriberRepo;
-    @Autowired private EmailService emailService;
+    private final ProjectRepository projectRepo;
+    private final SubscriberRepository subscriberRepo;
+    private final EmailService emailService;
 
     public record ProjectDetail(Project project, List<Subscriber> subscribers,
                                 boolean locked, long total, int page, int totalPages,
@@ -73,7 +68,6 @@ public class ProjectService {
         long total = result.getTotalElements();
         boolean locked = !isPaid && total > 100;
         int displayTotalPages = isPaid ? result.getTotalPages() : Math.min(result.getTotalPages(), 4);
-
         List<Subscriber> pending = subscriberRepo.findByProjectAndConfirmed(p, false);
 
         return new ProjectDetail(p, result.getContent(), locked, total, effectivePage, displayTotalPages, pending, q);

@@ -1,33 +1,29 @@
 package uz.uzlaunch.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.uzlaunch.dto.SubscribeRequest;
-import uz.uzlaunch.exception.AlreadySubscribedException;
-import uz.uzlaunch.exception.AwaitingConfirmationException;
-import uz.uzlaunch.exception.PageNotFoundException;
-import uz.uzlaunch.exception.SubscribeRateLimitedException;
+import uz.uzlaunch.exception.*;
 import uz.uzlaunch.model.Project;
 import uz.uzlaunch.model.Subscriber;
 import uz.uzlaunch.repository.ProjectRepository;
 import uz.uzlaunch.repository.SubscriberRepository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class SubscriberService {
 
-    @Autowired private ProjectRepository projectRepo;
-    @Autowired private SubscriberRepository subscriberRepo;
-    @Autowired private EmailService emailService;
-    @Autowired private SseService sseService;
-
-    @Autowired
-    @Qualifier("subscribeRateLimiter")
-    private RateLimiter rateLimiter;
+    private final ProjectRepository projectRepo;
+    private final SubscriberRepository subscriberRepo;
+    private final EmailService emailService;
+    private final SseService sseService;
+    private final @Qualifier("subscribeRateLimiter") RateLimiter rateLimiter;
 
     public void subscribe(String slug, SubscribeRequest req, String ip) {
         if (!rateLimiter.isAllowed(ip + ":" + slug))
@@ -59,13 +55,13 @@ public class SubscriberService {
         String slug = sub.getProject().getSlug();
         if (sub.isConfirmed()) return slug;
 
-        if (sub.getSubscribedAt().isBefore(java.time.LocalDateTime.now().minusDays(7))) {
+        if (sub.getSubscribedAt().isBefore(LocalDateTime.now().minusDays(7))) {
             subscriberRepo.delete(sub);
-            throw new uz.uzlaunch.exception.PageNotFoundException();
+            throw new PageNotFoundException();
         }
 
         sub.setConfirmed(true);
-        sub.setConfirmedAt(java.time.LocalDateTime.now());
+        sub.setConfirmedAt(LocalDateTime.now());
         subscriberRepo.save(sub);
 
         Project p = sub.getProject();
@@ -86,7 +82,7 @@ public class SubscriberService {
     @Transactional
     public void deleteSubscriber(Long subId, Project project) {
         Subscriber sub = subscriberRepo.findByIdAndProject(subId, project)
-            .orElseThrow(uz.uzlaunch.exception.PageNotFoundException::new);
+            .orElseThrow(PageNotFoundException::new);
         if (sub.isConfirmed()) {
             projectRepo.decrementSubscriberCount(project.getId());
         }
@@ -95,7 +91,7 @@ public class SubscriberService {
 
     public void resendConfirmation(Long subId, Project project) {
         Subscriber sub = subscriberRepo.findByIdAndProject(subId, project)
-            .orElseThrow(uz.uzlaunch.exception.PageNotFoundException::new);
+            .orElseThrow(PageNotFoundException::new);
         if (!sub.isConfirmed()) {
             emailService.sendSubscriberConfirmation(sub.getEmail(), sub.getName(),
                 project.getName(), project.getSlug(), sub.getToken());
@@ -106,11 +102,9 @@ public class SubscriberService {
     public String unsubscribe(String token) {
         Subscriber sub = subscriberRepo.findByToken(token).orElseThrow(PageNotFoundException::new);
         String projectName = sub.getProject().getName();
-
         if (sub.isConfirmed()) {
             projectRepo.decrementSubscriberCount(sub.getProject().getId());
         }
-
         subscriberRepo.delete(sub);
         return projectName;
     }
