@@ -49,7 +49,8 @@
 ## Texnologiyalar
 
 **Backend**
-- Java 21, Spring Boot 4.0.6
+- Java 21 (Eclipse Temurin), Spring Boot 4.0.6
+- Gradle 9.5.1 (Kotlin DSL)
 - Spring Data JPA + Hibernate
 - Spring Security (sessiya autentifikatsiya, CSRF o'chirilgan)
 - Flyway (migratsiya boshqaruvi, V1–V9)
@@ -114,7 +115,7 @@ subscribers
 ## Ishga tushirish
 
 ### Talablar
-- Java 17+
+- Java 21+ (tavsiya: Eclipse Temurin 21)
 - Docker va Docker Compose
 
 ### 1. Clone
@@ -155,7 +156,7 @@ docker compose up db -d
 ### 4. Ilovani ishga tushiring
 
 ```bash
-./mvnw spring-boot:run
+./gradlew bootRun
 ```
 
 Brauzerda oching: `http://localhost:8080`
