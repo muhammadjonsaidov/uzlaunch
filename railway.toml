@@ -1,0 +1,2 @@
+[deploy]
+watchPatterns = ["src/**", "pom.xml", "Dockerfile", "docker-compose.yml"]
