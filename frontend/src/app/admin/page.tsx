@@ -24,6 +24,7 @@ interface Project {
   name: string;
   subscriberCount: number;
   userEmail?: string;
+  tagline?: string;
 }
 
 interface PendingSubscriber {
@@ -46,7 +47,7 @@ interface Stats {
   subscriberCount: number;
   todaySignups: number;
   users: User[];
-  projects: (Project & { userEmail?: string })[];
+  projects: Project[];
   dailySignups: DailyCount[];
   topProjects: Project[];
   pendingByProject: Record<string, number>;
@@ -164,7 +165,7 @@ export default function AdminPage() {
     (u.email + " " + (u.name ?? "")).toLowerCase().includes(userSearch.toLowerCase())
   );
   const filteredProjects = stats.projects.filter(p =>
-    (p.name + " " + p.slug).toLowerCase().includes(projectSearch.toLowerCase())
+    (p.name + " " + p.slug + " " + (p.userEmail ?? "")).toLowerCase().includes(projectSearch.toLowerCase())
   );
 
   return (
@@ -362,7 +363,7 @@ export default function AdminPage() {
               Projects <span className="font-normal text-slate-400">({stats.projectCount})</span>
             </h2>
             <input value={projectSearch} onChange={e => setProjectSearch(e.target.value)}
-              type="text" placeholder="Search by name or slug"
+              type="text" placeholder="Search by name, slug or owner"
               className="border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
           </div>
           {filteredProjects.length === 0 ? (
@@ -376,6 +377,7 @@ export default function AdminPage() {
                   <span className="text-xs text-slate-400 flex-shrink-0">/{p.slug}</span>
                 </div>
                 <div className="text-xs text-slate-400 mt-0.5">
+                  {p.userEmail && <><span>{p.userEmail}</span><span className="mx-1">·</span></>}
                   {p.subscriberCount} confirmed
                   {stats.pendingByProject[p.id] > 0 && (
                     <span className="ml-1 text-amber-500">+ {stats.pendingByProject[p.id]} pending</span>

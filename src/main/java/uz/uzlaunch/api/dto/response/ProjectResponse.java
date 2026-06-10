@@ -14,7 +14,8 @@ public record ProjectResponse(
         int validationScore,
         String feedbackQuestion,
         String launchAt,
-        String createdAt
+        String createdAt,
+        String userEmail
 ) {
     public static ProjectResponse from(Project p) {
         return new ProjectResponse(
@@ -27,7 +28,8 @@ public record ProjectResponse(
                 p.getValidationScore(),
                 p.getFeedbackQuestion(),
                 p.getLaunchAt() != null ? p.getLaunchAt().toInstant(ZoneOffset.UTC).toString() : null,
-                p.getCreatedAt().toInstant(ZoneOffset.UTC).toString()
+                p.getCreatedAt().toInstant(ZoneOffset.UTC).toString(),
+                p.getUser() != null ? p.getUser().getEmail() : null
         );
     }
 }

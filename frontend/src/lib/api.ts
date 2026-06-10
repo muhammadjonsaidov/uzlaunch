@@ -97,6 +97,7 @@ export interface Project {
   feedbackQuestion?: string;
   launchAt?: string;
   createdAt: string;
+  userEmail?: string;
 }
 
 export interface Subscriber {
