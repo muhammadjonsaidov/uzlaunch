@@ -6,8 +6,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import uz.uzlaunch.service.SseService;
 import uz.uzlaunch.api.dto.request.SubscribeApiRequest;
 import uz.uzlaunch.api.dto.response.MessageResponse;
 import uz.uzlaunch.api.dto.response.ProjectResponse;
@@ -25,6 +28,7 @@ public class PublicApiController {
     private final ProjectService projectService;
     private final SubscriberService subscriberService;
     private final uz.uzlaunch.service.ValidationScoreService scoreService;
+    private final SseService sseService;
 
     @Value("${app.trust-proxy:false}")
     private final boolean trustProxy;
@@ -61,6 +65,13 @@ public class PublicApiController {
     public ResponseEntity<MessageResponse> unsubscribe(@RequestParam String token) {
         String projectName = subscriberService.unsubscribe(token);
         return ResponseEntity.ok(new MessageResponse("Unsubscribed from " + projectName));
+    }
+
+    @GetMapping(value = "/projects/{slug}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(summary = "Live subscriber count stream (SSE)")
+    public SseEmitter stream(@PathVariable String slug) {
+        uz.uzlaunch.model.Project p = projectService.getBySlug(slug);
+        return sseService.subscribe(p.getId());
     }
 
     @GetMapping("/projects/{slug}/score")
