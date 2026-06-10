@@ -47,7 +47,7 @@ function ProjectDetail({ id }: { id: number }) {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center text-sm text-red-500">Failed to load project.</div>
   );
 
-  const { project: p, subscribers, pendingCount } = data;
+  const { project: p, subscribers, pendingSubscribers } = data;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -96,6 +96,27 @@ function ProjectDetail({ id }: { id: number }) {
             className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 bg-emerald-50 px-3 py-2 rounded-lg hover:bg-emerald-100 transition-colors">
             📊 Stats
           </Link>
+          <button onClick={async () => {
+            const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+            const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+            const res = await fetch(`${API}/api/projects/${p.id}/export`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) return;
+            const exportData = await res.json();
+            const csv = ["email,name,commitment,feedbackAnswer,subscribedAt",
+              ...exportData.map((s: { email: string; name: string; commitment: string; feedbackAnswer: string; subscribedAt: string }) =>
+                `"${s.email}","${s.name ?? ""}","${s.commitment}","${s.feedbackAnswer ?? ""}","${s.subscribedAt}"`)
+            ].join("\n");
+            const blob = new Blob([csv], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = `${p.slug}-subscribers.csv`; a.click();
+            URL.revokeObjectURL(url);
+          }}
+            className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 border border-indigo-200 bg-indigo-50 px-3 py-2 rounded-lg hover:bg-indigo-100 transition-colors">
+            ⬇ Export CSV
+          </button>
           {p.validationScore > 0 && (
             <span className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg border ${
               p.validationScore >= 70 ? "text-emerald-700 bg-emerald-50 border-emerald-200" :
@@ -168,10 +189,33 @@ function ProjectDetail({ id }: { id: number }) {
           )}
         </div>
 
-        {pendingCount > 0 && (
-          <div className="bg-white rounded-2xl border border-amber-200 p-4 mt-4 flex items-center justify-between">
-            <span className="text-sm font-bold text-amber-700">Awaiting confirmation</span>
-            <span className="text-xs font-semibold text-amber-500 bg-amber-50 px-2.5 py-1 rounded-full">{pendingCount} pending</span>
+        {data.pendingSubscribers && data.pendingSubscribers.length > 0 && (
+          <div className="bg-white rounded-2xl border border-amber-200 overflow-hidden mt-4">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-amber-100 bg-amber-50">
+              <span className="text-sm font-bold text-amber-700">Awaiting confirmation</span>
+              <span className="text-xs font-semibold text-amber-500">{data.pendingSubscribers.length} pending</span>
+            </div>
+            {data.pendingSubscribers.map(s => (
+              <div key={s.id} className="flex items-center justify-between px-5 py-3.5 border-b border-amber-50 hover:bg-amber-50/50 last:border-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600">
+                    {(s.name ?? s.email)[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-slate-700">{s.name ?? "Anonymous"}</div>
+                    <div className="text-xs text-slate-400">{s.email}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={async () => { await projectApi.resendConfirmation(id, s.id); mutate(); }}
+                    className="text-xs text-amber-600 border border-amber-200 bg-amber-50 px-2.5 py-1 rounded-lg hover:bg-amber-100 transition-colors font-medium">
+                    Resend
+                  </button>
+                  <button onClick={() => removeSubscriber(s.id)}
+                    className="text-xs text-red-400 hover:text-red-600 transition-colors">✕</button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

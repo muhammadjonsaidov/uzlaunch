@@ -7,5 +7,5 @@ public record StatsResponse(
         List<ChartBar> chartData,
         long totalSubscribers,
         int statsDays,
-        long periodSubscribers
+        long last7Days
 ) {}

@@ -58,6 +58,7 @@ export const projectApi = {
     apiFetch(`/api/projects/${id}/subscribers/${subId}`, { method: "DELETE" }),
   resendConfirmation: (id: number, subId: number) =>
     apiFetch(`/api/projects/${id}/subscribers/${subId}/resend`, { method: "POST" }),
+  feedback: (id: number) => apiFetch<Subscriber[]>(`/api/projects/${id}/feedback`),
 };
 
 // Public
@@ -116,6 +117,7 @@ export interface ProjectDetail {
   subscribers: { items: Subscriber[]; page: number; totalPages: number; total: number };
   pendingCount: number;
   locked: boolean;
+  pendingSubscribers: Subscriber[];
 }
 
 export interface StatsData {

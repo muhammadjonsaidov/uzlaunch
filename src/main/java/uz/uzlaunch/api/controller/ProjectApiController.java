@@ -83,7 +83,8 @@ public class ProjectApiController {
                         detail.page(), detail.totalPages(), detail.total()
                 ),
                 detail.pending().size(),
-                detail.locked()
+                detail.locked(),
+                detail.pending().stream().map(SubscriberResponse::from).toList()
         ));
     }
 
