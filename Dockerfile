@@ -4,6 +4,7 @@ COPY gradlew .
 COPY gradle gradle
 COPY build.gradle.kts .
 COPY settings.gradle.kts .
+COPY lombok.config .
 COPY src ./src
 RUN chmod +x gradlew && ./gradlew build -x test --no-daemon
 
