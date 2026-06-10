@@ -42,6 +42,7 @@ spring:
 
 server:
   port: ${PORT:8080}
+  forward-headers-strategy: native
   servlet:
     session:
       timeout: 7d
