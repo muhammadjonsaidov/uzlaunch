@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
@@ -62,6 +63,7 @@ export default function AdminPage() {
   const [projectSearch, setProjectSearch] = useState("");
   const [broadcastSubject, setBroadcastSubject] = useState("");
   const [broadcastBody, setBroadcastBody] = useState("");
+  const [modal, setModal] = useState<{ title: string; message: string; action: () => void; label?: string } | null>(null);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
 
@@ -114,13 +116,17 @@ export default function AdminPage() {
     }
   }
 
-  async function handleBroadcast(e: React.FormEvent) {
-    e.preventDefault();
-    if (!broadcastSubject.trim() || !broadcastBody.trim()) return;
-    if (!confirm("Send broadcast to ALL non-banned users?")) return;
+  async function doSendBroadcast() {
     await act("POST", "/broadcast", undefined, { subject: broadcastSubject, body: broadcastBody });
     setBroadcastSubject("");
     setBroadcastBody("");
+  }
+
+  async function handleBroadcast(e: React.FormEvent) {
+    e.preventDefault();
+    if (!broadcastSubject.trim() || !broadcastBody.trim()) return;
+    setModal({ title: "Send broadcast?", message: "This will send email to ALL non-banned users.", action: () => doSendBroadcast(), label: "Send" });
+    return;
   }
 
   function logout() {
@@ -336,13 +342,13 @@ export default function AdminPage() {
                     className="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition-colors">Free</button>
                 )}
                 {!u.banned ? (
-                  <button onClick={() => act("POST", `/users/${u.id}/ban`)}
+                  <button onClick={() => setModal({ title: "Ban user?", message: `This will block ${u.email} from logging in.`, action: () => act("POST", `/users/${u.id}/ban`), label: "Ban" })}
                     className="text-xs font-bold text-orange-600 bg-orange-50 px-2.5 py-1.5 rounded-lg hover:bg-orange-100 transition-colors">Ban</button>
                 ) : (
                   <button onClick={() => act("POST", `/users/${u.id}/unban`)}
                     className="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition-colors">Unban</button>
                 )}
-                <button onClick={() => { if (confirm("Delete this user and all their data?")) act("DELETE", `/users/${u.id}`); }}
+                <button onClick={() => setModal({ title: "Delete user?", message: `Delete ${u.email} and all their data? This cannot be undone.`, action: () => act("DELETE", `/users/${u.id}`) })}
                   className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1.5 rounded-lg hover:bg-red-100 transition-colors">Delete</button>
               </div>
             </div>
@@ -376,7 +382,7 @@ export default function AdminPage() {
                   )}
                 </div>
               </div>
-              <button onClick={() => { if (confirm("Delete this project?")) act("DELETE", `/projects/${p.id}`); }}
+              <button onClick={() => setModal({ title: "Delete project?", message: `Delete "${p.name}" and all its subscribers? This cannot be undone.`, action: () => act("DELETE", `/projects/${p.id}`) })}
                 className="ml-3 flex-shrink-0 text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1.5 rounded-lg hover:bg-red-100 transition-colors">
                 Delete
               </button>
@@ -388,6 +394,17 @@ export default function AdminPage() {
       <footer className="border-t border-slate-100 py-5 text-center">
         <p className="text-xs text-slate-300">© 2026 UZLaunch Admin</p>
       </footer>
+
+      {modal && (
+        <ConfirmModal
+          open={true}
+          title={modal.title}
+          message={modal.message}
+          confirmLabel={modal.label ?? "Confirm"}
+          onConfirm={() => { modal.action(); setModal(null); }}
+          onCancel={() => setModal(null)}
+        />
+      )}
     </div>
   );
 }

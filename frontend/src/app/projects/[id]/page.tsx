@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -92,6 +92,10 @@ function ProjectDetail({ id }: { id: number }) {
             className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 border border-slate-200 bg-white px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors">
             ✏ Edit
           </Link>
+          <Link href={`/p/${p.slug}/stats`}
+            className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 bg-emerald-50 px-3 py-2 rounded-lg hover:bg-emerald-100 transition-colors">
+            📊 Stats
+          </Link>
           {p.validationScore > 0 && (
             <span className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg border ${
               p.validationScore >= 70 ? "text-emerald-700 bg-emerald-50 border-emerald-200" :
@@ -106,6 +110,8 @@ function ProjectDetail({ id }: { id: number }) {
             🗑 Delete
           </button>
         </div>
+
+        {p.launchAt && <LaunchBanner launchAt={p.launchAt} />}
 
         {/* Subscribers */}
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-4">
@@ -141,6 +147,9 @@ function ProjectDetail({ id }: { id: number }) {
                   }`}>
                     {s.commitment === "PAY_NOW" ? "Pay now" : s.commitment === "WOULD_PAY" ? "Would pay" : "Would use"}
                   </span>
+                  <span className="text-xs text-slate-400 whitespace-nowrap hidden sm:inline">
+                    {new Date(s.confirmedAt ?? s.subscribedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                  </span>
                 </div>
                 <button onClick={() => removeSubscriber(s.id)} className="text-xs text-red-400 hover:text-red-600 transition-colors">✕</button>
               </div>
@@ -160,7 +169,24 @@ function ProjectDetail({ id }: { id: number }) {
         </div>
 
         {pendingCount > 0 && (
-          <p className="text-xs text-slate-400 mt-3">{pendingCount} pending confirmation</p>
+          <div className="bg-white rounded-2xl border border-amber-200 p-4 mt-4 flex items-center justify-between">
+            <span className="text-sm font-bold text-amber-700">Awaiting confirmation</span>
+            <span className="text-xs font-semibold text-amber-500 bg-amber-50 px-2.5 py-1 rounded-full">{pendingCount} pending</span>
+          </div>
+        )}
+
+        {data.locked && (
+          <div className="rounded-2xl p-5 flex items-center justify-between gap-4 mt-4"
+            style={{ background: "linear-gradient(135deg,#fef3c7,#fde68a)", border: "1px solid #fcd34d" }}>
+            <div>
+              <h3 className="font-bold text-amber-900 text-sm">100+ subscribers — upgrade to see all</h3>
+              <p className="text-xs text-amber-700 mt-0.5">Export as CSV and access all emails with Pro</p>
+            </div>
+            <a href="https://t.me/uzlaunch" target="_blank"
+              className="flex-shrink-0 text-xs font-bold bg-amber-600 text-white px-4 py-2.5 rounded-lg hover:bg-amber-700 transition-colors">
+              Upgrade · $5/mo
+            </a>
+          </div>
         )}
 
         {/* Share box */}
@@ -197,6 +223,54 @@ function ProjectDetail({ id }: { id: number }) {
       <footer className="border-t border-slate-100 py-5 text-center">
         <p className="text-xs text-slate-300">© 2026 UZLaunch · Built for Uzbek founders</p>
       </footer>
+    </div>
+  );
+}
+
+function LaunchBanner({ launchAt }: { launchAt: string }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0, secs: 0, fired: false });
+
+  useEffect(() => {
+    function tick() {
+      const diff = new Date(launchAt).getTime() - Date.now();
+      if (diff <= 0) { setTimeLeft({ days: 0, hours: 0, mins: 0, secs: 0, fired: true }); return; }
+      setTimeLeft({
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        mins: Math.floor((diff % 3600000) / 60000),
+        secs: Math.floor((diff % 60000) / 1000),
+        fired: false,
+      });
+    }
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => clearInterval(t);
+  }, [launchAt]);
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const formatted = new Date(launchAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  return (
+    <div className="rounded-2xl p-4 mb-6 bg-indigo-50 border border-indigo-200">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Scheduled launch</p>
+        <p className="text-xs text-slate-500 font-medium">{formatted}</p>
+      </div>
+      {timeLeft.fired ? (
+        <p className="text-xs text-indigo-500 font-semibold">🚀 Launch time reached! Notifications sent to subscribers.</p>
+      ) : (
+        <div className="flex items-center gap-2 flex-wrap">
+          {[{ v: timeLeft.days, l: "Days" }, { v: timeLeft.hours, l: "Hrs" }, { v: timeLeft.mins, l: "Min" }, { v: timeLeft.secs, l: "Sec" }].map((u, i) => (
+            <span key={u.l} className="flex items-center gap-2">
+              {i > 0 && <span className="text-indigo-300 font-black">:</span>}
+              <div className="text-center bg-white border border-indigo-100 rounded-xl px-3 py-2 min-w-[52px]">
+                <div className="text-lg font-black text-indigo-600 leading-none">{pad(u.v)}</div>
+                <div className="text-xs text-slate-400 mt-0.5">{u.l}</div>
+              </div>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

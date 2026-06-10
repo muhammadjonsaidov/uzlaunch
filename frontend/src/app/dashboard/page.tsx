@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
-import { projectApi, Project } from "@/lib/api";
+import { projectApi, authApi, Project } from "@/lib/api";
 import { removeToken } from "@/lib/auth";
 import AuthGuard from "@/components/AuthGuard";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -16,6 +16,7 @@ export default function DashboardPage() {
 function Dashboard() {
   const router = useRouter();
   const { data: projects, error, isLoading } = useSWR("projects", projectApi.list);
+  const { data: user } = useSWR("me", authApi.me);
 
   function logout() { removeToken(); router.push("/login"); }
 
@@ -28,6 +29,16 @@ function Dashboard() {
           UZLaunch
         </Link>
         <div className="flex items-center gap-3">
+          {user && (
+            <>
+              <span className="text-sm text-slate-500 font-medium hidden sm:inline">{user.name}</span>
+              {user.plan === "PAID" ? (
+                <span className="badge-pro">Pro</span>
+              ) : (
+                <span className="badge-free">Free</span>
+              )}
+            </>
+          )}
           <ThemeToggle/>
           <button onClick={logout} className="text-sm text-slate-400 hover:text-slate-600 transition-colors">Logout</button>
         </div>
@@ -71,17 +82,19 @@ function Dashboard() {
         )}
 
         {/* Upgrade banner */}
-        <div className="mt-8 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4"
-          style={{ background: "linear-gradient(135deg,#fef3c7,#fde68a)", border: "1px solid #fcd34d" }}>
-          <div>
-            <h3 className="font-bold text-amber-900 text-sm">Upgrade to Pro</h3>
-            <p className="text-xs text-amber-700 mt-0.5">Unlock unlimited subscribers, CSV export, and email notifications</p>
+        {user?.plan === "FREE" && (
+          <div className="mt-8 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4"
+            style={{ background: "linear-gradient(135deg,#fef3c7,#fde68a)", border: "1px solid #fcd34d" }}>
+            <div>
+              <h3 className="font-bold text-amber-900 text-sm">Upgrade to Pro</h3>
+              <p className="text-xs text-amber-700 mt-0.5">Unlock unlimited subscribers, CSV export, and email notifications</p>
+            </div>
+            <a href="https://t.me/uzlaunch" target="_blank"
+              className="flex-shrink-0 text-xs font-bold bg-amber-600 text-white px-4 py-2.5 rounded-lg hover:bg-amber-700 transition-colors whitespace-nowrap">
+              Upgrade · $5/mo
+            </a>
           </div>
-          <a href="https://t.me/uzlaunch" target="_blank"
-            className="flex-shrink-0 text-xs font-bold bg-amber-600 text-white px-4 py-2.5 rounded-lg hover:bg-amber-700 transition-colors whitespace-nowrap">
-            Upgrade · $5/mo
-          </a>
-        </div>
+        )}
       </main>
 
       <footer className="border-t border-slate-100 py-5 text-center">
