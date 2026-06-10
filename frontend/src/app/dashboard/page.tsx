@@ -7,6 +7,7 @@ import useSWR from "swr";
 import { projectApi, Project } from "@/lib/api";
 import { removeToken } from "@/lib/auth";
 import AuthGuard from "@/components/AuthGuard";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function DashboardPage() {
   return <AuthGuard><Dashboard/></AuthGuard>;
@@ -27,6 +28,7 @@ function Dashboard() {
           UZLaunch
         </Link>
         <div className="flex items-center gap-3">
+          <ThemeToggle/>
           <button onClick={logout} className="text-sm text-slate-400 hover:text-slate-600 transition-colors">Logout</button>
         </div>
       </nav>

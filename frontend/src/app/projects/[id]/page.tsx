@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { projectApi } from "@/lib/api";
 import AuthGuard from "@/components/AuthGuard";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -57,6 +58,7 @@ function ProjectDetail({ id }: { id: number }) {
         </Link>
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors">← Dashboard</Link>
+          <ThemeToggle/>
           <Link href={`/p/${p.slug}`} target="_blank" className="text-sm text-indigo-500 hover:text-indigo-600 font-semibold transition-colors">View page →</Link>
         </div>
       </nav>

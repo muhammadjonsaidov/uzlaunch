@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { projectApi, ProjectForm } from "@/lib/api";
 import AuthGuard from "@/components/AuthGuard";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -54,6 +55,7 @@ function EditProject({ id }: { id: number }) {
       <nav className="app-nav" style={{ padding: "0 20px" }}>
         <span className="logo-text" style={{ fontSize: 20 }}>UZLaunch</span>
         <div className="flex items-center gap-3">
+          <ThemeToggle/>
           <Link href={`/projects/${id}`} className="text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors">← Back</Link>
         </div>
       </nav>

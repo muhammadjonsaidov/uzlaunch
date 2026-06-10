@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
@@ -177,6 +178,7 @@ export default function AdminPage() {
             Subs CSV
           </button>
           <span className="text-xs font-bold bg-red-100 text-red-700 px-2.5 py-1 rounded-full">Admin</span>
+          <ThemeToggle/>
           <button onClick={logout} className="text-sm text-slate-400 hover:text-slate-600 transition-colors">Logout</button>
         </div>
       </nav>

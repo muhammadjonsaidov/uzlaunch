@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { projectApi, ProjectForm } from "@/lib/api";
 import AuthGuard from "@/components/AuthGuard";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function NewProjectPage() {
   return <AuthGuard><NewProject/></AuthGuard>;
@@ -43,6 +44,7 @@ function NewProject() {
           UZLaunch
         </Link>
         <div className="flex items-center gap-3">
+          <ThemeToggle/>
           <Link href="/dashboard" className="text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors">← Dashboard</Link>
         </div>
       </nav>

@@ -13,6 +13,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: "if(localStorage.theme==='dark')document.documentElement.classList.add('dark')" }}/>
+      </head>
       <body className="text-slate-900 antialiased">
         {children}
       </body>
