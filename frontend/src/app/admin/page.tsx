@@ -218,15 +218,15 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-2xl border border-slate-200 p-5">
             <h2 className="text-sm font-bold text-slate-700 mb-4">New users — last 7 days</h2>
-            <div className="flex items-end gap-1 h-32">
+            <div className="flex items-end justify-between gap-1" style={{ height: 140 }}>
               {stats.dailySignups.map(d => {
                 const max = Math.max(...stats.dailySignups.map(x => x.count), 1);
-                const pct = (d.count / max) * 100;
+                const h = Math.max((d.count / max) * 100, 4);
                 return (
                   <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
                     <span className="text-xs text-slate-400">{d.count > 0 ? d.count : ""}</span>
-                    <div className="w-full rounded-t-md bg-indigo-500/70" style={{ height: `${Math.max(pct, 4)}%` }}/>
-                    <span className="text-xs text-slate-300 rotate-0" style={{ fontSize: 9 }}>{d.date.slice(5)}</span>
+                    <div className="w-full rounded-t-md" style={{ height: h, background: "linear-gradient(180deg,#6366f1,#8b5cf6)", minHeight: 4 }}/>
+                    <span className="text-slate-400" style={{ fontSize: 9 }}>{d.date.slice(5)}</span>
                   </div>
                 );
               })}
