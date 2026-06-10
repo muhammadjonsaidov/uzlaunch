@@ -139,7 +139,7 @@ export default function Landing() {
                 <li key={i} className="flex items-center gap-2"><span className="text-indigo-400 font-bold">✓</span>{i}</li>
               ))}
             </ul>
-            <a href="https://t.me/uzlaunch" target="_blank" className="btn-primary w-full text-center block" style={{ padding: "11px 20px" }}>Upgrade to Pro</a>
+            <a href="https://t.me/uzlaunch" target="_blank" rel="noopener noreferrer" className="btn-primary w-full text-center block" style={{ padding: "11px 20px" }}>Upgrade to Pro</a>
           </div>
           {/* Team */}
           <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, padding: 32 }}>
@@ -153,7 +153,7 @@ export default function Landing() {
               <li className="flex items-center gap-2"><span className="text-indigo-400 font-bold">✓</span>White-label pages <span className="text-xs bg-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded-full font-bold ml-1">Soon</span></li>
               <li className="flex items-center gap-2"><span className="text-indigo-400 font-bold">✓</span>API access <span className="text-xs bg-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded-full font-bold ml-1">Soon</span></li>
             </ul>
-            <a href="https://t.me/uzlaunch" target="_blank" className="btn-glass w-full text-center block">Contact us</a>
+            <a href="https://t.me/uzlaunch" target="_blank" rel="noopener noreferrer" className="btn-glass w-full text-center block">Contact us</a>
           </div>
         </div>
       </section>
@@ -180,7 +180,7 @@ export default function Landing() {
           <Link href="/" className="text-sm text-white/40 hover:text-white transition-colors">Home</Link>
           <Link href="/register" className="text-sm text-white/40 hover:text-white transition-colors">Get started</Link>
           <Link href="/login" className="text-sm text-white/40 hover:text-white transition-colors">Log in</Link>
-          <a href="https://t.me/uzlaunch" target="_blank" className="text-sm text-white/40 hover:text-white transition-colors">Support</a>
+          <a href="https://t.me/uzlaunch" target="_blank" rel="noopener noreferrer" className="text-sm text-white/40 hover:text-white transition-colors">Support</a>
         </div>
         <p className="text-xs text-white/25">© 2026 UZLaunch. Built for Uzbek founders.</p>
       </footer>

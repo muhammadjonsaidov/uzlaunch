@@ -89,7 +89,7 @@ function Dashboard() {
               <h3 className="font-bold text-amber-900 text-sm">Upgrade to Pro</h3>
               <p className="text-xs text-amber-700 mt-0.5">Unlock unlimited subscribers, CSV export, and email notifications</p>
             </div>
-            <a href="https://t.me/uzlaunch" target="_blank"
+            <a href="https://t.me/uzlaunch" target="_blank" rel="noopener noreferrer"
               className="flex-shrink-0 text-xs font-bold bg-amber-600 text-white px-4 py-2.5 rounded-lg hover:bg-amber-700 transition-colors whitespace-nowrap">
               Upgrade · $5/mo
             </a>
@@ -124,7 +124,7 @@ function ProjectCard({ project: p }: { project: Project }) {
                 {p.validationScore} score
               </span>
             )}
-            <Link href={`/p/${p.slug}`} target="_blank"
+            <Link href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer"
               className="text-xs text-indigo-500 hover:text-indigo-600 font-medium hover:underline transition-colors">
               /p/{p.slug}
             </Link>
@@ -132,7 +132,7 @@ function ProjectCard({ project: p }: { project: Project }) {
         </div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
-        <Link href={`/p/${p.slug}`} target="_blank"
+        <Link href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer"
           className="text-xs font-semibold text-slate-600 border border-slate-200 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors">
           View
         </Link>

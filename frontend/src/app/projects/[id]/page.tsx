@@ -8,6 +8,7 @@ import useSWR from "swr";
 import { projectApi } from "@/lib/api";
 import AuthGuard from "@/components/AuthGuard";
 import ThemeToggle from "@/components/ThemeToggle";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -24,13 +25,18 @@ function ProjectDetail({ id }: { id: number }) {
     () => projectApi.get(id)
   );
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   async function handleDelete() {
     setDeleting(true);
+    setDeleteError("");
     try {
       await projectApi.delete(id);
       router.push("/dashboard");
-    } catch { setDeleting(false); }
+    } catch (e) {
+      setDeleting(false);
+      setDeleteError(e instanceof Error ? e.message : "Delete failed");
+    }
   }
 
   async function removeSubscriber(subId: number) {
@@ -59,7 +65,7 @@ function ProjectDetail({ id }: { id: number }) {
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors">← Dashboard</Link>
           <ThemeToggle/>
-          <Link href={`/p/${p.slug}`} target="_blank" className="text-sm text-indigo-500 hover:text-indigo-600 font-semibold transition-colors">View page →</Link>
+          <Link href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo-500 hover:text-indigo-600 font-semibold transition-colors">View page →</Link>
         </div>
       </nav>
 
@@ -84,7 +90,7 @@ function ProjectDetail({ id }: { id: number }) {
 
         {/* Action bar */}
         <div className="flex flex-wrap gap-2 mb-6">
-          <Link href={`/p/${p.slug}`} target="_blank"
+          <Link href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 border border-slate-200 bg-white px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors">
             🌐 View page
           </Link>
@@ -148,7 +154,7 @@ function ProjectDetail({ id }: { id: number }) {
           {subscribers.items.length === 0 ? (
             <div className="py-14 text-center">
               <p className="text-sm text-slate-400">No subscribers yet. Share your page to get started!</p>
-              <Link href={`/p/${p.slug}`} target="_blank" className="text-xs text-indigo-500 font-semibold mt-2 inline-block hover:underline">View public page →</Link>
+              <Link href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 font-semibold mt-2 inline-block hover:underline">View public page →</Link>
             </div>
           ) : (
             subscribers.items.map(s => (
@@ -226,7 +232,7 @@ function ProjectDetail({ id }: { id: number }) {
               <h3 className="font-bold text-amber-900 text-sm">100+ subscribers — upgrade to see all</h3>
               <p className="text-xs text-amber-700 mt-0.5">Export as CSV and access all emails with Pro</p>
             </div>
-            <a href="https://t.me/uzlaunch" target="_blank"
+            <a href="https://t.me/uzlaunch" target="_blank" rel="noopener noreferrer"
               className="flex-shrink-0 text-xs font-bold bg-amber-600 text-white px-4 py-2.5 rounded-lg hover:bg-amber-700 transition-colors">
               Upgrade · $5/mo
             </a>
@@ -236,33 +242,21 @@ function ProjectDetail({ id }: { id: number }) {
         {/* Share box */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 mt-4">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Your public page link</p>
-          <Link href={`/p/${p.slug}`} target="_blank" className="text-sm font-mono text-indigo-600 font-semibold break-all hover:underline">
+          <Link href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm font-mono text-indigo-600 font-semibold break-all hover:underline">
             {process.env.NEXT_PUBLIC_API_URL?.replace("/api","") ?? "https://www.uzlaunch.uz"}/p/{p.slug}
           </Link>
         </div>
       </main>
 
-      {/* Delete modal */}
-      {showDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)" }}>
-          <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl">
-            <h2 className="text-lg font-black text-slate-900 mb-2">Delete project?</h2>
-            <p className="text-sm text-slate-500 mb-6">
-              This will permanently delete <strong className="text-slate-700">&ldquo;{p.name}&rdquo;</strong> and all its subscribers. This cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => setShowDelete(false)}
-                className="text-sm font-semibold text-slate-600 bg-slate-100 px-5 py-2.5 rounded-xl hover:bg-slate-200 transition-colors">
-                Cancel
-              </button>
-              <button onClick={handleDelete} disabled={deleting}
-                className="text-sm font-semibold text-white bg-red-600 px-5 py-2.5 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-60">
-                {deleting ? "Deleting…" : "Yes, delete everything"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        open={showDelete}
+        title="Delete project?"
+        message={<>This will permanently delete <strong className="text-slate-700">&ldquo;{p.name}&rdquo;</strong> and all its subscribers. This cannot be undone.{deleteError && <span className="block text-red-500 mt-2">{deleteError}</span>}</>}
+        confirmLabel="Yes, delete everything"
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDelete(false)}
+      />
 
       <footer className="border-t border-slate-100 py-5 text-center">
         <p className="text-xs text-slate-300">© 2026 UZLaunch · Built for Uzbek founders</p>
