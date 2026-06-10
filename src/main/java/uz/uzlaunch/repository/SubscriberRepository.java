@@ -27,6 +27,9 @@ public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
     @Query("SELECT s FROM Subscriber s JOIN FETCH s.project WHERE s.confirmed = false ORDER BY s.subscribedAt DESC")
     List<Subscriber> findPendingWithProject();
 
+    @Query("SELECT s FROM Subscriber s JOIN FETCH s.project ORDER BY s.subscribedAt DESC")
+    List<Subscriber> findAllWithProject();
+
     @Query("SELECT s FROM Subscriber s WHERE s.project = :project AND s.confirmed = true AND (LOWER(s.email) LIKE LOWER(CONCAT('%', :q, '%')) OR (s.name IS NOT NULL AND LOWER(s.name) LIKE LOWER(CONCAT('%', :q, '%'))))")
     Page<Subscriber> searchConfirmedByProject(@org.springframework.data.repository.query.Param("project") Project project, @org.springframework.data.repository.query.Param("q") String q, Pageable pageable);
 

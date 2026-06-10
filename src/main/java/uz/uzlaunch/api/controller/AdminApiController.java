@@ -76,8 +76,7 @@ public class AdminApiController {
     @SecurityRequirement(name = "Bearer")
     @Operation(summary = "List all users")
     public ResponseEntity<java.util.List<UserResponse>> users() {
-        AdminService.AdminStats s = adminService.getStats();
-        return ResponseEntity.ok(s.users().stream().map(UserResponse::from).toList());
+        return ResponseEntity.ok(adminService.listUsers().stream().map(UserResponse::from).toList());
     }
 
     @PostMapping("/users/{id}/upgrade")

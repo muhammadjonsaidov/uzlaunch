@@ -74,6 +74,10 @@ public class AdminService {
         );
     }
 
+    public List<User> listUsers() {
+        return userRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+    }
+
     public String upgradeUser(String id) {
         User user = userRepo.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
@@ -173,7 +177,7 @@ public class AdminService {
     @Transactional(readOnly = true)
     public String exportSubscribersCsv() {
         StringBuilder sb = new StringBuilder("project_slug,project_name,email,name,confirmed,subscribed_at\n");
-        for (Subscriber s : subscriberRepo.findAll(Sort.by(Sort.Direction.DESC, "subscribedAt"))) {
+        for (Subscriber s : subscriberRepo.findAllWithProject()) {
             sb.append(csv(s.getProject().getSlug())).append(',')
               .append(csv(s.getProject().getName())).append(',')
               .append(csv(s.getEmail())).append(',')
