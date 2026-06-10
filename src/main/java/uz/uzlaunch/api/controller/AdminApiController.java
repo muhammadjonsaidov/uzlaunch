@@ -8,13 +8,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.uzlaunch.api.dto.request.AdminAuthRequest;
+import uz.uzlaunch.api.dto.request.BroadcastRequest;
 import uz.uzlaunch.api.dto.response.*;
 import uz.uzlaunch.security.JwtTokenService;
 import uz.uzlaunch.service.AdminService;
 import uz.uzlaunch.service.RateLimiter;
+
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -60,7 +65,10 @@ public class AdminApiController {
                 s.projects().stream().map(ProjectResponse::from).toList(),
                 s.dailySignups().stream()
                         .map(d -> new DailyCountResponse(d.date(), d.count()))
-                        .toList()
+                        .toList(),
+                s.topProjects().stream().map(ProjectResponse::from).toList(),
+                s.pendingByProject(),
+                s.pendingSubscribers().stream().map(PendingSubscriberResponse::from).toList()
         ));
     }
 
@@ -112,6 +120,50 @@ public class AdminApiController {
     @Operation(summary = "Delete project and all its subscribers")
     public ResponseEntity<MessageResponse> deleteProject(@PathVariable Long id) {
         return ResponseEntity.ok(new MessageResponse("Deleted project " + adminService.deleteProject(id)));
+    }
+
+    @PostMapping("/subscribers/{id}/confirm")
+    @SecurityRequirement(name = "Bearer")
+    @Operation(summary = "Manually confirm a pending subscriber")
+    public ResponseEntity<MessageResponse> confirmSubscriber(@PathVariable Long id) {
+        return ResponseEntity.ok(new MessageResponse(adminService.confirmSubscriber(id) + " confirmed"));
+    }
+
+    @DeleteMapping("/subscribers/{id}")
+    @SecurityRequirement(name = "Bearer")
+    @Operation(summary = "Delete a pending subscriber")
+    public ResponseEntity<MessageResponse> deletePendingSubscriber(@PathVariable Long id) {
+        return ResponseEntity.ok(new MessageResponse(adminService.deletePendingSubscriber(id) + " deleted"));
+    }
+
+    @PostMapping("/broadcast")
+    @SecurityRequirement(name = "Bearer")
+    @Operation(summary = "Send broadcast email to all non-banned users")
+    public ResponseEntity<MessageResponse> broadcast(@Valid @RequestBody BroadcastRequest req) {
+        int sent = adminService.broadcastEmail(req.subject(), req.body());
+        return ResponseEntity.ok(new MessageResponse("Broadcast sent to " + sent + " users"));
+    }
+
+    @GetMapping("/export/users")
+    @SecurityRequirement(name = "Bearer")
+    @Operation(summary = "Export all users as CSV")
+    public ResponseEntity<byte[]> exportUsers() {
+        byte[] csv = adminService.exportUsersCsv().getBytes(StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"users.csv\"")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(csv);
+    }
+
+    @GetMapping("/export/subscribers")
+    @SecurityRequirement(name = "Bearer")
+    @Operation(summary = "Export all subscribers as CSV")
+    public ResponseEntity<byte[]> exportSubscribers() {
+        byte[] csv = adminService.exportSubscribersCsv().getBytes(StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"subscribers.csv\"")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(csv);
     }
 
     private String resolveIp(HttpServletRequest request) {

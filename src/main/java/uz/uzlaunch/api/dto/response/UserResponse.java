@@ -4,7 +4,7 @@ import uz.uzlaunch.model.User;
 
 import java.time.ZoneOffset;
 
-public record UserResponse(String id, String email, String name, String plan, String createdAt) {
+public record UserResponse(String id, String email, String name, String plan, boolean banned, String createdAt) {
 
     public static UserResponse from(User user) {
         return new UserResponse(
@@ -12,6 +12,7 @@ public record UserResponse(String id, String email, String name, String plan, St
                 user.getEmail(),
                 user.getName(),
                 user.getPlan().name(),
+                user.isBanned(),
                 user.getCreatedAt().toInstant(ZoneOffset.UTC).toString()
         );
     }
