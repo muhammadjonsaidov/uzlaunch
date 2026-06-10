@@ -3,10 +3,10 @@ import Image from "next/image";
 
 export default function Landing() {
   return (
-    <main style={{ background: "linear-gradient(135deg,#0f0f23 0%,#1a1040 45%,#0f1a40 100%)" }} className="text-white overflow-x-hidden">
+    <main style={{ background: "linear-gradient(135deg,#0f0f23 0%,#1a1040 45%,#0f1a40 100%)" }} className="text-white overflow-hidden">
 
       {/* NAV */}
-      <nav style={{ background: "rgba(15,15,35,0.8)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.08)" }} className="sticky top-0 z-50 px-6 md:px-12">
+      <nav style={{ background: "rgba(15,15,35,0.8)", backdropFilter: "blur(20px)" }} className="sticky top-0 z-50 px-6 md:px-12">
         <div className="max-w-6xl mx-auto flex items-center justify-between h-16">
           <Link href="/" className="logo-text text-xl">
             <Image src="/favicon-32.png" width={22} height={22} alt="" style={{ borderRadius: 6, flexShrink: 0 }}/>
@@ -20,7 +20,7 @@ export default function Landing() {
       </nav>
 
       {/* HERO */}
-      <section className="relative overflow-hidden py-28 px-6 text-center">
+      <section className="relative py-28 px-6 text-center">
         <div className="orb orb-1"/>
         <div className="orb orb-2"/>
         <div className="orb orb-3"/>
