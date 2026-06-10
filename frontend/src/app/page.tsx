@@ -9,7 +9,7 @@ export default function Landing() {
       <nav style={{ background: "rgba(15,15,35,0.8)", backdropFilter: "blur(20px)" }} className="sticky top-0 z-50 px-6 md:px-12">
         <div className="max-w-6xl mx-auto flex items-center justify-between h-16">
           <Link href="/" className="logo-text text-xl">
-            <Image src="/favicon-32.png" width={22} height={22} alt="" style={{ borderRadius: 6, flexShrink: 0 }}/>
+            <Image src="/favicon-512.png" width={22} height={22} alt="" style={{ borderRadius: 6, flexShrink: 0 }}/>
             UZLaunch
           </Link>
           <div className="flex items-center gap-4">
@@ -173,7 +173,7 @@ export default function Landing() {
       {/* FOOTER */}
       <footer className="border-t border-white/10 px-6 py-10 text-center">
         <Link href="/" className="logo-text text-lg mb-4 inline-flex">
-          <Image src="/favicon-32.png" width={20} height={20} alt="" style={{ borderRadius: 5 }}/>
+          <Image src="/favicon-512.png" width={20} height={20} alt="" style={{ borderRadius: 5 }}/>
           UZLaunch
         </Link>
         <div className="flex justify-center gap-6 mb-6 flex-wrap mt-4">

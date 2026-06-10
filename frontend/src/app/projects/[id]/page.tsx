@@ -52,7 +52,7 @@ function ProjectDetail({ id }: { id: number }) {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <nav className="app-nav" style={{ padding: "0 20px" }}>
         <Link href="/" className="logo-text">
-          <Image src="/favicon-32.png" width={22} height={22} alt="" style={{ borderRadius: 6, flexShrink: 0 }}/>
+          <Image src="/favicon-512.png" width={22} height={22} alt="" style={{ borderRadius: 6, flexShrink: 0 }}/>
           UZLaunch
         </Link>
         <div className="flex items-center gap-4">

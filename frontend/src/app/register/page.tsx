@@ -33,7 +33,7 @@ export default function RegisterPage() {
       <div className="orb orb-2"/>
 
       <Link href="/" className="logo-text text-2xl mb-8 relative z-10">
-        <Image src="/favicon-32.png" width={26} height={26} alt="" style={{ borderRadius: 7, flexShrink: 0 }}/>
+        <Image src="/favicon-512.png" width={26} height={26} alt="" style={{ borderRadius: 7, flexShrink: 0 }}/>
         UZLaunch
       </Link>
 
