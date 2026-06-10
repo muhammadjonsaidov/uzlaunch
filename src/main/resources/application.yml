@@ -57,6 +57,7 @@ app:
   frontend-url: ${FRONTEND_URL:http://localhost:3000}
   jwt:
     expiration: 604800
+    secret: ${JWT_SECRET:}
 
 admin:
   secret: ${ADMIN_SECRET}
