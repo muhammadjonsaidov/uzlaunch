@@ -45,5 +45,7 @@ public class Project {
     private String confirmEmailBody;
 
     private int subscriberCount = 0;
+    private int validationScore = 0;
+    private String feedbackQuestion;
     private LocalDateTime createdAt = LocalDateTime.now();
 }

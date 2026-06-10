@@ -30,4 +30,7 @@ public class ProjectCreateRequest {
 
     @Size(max = 2000, message = "Confirmation email body must be under 2000 characters")
     private String confirmEmailBody;
+
+    @Size(max = 255, message = "Feedback question must be under 255 characters")
+    private String feedbackQuestion;
 }

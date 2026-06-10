@@ -7,5 +7,10 @@ public record SubscribeApiRequest(
         @Email(message = "Invalid email address")
         String email,
 
-        String name
+        String name,
+
+        String commitment,
+
+        @Size(max = 1000, message = "Feedback answer must be under 1000 characters")
+        String feedbackAnswer
 ) {}

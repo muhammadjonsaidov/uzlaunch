@@ -88,6 +88,8 @@ public class ProjectService {
             try { p.setLaunchAt(LocalDateTime.parse(req.getLaunchAt())); }
             catch (Exception e) { throw new BadRequestException("Invalid launch date format. Use ISO-8601: yyyy-MM-ddTHH:mm:ss"); }
         }
+        if (req.getFeedbackQuestion() != null && !req.getFeedbackQuestion().isBlank())
+            p.setFeedbackQuestion(req.getFeedbackQuestion().trim());
         return projectRepo.save(p);
     }
 
@@ -117,6 +119,8 @@ public class ProjectService {
             p.setConfirmEmailBody(req.getConfirmEmailBody() != null && !req.getConfirmEmailBody().isBlank()
                 ? req.getConfirmEmailBody().trim() : null);
         }
+        p.setFeedbackQuestion(req.getFeedbackQuestion() != null && !req.getFeedbackQuestion().isBlank()
+            ? req.getFeedbackQuestion().trim() : null);
         return projectRepo.save(p);
     }
 

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import uz.uzlaunch.model.Project;
 import uz.uzlaunch.model.Subscriber;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,4 +31,16 @@ public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
     Page<Subscriber> searchConfirmedByProject(@org.springframework.data.repository.query.Param("project") Project project, @org.springframework.data.repository.query.Param("q") String q, Pageable pageable);
 
     Optional<Subscriber> findByIdAndProject(Long id, Project project);
+
+    @Query("SELECT s.commitment, COUNT(s) FROM Subscriber s WHERE s.project = :project AND s.confirmed = true GROUP BY s.commitment")
+    List<Object[]> countByCommitment(@org.springframework.data.repository.query.Param("project") Project project);
+
+    @Query("SELECT COUNT(s) FROM Subscriber s WHERE s.project = :project AND s.confirmed = true AND s.confirmedAt >= :since")
+    long countConfirmedSince(@org.springframework.data.repository.query.Param("project") Project project,
+                             @org.springframework.data.repository.query.Param("since") LocalDateTime since);
+
+    @Query("SELECT COUNT(s) FROM Subscriber s WHERE s.project = :project AND s.confirmed = true AND s.confirmedAt >= :from AND s.confirmedAt < :to")
+    long countConfirmedBetween(@org.springframework.data.repository.query.Param("project") Project project,
+                               @org.springframework.data.repository.query.Param("from") LocalDateTime from,
+                               @org.springframework.data.repository.query.Param("to") LocalDateTime to);
 }

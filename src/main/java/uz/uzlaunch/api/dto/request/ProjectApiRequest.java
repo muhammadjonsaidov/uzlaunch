@@ -26,5 +26,8 @@ public record ProjectApiRequest(
         String confirmEmailSubject,
 
         @Size(max = 2000, message = "Confirm email body must be under 2000 characters")
-        String confirmEmailBody
+        String confirmEmailBody,
+
+        @Size(max = 255, message = "Feedback question must be under 255 characters")
+        String feedbackQuestion
 ) {}

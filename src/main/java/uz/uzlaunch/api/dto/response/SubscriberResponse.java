@@ -9,6 +9,8 @@ public record SubscriberResponse(
         String email,
         String name,
         boolean confirmed,
+        String commitment,
+        String feedbackAnswer,
         String subscribedAt,
         String confirmedAt
 ) {
@@ -18,6 +20,8 @@ public record SubscriberResponse(
                 s.getEmail(),
                 s.getName(),
                 s.isConfirmed(),
+                s.getCommitment().name(),
+                s.getFeedbackAnswer(),
                 s.getSubscribedAt().toInstant(ZoneOffset.UTC).toString(),
                 s.getConfirmedAt() != null ? s.getConfirmedAt().toInstant(ZoneOffset.UTC).toString() : null
         );

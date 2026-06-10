@@ -25,6 +25,7 @@ public class AdminService {
     private final SubscriberRepository subscriberRepo;
     private final EmailService emailService;
     private final SseService sseService;
+    private final ValidationScoreService scoreService;
 
     public record DailyCount(String date, long count) {}
 
@@ -134,6 +135,7 @@ public class AdminService {
         subscriberRepo.save(sub);
         projectRepo.incrementSubscriberCount(sub.getProject().getId());
         sseService.broadcast(sub.getProject().getId(), sub.getProject().getSubscriberCount() + 1);
+        scoreService.recompute(sub.getProject());
         return sub.getEmail();
     }
 

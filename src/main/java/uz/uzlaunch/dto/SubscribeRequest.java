@@ -11,4 +11,6 @@ public class SubscribeRequest {
     private String email;
 
     private String name;
+    private String commitment;
+    private String feedbackAnswer;
 }

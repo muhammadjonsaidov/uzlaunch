@@ -24,6 +24,7 @@ public class SubscriberService {
     private final EmailService emailService;
     private final SseService sseService;
     private final @Qualifier("subscribeRateLimiter") RateLimiter rateLimiter;
+    private final ValidationScoreService scoreService;
 
     public void subscribe(String slug, SubscribeRequest req, String ip) {
         if (!rateLimiter.isAllowed(ip + ":" + slug))
@@ -43,6 +44,12 @@ public class SubscriberService {
         sub.setEmail(email);
         if (req.getName() != null && !req.getName().isBlank()) sub.setName(req.getName().trim());
         sub.setToken(UUID.randomUUID().toString());
+        if (req.getCommitment() != null && !req.getCommitment().isBlank()) {
+            try { sub.setCommitment(Subscriber.Commitment.valueOf(req.getCommitment().toUpperCase())); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (req.getFeedbackAnswer() != null && !req.getFeedbackAnswer().isBlank())
+            sub.setFeedbackAnswer(req.getFeedbackAnswer().trim());
         sub.setConfirmed(false);
         subscriberRepo.save(sub);
 
@@ -68,6 +75,7 @@ public class SubscriberService {
         projectRepo.incrementSubscriberCount(p.getId());
         int newCount = p.getSubscriberCount() + 1;
         sseService.broadcast(p.getId(), newCount);
+        scoreService.recompute(p);
 
         emailService.sendSubscriptionConfirmed(sub.getEmail(), sub.getName(), p.getName(), p.getSlug(), sub.getToken(),
             p.getConfirmEmailSubject(), p.getConfirmEmailBody());
@@ -106,6 +114,7 @@ public class SubscriberService {
             projectRepo.decrementSubscriberCount(sub.getProject().getId());
         }
         subscriberRepo.delete(sub);
+        scoreService.recompute(sub.getProject());
         return projectName;
     }
 }

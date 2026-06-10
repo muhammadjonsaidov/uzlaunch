@@ -59,6 +59,14 @@
         <p class="text-xs text-slate-400 mt-1">Subscribers notified automatically at this time. Changing resets notification.</p>
       </div>
 
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Feedback question <span class="text-slate-300 font-normal normal-case">(optional)</span></label>
+        <input type="text" name="feedbackQuestion" class="app-input" maxlength="255"
+               th:value="${project.feedbackQuestion}"
+               placeholder="e.g. What's your biggest pain with X today?"/>
+        <p class="text-xs text-slate-400 mt-1">Shown on your public page after the email field.</p>
+      </div>
+
       <!-- Launch email customization — PAID only -->
       <div class="border-t border-slate-100 pt-5" th:if="${project.user.plan.name() == 'PAID'}">
         <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Launch announcement email <span class="text-slate-300 font-normal normal-case">(optional — uses default if blank)</span></p>

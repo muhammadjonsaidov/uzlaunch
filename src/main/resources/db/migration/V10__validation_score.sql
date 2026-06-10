@@ -1,0 +1,4 @@
+ALTER TABLE subscribers ADD COLUMN commitment VARCHAR(20) NOT NULL DEFAULT 'WOULD_USE';
+ALTER TABLE subscribers ADD COLUMN feedback_answer VARCHAR(1000);
+ALTER TABLE projects ADD COLUMN feedback_question VARCHAR(255);
+ALTER TABLE projects ADD COLUMN validation_score INT NOT NULL DEFAULT 0;

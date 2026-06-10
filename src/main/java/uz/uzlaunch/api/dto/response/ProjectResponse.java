@@ -11,6 +11,8 @@ public record ProjectResponse(
         String tagline,
         String description,
         int subscriberCount,
+        int validationScore,
+        String feedbackQuestion,
         String launchAt,
         String createdAt
 ) {
@@ -22,6 +24,8 @@ public record ProjectResponse(
                 p.getTagline(),
                 p.getDescription(),
                 p.getSubscriberCount(),
+                p.getValidationScore(),
+                p.getFeedbackQuestion(),
                 p.getLaunchAt() != null ? p.getLaunchAt().toInstant(ZoneOffset.UTC).toString() : null,
                 p.getCreatedAt().toInstant(ZoneOffset.UTC).toString()
         );

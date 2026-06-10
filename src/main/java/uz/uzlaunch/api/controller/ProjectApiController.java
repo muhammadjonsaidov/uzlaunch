@@ -48,6 +48,7 @@ public class ProjectApiController {
         r.setLaunchEmailBody(req.launchEmailBody());
         r.setConfirmEmailSubject(req.confirmEmailSubject());
         r.setConfirmEmailBody(req.confirmEmailBody());
+        r.setFeedbackQuestion(req.feedbackQuestion());
         return r;
     }
 
@@ -149,5 +150,21 @@ public class ProjectApiController {
         Project p = projectService.getOwned(id, resolveUser(jwt));
         subscriberService.resendConfirmation(subId, p);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/feedback")
+    @Operation(summary = "Confirmed subscribers with feedback answers", description = "PRO plan only.")
+    public ResponseEntity<java.util.List<uz.uzlaunch.api.dto.response.SubscriberResponse>> feedback(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
+        User user = resolveUser(jwt);
+        if (user.getPlan() != uz.uzlaunch.model.User.Plan.PAID)
+            throw new uz.uzlaunch.exception.ForbiddenException("Feedback analytics requires Pro plan");
+        java.util.List<uz.uzlaunch.api.dto.response.SubscriberResponse> answers =
+            projectService.getExportData(id, user).subscribers().stream()
+                .filter(s -> s.getFeedbackAnswer() != null && !s.getFeedbackAnswer().isBlank())
+                .map(uz.uzlaunch.api.dto.response.SubscriberResponse::from)
+                .toList();
+        return ResponseEntity.ok(answers);
     }
 }
