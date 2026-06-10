@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { authApi } from "@/lib/api";
 
 export default function RegisterPage() {
@@ -27,55 +28,57 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-sm font-black text-white">U</div>
-            <span className="font-black text-xl tracking-tight">UZLaunch</span>
-          </Link>
-          <h1 className="text-2xl font-black text-slate-900">Create account</h1>
-          <p className="text-sm text-slate-400 mt-1">Free. No credit card needed.</p>
-        </div>
+    <main className="bg-dark-gradient min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden">
+      <div className="orb orb-1"/>
+      <div className="orb orb-2"/>
 
-        <div className="card p-7">
-          {success ? (
-            <div className="text-center py-4">
-              <div className="text-4xl mb-3">📬</div>
-              <h2 className="font-bold text-slate-900 mb-2">Check your inbox</h2>
-              <p className="text-sm text-slate-500">We sent a verification link to <strong>{email}</strong>. Click it to activate your account.</p>
-              <Link href="/login" className="btn-primary inline-block mt-5 px-6 py-2.5 text-sm">Go to login →</Link>
-            </div>
-          ) : (
-            <>
-              {error && <div className="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">{error}</div>}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Name</label>
-                  <input type="text" value={name} onChange={e => setName(e.target.value)}
-                    className="app-input" placeholder="Your name" required autoComplete="name"/>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email</label>
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                    className="app-input" placeholder="you@example.com" required autoComplete="email"/>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
-                  <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-                    className="app-input" placeholder="Min 8 characters" required minLength={8} autoComplete="new-password"/>
-                </div>
-                <button type="submit" disabled={loading} className="btn-primary w-full py-3">
-                  {loading ? "Creating account…" : "Create account →"}
-                </button>
-              </form>
-            </>
-          )}
-        </div>
+      <Link href="/" className="logo-text text-2xl mb-8 relative z-10">
+        <Image src="/favicon-32.png" width={26} height={26} alt="" style={{ borderRadius: 7, flexShrink: 0 }}/>
+        UZLaunch
+      </Link>
 
-        <p className="text-center text-sm text-slate-400 mt-5">
-          Already have an account? <Link href="/login" className="font-semibold text-indigo-600 hover:underline">Sign in</Link>
-        </p>
+      <div className="glass-card w-full max-w-md p-8 relative z-10">
+        {success ? (
+          <div className="text-center py-4">
+            <div className="text-4xl mb-3">📬</div>
+            <h2 className="font-bold text-white mb-2">Check your inbox</h2>
+            <p className="text-sm text-white/50">We sent a verification link to <strong className="text-white/80">{email}</strong>. Click it to activate your account.</p>
+            <Link href="/login" className="btn-primary inline-block mt-5 px-6 text-sm" style={{ padding: "10px 24px" }}>Go to login →</Link>
+          </div>
+        ) : (
+          <>
+            <h1 className="text-2xl font-black text-white mb-1 tracking-tight">Create your account</h1>
+            <p className="text-white/50 text-sm mb-7">Free forever. No credit card needed.</p>
+
+            {error && <div className="alert-error mb-5 text-sm">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-1.5">Full name</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)}
+                  className="glass-input" placeholder="Your name" required autoComplete="name"/>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-1.5">Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  className="glass-input" placeholder="you@example.com" required autoComplete="email"/>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-1.5">Password</label>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                  className="glass-input" placeholder="Min. 8 characters" required minLength={8} autoComplete="new-password"/>
+              </div>
+              <button type="submit" disabled={loading} className="btn-primary w-full text-center mt-2" style={{ padding: "13px" }}>
+                {loading ? "Creating account…" : "Create account — it's free"}
+              </button>
+            </form>
+
+            <p className="text-center text-sm text-white/40 mt-6">
+              Already have an account?{" "}
+              <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">Log in</Link>
+            </p>
+          </>
+        )}
       </div>
     </main>
   );

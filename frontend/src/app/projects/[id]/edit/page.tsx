@@ -50,10 +50,11 @@ function EditProject({ id }: { id: number }) {
   if (!p) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"/></div>;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <nav className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-xl items-center gap-4 px-5 py-3">
-          <Link href={`/projects/${id}`} className="text-sm text-slate-500 hover:text-slate-700 font-medium">← Back</Link>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <nav className="app-nav" style={{ padding: "0 20px" }}>
+        <span className="logo-text" style={{ fontSize: 20 }}>UZLaunch</span>
+        <div className="flex items-center gap-3">
+          <Link href={`/projects/${id}`} className="text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors">← Back</Link>
         </div>
       </nav>
 
