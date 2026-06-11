@@ -23,10 +23,6 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
 
-  thymeleaf:
-    cache: false
-    encoding: UTF-8
-
   security:
     oauth2:
       client:
