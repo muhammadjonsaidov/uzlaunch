@@ -26,8 +26,8 @@ public class EmailService {
     public void sendSubscriberConfirmation(String toEmail, String toName,
                                            String projectName, String projectSlug, String token) {
         String name = (toName != null && !toName.isBlank()) ? toName : "there";
-        String confirmUrl = baseUrl + "/p/" + projectSlug + "/confirm?token=" + token;
-        String unsubUrl  = baseUrl + "/unsubscribe?token=" + token;
+        String confirmUrl = frontendUrl + "/confirm?token=" + token;
+        String unsubUrl  = frontendUrl + "/unsubscribe?token=" + token;
 
         String body = "<p style='margin:0 0 16px'>Hi <strong>" + esc(name) + "</strong>,</p>"
             + "<p style='margin:0 0 24px;color:#475569'>You signed up for the <strong style='color:#1e293b'>"
@@ -46,8 +46,8 @@ public class EmailService {
                                           String projectName, String projectSlug, String token,
                                           String customSubject, String customMessage) {
         String name    = (toName != null && !toName.isBlank()) ? toName : "there";
-        String pageUrl = baseUrl + "/p/" + projectSlug;
-        String unsubUrl = baseUrl + "/unsubscribe?token=" + token;
+        String pageUrl = frontendUrl + "/p/" + projectSlug;
+        String unsubUrl = frontendUrl + "/unsubscribe?token=" + token;
 
         String subject = (customSubject != null && !customSubject.isBlank())
             ? customSubject : "You're confirmed on the " + projectName + " waitlist! 🎉";
@@ -74,7 +74,7 @@ public class EmailService {
         String who = (subscriberName != null && !subscriberName.isBlank())
             ? subscriberName + " (" + subscriberEmail + ")"
             : subscriberEmail;
-        String dashUrl = baseUrl + "/dashboard";
+        String dashUrl = frontendUrl + "/dashboard";
 
         String body = "<p style='margin:0 0 16px'>Hi <strong>" + esc(ownerName) + "</strong>,</p>"
             + "<div style='background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:20px;margin:0 0 24px'>"
@@ -95,7 +95,7 @@ public class EmailService {
     }
 
     public void sendVerificationEmail(String toEmail, String name, String token) {
-        String verifyUrl = baseUrl + "/verify-email?token=" + token;
+        String verifyUrl = frontendUrl + "/verify-email?token=" + token;
         String displayName = (name != null && !name.isBlank()) ? name : "there";
         String body = "<p style='margin:0 0 16px'>Hi <strong>" + esc(displayName) + "</strong>,</p>"
             + "<p style='margin:0 0 24px;color:#475569'>Thanks for signing up for <strong>UZLaunch</strong>! Please verify your email address to get started:</p>"
@@ -133,7 +133,7 @@ public class EmailService {
         if (subscribers.isEmpty()) return 0;
         if (apiKey.isBlank()) { log.warn("RESEND_API_KEY not set, skipping launch batch"); return 0; }
 
-        String pageUrl = baseUrl + "/p/" + projectSlug;
+        String pageUrl = frontendUrl + "/p/" + projectSlug;
         String subject = (customSubject != null && !customSubject.isBlank())
             ? customSubject : "🚀 " + projectName + " is live!";
         String messageHtml = (customMessage != null && !customMessage.isBlank())
@@ -148,7 +148,7 @@ public class EmailService {
             List<Map<String, Object>> batch = new java.util.ArrayList<>();
             for (uz.uzlaunch.model.Subscriber s : subscribers) {
                 String name = (s.getName() != null && !s.getName().isBlank()) ? s.getName() : "there";
-                String unsubUrl = baseUrl + "/unsubscribe?token=" + s.getToken();
+                String unsubUrl = frontendUrl + "/unsubscribe?token=" + s.getToken();
                 String body = "<p style='margin:0 0 16px'>Hi <strong>" + esc(name) + "</strong>,</p>"
                     + "<div style='background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center'>"
                     + "<p style='margin:0;font-size:36px'>🚀</p>"
