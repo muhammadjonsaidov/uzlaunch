@@ -243,7 +243,7 @@ function ProjectDetail({ id }: { id: number }) {
         <div className="bg-white rounded-2xl border border-slate-200 p-5 mt-4">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Your public page link</p>
           <Link href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm font-mono text-indigo-600 font-semibold break-all hover:underline">
-            {process.env.NEXT_PUBLIC_API_URL?.replace("/api","") ?? "https://www.uzlaunch.uz"}/p/{p.slug}
+            {process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.uzlaunch.uz"}/p/{p.slug}
           </Link>
         </div>
       </main>
