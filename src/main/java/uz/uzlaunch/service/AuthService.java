@@ -29,6 +29,7 @@ public class AuthService {
         user.setName(req.getName().trim());
         user.setEmail(email);
         user.setPasswordHash(encoder.encode(req.getPassword()));
+        user.setAuthProvider(User.AuthProvider.LOCAL);
         user.setEmailVerified(false);
         user.setVerificationToken(UUID.randomUUID().toString());
         userRepo.save(user);
@@ -45,6 +46,10 @@ public class AuthService {
         }
         User user = opt.get();
         if (user.isBanned()) throw new BannedUserException();
+        if (user.getAuthProvider() != null && user.getAuthProvider() != User.AuthProvider.LOCAL) {
+            throw new uz.uzlaunch.exception.ForbiddenException(
+                "This account uses " + user.getAuthProvider().name().toLowerCase() + " sign-in. Use that button instead.");
+        }
         if (!user.isEmailVerified()) throw new EmailNotVerifiedException();
         return user;
     }

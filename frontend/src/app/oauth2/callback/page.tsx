@@ -15,7 +15,14 @@ export default function OAuth2Callback() {
     const err = params.get("error");
 
     if (err) {
-      setError(err === "banned" ? "Your account has been banned." : "OAuth login failed. Please try again.");
+      const messages: Record<string, string> = {
+        banned: "Your account has been banned.",
+        use_password: "This account was created with email/password. Please log in with your password.",
+        use_google: "This account was created with Google. Please use the Google button.",
+        use_github: "This account was created with GitHub. Please use the GitHub button.",
+        oauth_no_email: "Google/GitHub did not share your email. Please try again or use email sign-up.",
+      };
+      setError(messages[err] ?? "OAuth login failed. Please try again.");
       return;
     }
     if (token) {

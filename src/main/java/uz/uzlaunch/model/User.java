@@ -24,10 +24,14 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Plan plan = Plan.FREE;
 
+    @Enumerated(EnumType.STRING)
+    private AuthProvider authProvider = AuthProvider.LOCAL;
+
     private boolean banned = false;
     private boolean emailVerified = false;
     private String verificationToken;
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Plan { FREE, PAID }
+    public enum AuthProvider { LOCAL, GOOGLE, GITHUB }
 }

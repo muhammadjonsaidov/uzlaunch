@@ -19,6 +19,7 @@ public class EmailService {
     @Value("${resend.api-key:}") private final String apiKey;
     @Value("${app.mail.from:noreply@uzlaunch.uz}") private final String fromAddress;
     @Value("${app.base-url:http://localhost:8080}") private final String baseUrl;
+    @Value("${app.frontend-url:http://localhost:3000}") private final String frontendUrl;
 
     private final RestTemplate rest = new RestTemplate();
 
@@ -103,6 +104,16 @@ public class EmailService {
             + "<a href='" + verifyUrl + "' style='color:#6366f1;word-break:break-all'>" + verifyUrl + "</a></p>"
             + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>Didn't sign up for UZLaunch? Ignore this email.</p>";
         send(toEmail, "Verify your UZLaunch email address", wrap("UZLaunch", body, null));
+    }
+
+    public void sendWelcomeEmail(String toEmail, String name) {
+        String displayName = (name != null && !name.isBlank()) ? name : "there";
+        String dashboardUrl = frontendUrl + "/dashboard";
+        String body = "<p style='margin:0 0 16px'>Hi <strong>" + esc(displayName) + "</strong>,</p>"
+            + "<p style='margin:0 0 24px;color:#475569'>Welcome to <strong>UZLaunch</strong>! Your account is ready — start building your waitlist page now:</p>"
+            + btn(dashboardUrl, "Go to dashboard")
+            + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>You signed up via OAuth. No password was set on your account.</p>";
+        send(toEmail, "Welcome to UZLaunch 🚀", wrap("UZLaunch", body, null));
     }
 
     public int sendLaunchAnnouncementBatch(List<uz.uzlaunch.model.Subscriber> subscribers,
