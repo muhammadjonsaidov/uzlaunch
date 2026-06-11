@@ -1,20 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { authApi } from "@/lib/api";
 import { setToken } from "@/lib/auth";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
+const OAUTH_ERRORS: Record<string, string> = {
+  use_password: "This account uses email/password. Please log in with your password.",
+  use_google: "This account was created with Google. Please use the Google button.",
+  use_github: "This account was created with GitHub. Please use the GitHub button.",
+  banned: "Your account has been banned.",
+  oauth_no_email: "Google/GitHub did not share your email. Try again or use email sign-up.",
+};
+
 export default function LoginPage() {
+  return <Suspense><LoginForm /></Suspense>;
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const err = searchParams.get("error");
+    if (err) setError(OAUTH_ERRORS[err] ?? "OAuth login failed. Please try again.");
+  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
