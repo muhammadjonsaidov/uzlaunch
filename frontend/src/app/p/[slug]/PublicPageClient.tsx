@@ -15,7 +15,7 @@ export default function PublicPageClient({ project: initial }: { project: Projec
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [feedback, setFeedback] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "info" | "error">("idle");
   const [message, setMessage] = useState("");
   const [countdown, setCountdown] = useState<{ d: number; h: number; m: number; s: number } | null>(null);
   const [launched, setLaunched] = useState(false);
@@ -53,8 +53,10 @@ export default function PublicPageClient({ project: initial }: { project: Projec
       setMessage(res.message);
       setStatus("success");
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Something went wrong");
-      setStatus("error");
+      const msg = err instanceof Error ? err.message : "Something went wrong";
+      const isDuplicate = msg.includes("Already subscribed") || msg.includes("Confirmation email");
+      setMessage(isDuplicate ? "You're already on the list! Check your inbox for the confirmation email." : msg);
+      setStatus(isDuplicate ? "info" : "error");
     }
   }
 
@@ -72,6 +74,9 @@ export default function PublicPageClient({ project: initial }: { project: Projec
           </div>
           <h1 className="text-3xl font-black text-white tracking-tight leading-tight mb-1">{initial.name}</h1>
           <p className="text-sm text-white/60 leading-snug">{initial.tagline}</p>
+          {initial.description && (
+            <p className="text-sm text-white/45 leading-relaxed mt-2 max-w-xs mx-auto">{initial.description}</p>
+          )}
         </div>
 
         {/* Countdown */}
@@ -131,6 +136,11 @@ export default function PublicPageClient({ project: initial }: { project: Projec
                     value={feedback} onChange={e => setFeedback(e.target.value)} style={{ resize: "none" }}/>
                 )}
 
+                {status === "info" && (
+                  <div className="text-xs text-sky-300 text-center py-2 px-3 rounded-xl" style={{ background: "rgba(14,165,233,0.12)", border: "1px solid rgba(14,165,233,0.25)" }}>
+                    {message}
+                  </div>
+                )}
                 {status === "error" && <p className="text-xs text-red-400">{message}</p>}
 
                 <button type="submit" disabled={status === "loading"}

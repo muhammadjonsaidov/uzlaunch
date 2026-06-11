@@ -7,5 +7,6 @@ public record ProjectDetailResponse(
         PagedResponse<SubscriberResponse> subscribers,
         int pendingCount,
         boolean locked,
-        List<SubscriberResponse> pendingSubscribers
+        List<SubscriberResponse> pendingSubscribers,
+        java.util.Map<String, Long> commitmentBreakdown
 ) {}

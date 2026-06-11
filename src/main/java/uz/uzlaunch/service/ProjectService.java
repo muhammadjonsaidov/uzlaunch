@@ -28,7 +28,8 @@ public class ProjectService {
 
     public record ProjectDetail(Project project, List<Subscriber> subscribers,
                                 boolean locked, long total, int page, int totalPages,
-                                List<Subscriber> pending, String q) {}
+                                List<Subscriber> pending, String q,
+                                Map<String, Long> commitmentBreakdown) {}
     public record ExportData(Project project, List<Subscriber> subscribers) {}
 
     public List<Project> listByUser(User user) {
@@ -70,7 +71,13 @@ public class ProjectService {
         int displayTotalPages = isPaid ? result.getTotalPages() : Math.min(result.getTotalPages(), 4);
         List<Subscriber> pending = subscriberRepo.findByProjectAndConfirmed(p, false);
 
-        return new ProjectDetail(p, result.getContent(), locked, total, effectivePage, displayTotalPages, pending, q);
+        Map<String, Long> breakdown = new LinkedHashMap<>();
+        breakdown.put("WOULD_USE", 0L);
+        breakdown.put("WOULD_PAY", 0L);
+        breakdown.put("PAY_NOW", 0L);
+        subscriberRepo.countByCommitment(p).forEach(row -> breakdown.put(row[0].toString(), (Long) row[1]));
+
+        return new ProjectDetail(p, result.getContent(), locked, total, effectivePage, displayTotalPages, pending, q, breakdown);
     }
 
     public Project create(ProjectCreateRequest req, User user) {

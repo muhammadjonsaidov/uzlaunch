@@ -84,7 +84,8 @@ public class ProjectApiController {
                 ),
                 detail.pending().size(),
                 detail.locked(),
-                detail.pending().stream().map(SubscriberResponse::from).toList()
+                detail.pending().stream().map(SubscriberResponse::from).toList(),
+                detail.commitmentBreakdown()
         ));
     }
 

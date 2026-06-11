@@ -53,7 +53,7 @@ function ProjectDetail({ id }: { id: number }) {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center text-sm text-red-500">Failed to load project.</div>
   );
 
-  const { project: p, subscribers, pendingSubscribers } = data;
+  const { project: p, subscribers, pendingSubscribers, commitmentBreakdown } = data;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -87,6 +87,22 @@ function ProjectDetail({ id }: { id: number }) {
             <div className="text-xs text-slate-400 mt-1">subscribers</div>
           </div>
         </div>
+
+        {/* Commitment breakdown */}
+        {commitmentBreakdown && (
+          <div className="flex gap-3 mb-5">
+            {([
+              { key: "WOULD_USE", label: "Would use", color: "text-slate-700 bg-slate-100 border-slate-200" },
+              { key: "WOULD_PAY", label: "Would pay", color: "text-amber-700 bg-amber-50 border-amber-200" },
+              { key: "PAY_NOW",   label: "Pay now",   color: "text-emerald-700 bg-emerald-50 border-emerald-200" },
+            ] as const).map(({ key, label, color }) => (
+              <div key={key} className={`flex-1 text-center rounded-xl border py-3 ${color}`}>
+                <div className="text-2xl font-black leading-none">{commitmentBreakdown[key] ?? 0}</div>
+                <div className="text-xs font-semibold mt-1 opacity-70">{label}</div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Action bar */}
         <div className="flex flex-wrap gap-2 mb-6">

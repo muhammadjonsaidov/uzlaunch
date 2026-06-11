@@ -25,18 +25,44 @@ function ConfirmContent() {
     </div>
   );
 
-  if (status === "ok") return (
-    <div className="text-center">
-      <div className="text-5xl mb-3">🎉</div>
-      <h1 className="font-black text-xl text-slate-900 mb-2">You&apos;re confirmed!</h1>
-      <p className="text-sm text-slate-500 mb-5">Your spot on the waitlist is locked in. We&apos;ll email you at launch.</p>
-      {projectSlug && (
-        <Link href={`/p/${projectSlug}`} className="btn-primary inline-block px-6 py-2.5 text-sm">
-          View waitlist page →
-        </Link>
-      )}
-    </div>
-  );
+  if (status === "ok") {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.uzlaunch.uz";
+    const pageUrl = projectSlug ? `${siteUrl}/p/${projectSlug}` : siteUrl;
+    const shareText = encodeURIComponent(`Just joined the waitlist! Check it out:`);
+    const shareUrl = encodeURIComponent(pageUrl);
+    return (
+      <div className="text-center">
+        <div className="text-5xl mb-3">🎉</div>
+        <h1 className="font-black text-xl text-slate-900 mb-2">You&apos;re confirmed!</h1>
+        <p className="text-sm text-slate-500 mb-5">Your spot on the waitlist is locked in. We&apos;ll email you at launch.</p>
+        <div className="flex flex-col items-center gap-2">
+          {projectSlug && (
+            <Link href={`/p/${projectSlug}`} className="btn-primary inline-block px-6 py-2.5 text-sm w-full text-center">
+              View waitlist page →
+            </Link>
+          )}
+          <p className="text-xs text-slate-400 mt-1">Share with friends:</p>
+          <div className="flex gap-2 justify-center">
+            <a href={`https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs font-semibold text-white bg-black px-4 py-2 rounded-lg hover:opacity-80 transition-opacity">
+              𝕏 Share
+            </a>
+            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs font-semibold text-white bg-blue-600 px-4 py-2 rounded-lg hover:opacity-80 transition-opacity">
+              in Share
+            </a>
+            <a href={`https://wa.me/?text=${shareText}%20${shareUrl}`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs font-semibold text-white bg-green-500 px-4 py-2 rounded-lg hover:opacity-80 transition-opacity">
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="text-center">

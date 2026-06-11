@@ -6,7 +6,23 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   try {
     const p = await publicApi.getProject(slug);
-    return { title: `${p.name} — Coming Soon`, description: p.tagline };
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.uzlaunch.uz";
+    return {
+      title: `${p.name} — Coming Soon`,
+      description: p.tagline ?? undefined,
+      openGraph: {
+        title: `${p.name} — Coming Soon`,
+        description: p.tagline ?? undefined,
+        type: "website",
+        url: `${siteUrl}/p/${p.slug}`,
+        siteName: "UZLaunch",
+      },
+      twitter: {
+        card: "summary",
+        title: `${p.name} — Coming Soon`,
+        description: p.tagline ?? undefined,
+      },
+    };
   } catch {
     return { title: "Coming Soon — UZLaunch" };
   }

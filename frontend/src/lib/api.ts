@@ -122,6 +122,7 @@ export interface ProjectDetail {
   pendingCount: number;
   locked: boolean;
   pendingSubscribers: Subscriber[];
+  commitmentBreakdown: { WOULD_USE: number; WOULD_PAY: number; PAY_NOW: number };
 }
 
 export interface StatsData {
