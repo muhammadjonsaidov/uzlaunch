@@ -12,6 +12,11 @@ export default function Landing() {
             <Image src="/favicon-512.png" width={22} height={22} alt="" style={{ borderRadius: 6, flexShrink: 0 }}/>
             UZLaunch
           </Link>
+          <div className="hidden md:flex items-center gap-6 mr-6">
+            <a href="#features" className="text-sm text-white/50 hover:text-white transition-colors font-medium">Features</a>
+            <a href="#how-it-works" className="text-sm text-white/50 hover:text-white transition-colors font-medium">How it works</a>
+            <a href="#pricing" className="text-sm text-white/50 hover:text-white transition-colors font-medium">Pricing</a>
+          </div>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm text-white/60 hover:text-white transition-colors font-medium">Log in</Link>
             <Link href="/register" className="btn-primary text-sm" style={{ padding: "8px 20px" }}>Get started free</Link>
@@ -68,7 +73,7 @@ export default function Landing() {
       </div>
 
       {/* FEATURES */}
-      <section className="px-6 pb-24 max-w-5xl mx-auto">
+      <section id="features" className="px-6 pb-24 max-w-5xl mx-auto">
         <p className="text-center text-xs font-bold text-indigo-400 tracking-widest uppercase mb-3">Features</p>
         <h2 className="text-3xl md:text-4xl font-black text-center mb-3 tracking-tight">Everything you need to validate your idea</h2>
         <p className="text-center text-white/50 mb-14">Built for Uzbek founders who move fast</p>
@@ -89,7 +94,7 @@ export default function Landing() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="px-6 pb-24 max-w-4xl mx-auto">
+      <section id="how-it-works" className="px-6 pb-24 max-w-4xl mx-auto">
         <p className="text-center text-xs font-bold text-indigo-400 tracking-widest uppercase mb-3">How it works</p>
         <h2 className="text-3xl md:text-4xl font-black text-center mb-3 tracking-tight">Three steps to validate your startup</h2>
         <p className="text-center text-white/50 mb-16">Simple enough to launch before your morning tea</p>
@@ -109,7 +114,7 @@ export default function Landing() {
       </section>
 
       {/* PRICING */}
-      <section className="px-6 pb-24 max-w-5xl mx-auto">
+      <section id="pricing" className="px-6 pb-24 max-w-5xl mx-auto">
         <p className="text-center text-xs font-bold text-indigo-400 tracking-widest uppercase mb-3">Pricing</p>
         <h2 className="text-3xl md:text-4xl font-black text-center mb-3 tracking-tight">Simple, honest pricing</h2>
         <p className="text-center text-white/50 mb-14">Start free. Upgrade when you&apos;re ready to scale.</p>
