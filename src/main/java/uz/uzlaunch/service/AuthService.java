@@ -4,12 +4,14 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uz.uzlaunch.dto.LoginRequest;
 import uz.uzlaunch.dto.RegisterRequest;
 import uz.uzlaunch.exception.*;
 import uz.uzlaunch.model.User;
 import uz.uzlaunch.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -46,12 +48,36 @@ public class AuthService {
         }
         User user = opt.get();
         if (user.isBanned()) throw new BannedUserException();
-        if (user.getAuthProvider() != null && user.getAuthProvider() != User.AuthProvider.LOCAL) {
-            throw new uz.uzlaunch.exception.ForbiddenException(
-                "This account uses " + user.getAuthProvider().name().toLowerCase() + " sign-in. Use that button instead.");
+        if (user.getPasswordHash() == null || user.getPasswordHash().isBlank()) {
+            throw new ForbiddenException("no_password_set");
         }
         if (!user.isEmailVerified()) throw new EmailNotVerifiedException();
         return user;
+    }
+
+    @Transactional
+    public void forgotPassword(String email) {
+        userRepo.findByEmail(email.trim().toLowerCase()).ifPresent(user -> {
+            String token = UUID.randomUUID().toString();
+            user.setResetToken(token);
+            user.setResetTokenExpiry(LocalDateTime.now().plusHours(1));
+            userRepo.save(user);
+            emailService.sendPasswordResetEmail(user.getEmail(), user.getName(), token);
+        });
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        User user = userRepo.findByResetToken(token)
+            .orElseThrow(() -> new PageNotFoundException());
+        if (user.getResetTokenExpiry() == null || user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new ForbiddenException("Reset link expired. Request a new one.");
+        }
+        user.setPasswordHash(encoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        user.setEmailVerified(true);
+        userRepo.save(user);
     }
 
     public User getSessionUser(HttpSession session) {

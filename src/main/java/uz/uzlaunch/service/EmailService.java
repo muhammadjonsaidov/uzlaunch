@@ -106,6 +106,17 @@ public class EmailService {
         send(toEmail, "Verify your UZLaunch email address", wrap("UZLaunch", body, null));
     }
 
+    public void sendPasswordResetEmail(String toEmail, String name, String token) {
+        String resetUrl = frontendUrl + "/reset-password?token=" + token;
+        String displayName = (name != null && !name.isBlank()) ? name : "there";
+        String body = "<p style='margin:0 0 16px'>Hi <strong>" + esc(displayName) + "</strong>,</p>"
+            + "<p style='margin:0 0 24px;color:#475569'>Click the button below to set your password. This link expires in 1 hour.</p>"
+            + btn(resetUrl, "Set my password")
+            + "<p style='margin:24px 0 0;font-size:13px;color:#94a3b8'>Or paste: <a href='" + resetUrl + "' style='color:#6366f1;word-break:break-all'>" + resetUrl + "</a></p>"
+            + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>If you didn't request this, ignore this email.</p>";
+        send(toEmail, "Set your UZLaunch password", wrap("UZLaunch", body, null));
+    }
+
     public void sendWelcomeEmail(String toEmail, String name) {
         String displayName = (name != null && !name.isBlank()) ? name : "there";
         String dashboardUrl = frontendUrl + "/dashboard";

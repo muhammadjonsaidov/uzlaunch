@@ -77,6 +77,26 @@ public class AuthApiController {
         return ResponseEntity.ok(new MessageResponse("Email verified. You can now log in."));
     }
 
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Request password reset email")
+    public ResponseEntity<MessageResponse> forgotPassword(@RequestBody java.util.Map<String, String> body) {
+        String email = body.get("email");
+        if (email == null || email.isBlank()) return ResponseEntity.badRequest().body(new MessageResponse("Email required"));
+        authService.forgotPassword(email);
+        return ResponseEntity.ok(new MessageResponse("If that email exists, a reset link has been sent."));
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password using token from email")
+    public ResponseEntity<MessageResponse> resetPassword(@RequestBody java.util.Map<String, String> body) {
+        String token = body.get("token");
+        String password = body.get("password");
+        if (token == null || password == null || password.length() < 8)
+            return ResponseEntity.badRequest().body(new MessageResponse("Token and password (min 8 chars) required"));
+        authService.resetPassword(token, password);
+        return ResponseEntity.ok(new MessageResponse("Password set. You can now log in."));
+    }
+
     @GetMapping("/me")
     @SecurityRequirement(name = "Bearer")
     @Operation(summary = "Get current user profile")

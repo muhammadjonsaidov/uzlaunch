@@ -30,6 +30,8 @@ public class User {
     private boolean banned = false;
     private boolean emailVerified = false;
     private String verificationToken;
+    private String resetToken;
+    private LocalDateTime resetTokenExpiry;
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Plan { FREE, PAID }

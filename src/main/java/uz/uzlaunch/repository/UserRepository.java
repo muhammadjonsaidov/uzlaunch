@@ -13,4 +13,5 @@ public interface UserRepository extends JpaRepository<User, String> {
     long countByCreatedAtAfter(LocalDateTime dateTime);
     List<User> findByCreatedAtAfter(LocalDateTime dateTime);
     java.util.Optional<User> findByVerificationToken(String token);
+    Optional<User> findByResetToken(String token);
 }
