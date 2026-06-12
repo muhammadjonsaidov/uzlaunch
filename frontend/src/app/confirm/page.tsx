@@ -85,6 +85,11 @@ function ConfirmContent() {
               View waitlist page →
             </Link>
           )}
+          {params.get("token") && (
+            <Link href={`/manage?token=${params.get("token")}`} className="text-xs text-slate-500 hover:text-slate-700 mt-1">
+              Manage your subscription
+            </Link>
+          )}
           <p className="text-xs text-slate-400 mt-1">Share with friends:</p>
           <div className="flex gap-2 justify-center">
             <a href={`https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`}

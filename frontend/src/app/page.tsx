@@ -164,10 +164,14 @@ export default function Landing() {
           <Image src="/favicon-512.png" width={20} height={20} alt="" style={{ borderRadius: 5 }}/>
           UZLaunch
         </Link>
-        <div className="flex justify-center gap-6 mb-6 flex-wrap mt-4">
-          <Link href="/" className="text-sm text-white/40 hover:text-white transition-colors">Home</Link>
-          <Link href="/register" className="text-sm text-white/40 hover:text-white transition-colors">Get started</Link>
-          <Link href="/login" className="text-sm text-white/40 hover:text-white transition-colors">Log in</Link>
+        <div className="flex justify-center gap-x-6 gap-y-3 mb-6 flex-wrap mt-4 max-w-2xl mx-auto">
+          <Link href="/explore" className="text-sm text-white/40 hover:text-white transition-colors">Explore</Link>
+          <Link href="/leaderboard" className="text-sm text-white/40 hover:text-white transition-colors">Leaderboard</Link>
+          <Link href="/templates" className="text-sm text-white/40 hover:text-white transition-colors">Templates</Link>
+          <Link href="/about" className="text-sm text-white/40 hover:text-white transition-colors">About</Link>
+          <Link href="/help" className="text-sm text-white/40 hover:text-white transition-colors">Help</Link>
+          <Link href="/terms" className="text-sm text-white/40 hover:text-white transition-colors">Terms</Link>
+          <Link href="/privacy" className="text-sm text-white/40 hover:text-white transition-colors">Privacy</Link>
           <a href="https://t.me/uzlaunch" target="_blank" rel="noopener noreferrer" className="text-sm text-white/40 hover:text-white transition-colors">Support</a>
         </div>
         <p className="text-xs text-white/25">© 2026 UZLaunch. Built for Uzbek founders.</p>

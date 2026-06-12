@@ -73,6 +73,12 @@ export default function RegisterPage() {
               <button type="submit" disabled={loading} className="btn-primary w-full text-center mt-2" style={{ padding: "13px" }}>
                 {loading ? "Creating account…" : "Create account — it's free"}
               </button>
+              <p className="text-xs text-white/40 text-center mt-3 leading-relaxed">
+                By creating an account, you agree to our{" "}
+                <Link href="/terms" className="text-white/60 hover:text-white underline">Terms</Link>
+                {" "}and{" "}
+                <Link href="/privacy" className="text-white/60 hover:text-white underline">Privacy Policy</Link>.
+              </p>
             </form>
 
             <div className="my-5 flex items-center gap-3">

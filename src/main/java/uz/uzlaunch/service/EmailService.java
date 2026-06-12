@@ -273,9 +273,14 @@ public class EmailService {
 
     private String wrap(String projectName, String bodyHtml, String unsubUrl) {
         String logoUrl = baseUrl + "/favicon-512.png";
-        String footer = unsubUrl != null
-            ? "<a href='" + unsubUrl + "' style='color:#94a3b8'>Unsubscribe</a> &nbsp;·&nbsp; Powered by UZLaunch"
-            : "Powered by <a href='https://www.uzlaunch.uz' style='color:#94a3b8'>UZLaunch</a>";
+        String footer;
+        if (unsubUrl != null) {
+            String manageUrl = unsubUrl.replace("/unsubscribe?", "/manage?");
+            footer = "<a href='" + manageUrl + "' style='color:#94a3b8'>Manage subscription</a> &nbsp;·&nbsp; "
+                   + "<a href='" + unsubUrl + "' style='color:#94a3b8'>Unsubscribe</a> &nbsp;·&nbsp; Powered by UZLaunch";
+        } else {
+            footer = "Powered by <a href='https://www.uzlaunch.uz' style='color:#94a3b8'>UZLaunch</a>";
+        }
         return "<!DOCTYPE html><html><head><meta charset='UTF-8'/>"
             + "<meta name='viewport' content='width=device-width,initial-scale=1'/></head>"
             + "<body style='margin:0;padding:0;background:#f1f5f9;font-family:Inter,Arial,sans-serif'>"
