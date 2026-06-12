@@ -46,4 +46,8 @@ public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
     long countConfirmedBetween(@org.springframework.data.repository.query.Param("project") Project project,
                                @org.springframework.data.repository.query.Param("from") LocalDateTime from,
                                @org.springframework.data.repository.query.Param("to") LocalDateTime to);
+
+    @Query("SELECT COUNT(s) FROM Subscriber s WHERE s.project = :project AND s.confirmed = true AND s.confirmedAt <= :at")
+    long countConfirmedAtOrBefore(@org.springframework.data.repository.query.Param("project") Project project,
+                                  @org.springframework.data.repository.query.Param("at") LocalDateTime at);
 }

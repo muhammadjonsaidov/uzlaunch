@@ -56,11 +56,19 @@ public class SubscriberService {
         emailService.sendSubscriberConfirmation(email, req.getName(), project.getName(), project.getSlug(), sub.getToken());
     }
 
+    public record ConfirmResult(String slug, long position, long total) {}
+
     @Transactional
-    public String confirmSubscription(String token) {
+    public ConfirmResult confirmSubscription(String token) {
         Subscriber sub = subscriberRepo.findByToken(token).orElseThrow(PageNotFoundException::new);
-        String slug = sub.getProject().getSlug();
-        if (sub.isConfirmed()) return slug;
+        Project p = sub.getProject();
+        String slug = p.getSlug();
+
+        if (sub.isConfirmed()) {
+            long position = subscriberRepo.countConfirmedAtOrBefore(p, sub.getConfirmedAt());
+            long total = subscriberRepo.countByProjectAndConfirmed(p, true);
+            return new ConfirmResult(slug, position, total);
+        }
 
         if (!sub.getSubscribedAt().isAfter(LocalDateTime.now().minusDays(7))) {
             subscriberRepo.delete(sub);
@@ -71,7 +79,6 @@ public class SubscriberService {
         sub.setConfirmedAt(LocalDateTime.now());
         subscriberRepo.save(sub);
 
-        Project p = sub.getProject();
         projectRepo.incrementSubscriberCount(p.getId());
         int newCount = p.getSubscriberCount() + 1;
         sseService.broadcast(p.getId(), newCount);
@@ -84,7 +91,8 @@ public class SubscriberService {
             sub.getEmail(), sub.getName(), p.getName(), newCount
         );
 
-        return slug;
+        long position = subscriberRepo.countConfirmedAtOrBefore(p, sub.getConfirmedAt());
+        return new ConfirmResult(slug, position, newCount);
     }
 
     @Transactional

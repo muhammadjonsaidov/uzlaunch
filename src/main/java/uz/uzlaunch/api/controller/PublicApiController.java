@@ -56,8 +56,8 @@ public class PublicApiController {
     @GetMapping("/confirm")
     @Operation(summary = "Confirm subscription via email token", description = "?token=UUID")
     public ResponseEntity<SubscribeConfirmResponse> confirm(@RequestParam String token) {
-        String slug = subscriberService.confirmSubscription(token);
-        return ResponseEntity.ok(new SubscribeConfirmResponse("Subscription confirmed!", slug));
+        SubscriberService.ConfirmResult r = subscriberService.confirmSubscription(token);
+        return ResponseEntity.ok(new SubscribeConfirmResponse("Subscription confirmed!", r.slug(), r.position(), r.total()));
     }
 
     @GetMapping("/unsubscribe")

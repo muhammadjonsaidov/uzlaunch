@@ -77,7 +77,7 @@ export const publicApi = {
       body: JSON.stringify(data),
     }),
   confirm: (token: string) =>
-    apiFetch<{ message: string; projectSlug: string }>(`/api/public/confirm?token=${token}`),
+    apiFetch<{ message: string; projectSlug: string; position: number; total: number }>(`/api/public/confirm?token=${token}`),
   unsubscribe: (token: string) =>
     apiFetch<{ message: string }>(`/api/public/unsubscribe?token=${token}`),
 };

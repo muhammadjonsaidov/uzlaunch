@@ -9,12 +9,19 @@ function ConfirmContent() {
   const params = useSearchParams();
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [projectSlug, setProjectSlug] = useState("");
+  const [position, setPosition] = useState(0);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const token = params.get("token");
     if (!token) { setStatus("error"); return; }
     publicApi.confirm(token)
-      .then(res => { setProjectSlug(res.projectSlug); setStatus("ok"); })
+      .then(res => {
+        setProjectSlug(res.projectSlug);
+        setPosition(res.position);
+        setTotal(res.total);
+        setStatus("ok");
+      })
       .catch(() => setStatus("error"));
   }, [params]);
 
@@ -34,6 +41,14 @@ function ConfirmContent() {
       <div className="text-center">
         <div className="text-5xl mb-3">🎉</div>
         <h1 className="font-black text-xl text-slate-900 mb-2">You&apos;re confirmed!</h1>
+        {position > 0 && (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-3"
+            style={{ background: "linear-gradient(135deg,rgba(99,102,241,0.1),rgba(139,92,246,0.1))", border: "1px solid rgba(99,102,241,0.25)" }}>
+            <span className="text-xs font-semibold text-slate-500">You&apos;re</span>
+            <span className="text-lg font-black text-indigo-600 leading-none">#{position}</span>
+            {total > 0 && <span className="text-xs font-semibold text-slate-500">of {total}</span>}
+          </div>
+        )}
         <p className="text-sm text-slate-500 mb-5">Your spot on the waitlist is locked in. We&apos;ll email you at launch.</p>
         <div className="flex flex-col items-center gap-2">
           {projectSlug && (
