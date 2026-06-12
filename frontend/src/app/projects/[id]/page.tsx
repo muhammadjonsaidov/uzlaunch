@@ -24,6 +24,7 @@ function ProjectDetail({ id }: { id: number }) {
     ["project", id, page, q],
     () => projectApi.get(id)
   );
+  const { data: trend } = useSWR(["trend", id], () => projectApi.trend(id, 7));
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
@@ -53,7 +54,7 @@ function ProjectDetail({ id }: { id: number }) {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center text-sm text-red-500">Failed to load project.</div>
   );
 
-  const { project: p, subscribers, pendingSubscribers, commitmentBreakdown, sourceBreakdown } = data;
+  const { project: p, subscribers, pendingSubscribers, commitmentBreakdown, sourceBreakdown, funnel } = data;
   const sourceEntries = Object.entries(sourceBreakdown ?? {}).sort((a, b) => b[1] - a[1]);
   const sourceTotal = sourceEntries.reduce((sum, [, n]) => sum + n, 0);
 
@@ -106,6 +107,77 @@ function ProjectDetail({ id }: { id: number }) {
           </div>
         )}
 
+        {/* Funnel */}
+        {funnel && (funnel.views > 0 || funnel.subscribed > 0) && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-bold text-slate-700">Conversion funnel</span>
+              <span className="text-xs font-bold text-indigo-600 tabular-nums">{funnel.overallRate}% overall</span>
+            </div>
+            {(() => {
+              const peak = Math.max(funnel.views, funnel.formStarts, funnel.subscribed, funnel.confirmed, 1);
+              const steps = [
+                { label: "Page views", count: funnel.views, rate: null,                  color: "bg-slate-400" },
+                { label: "Started form", count: funnel.formStarts, rate: funnel.formStartRate, color: "bg-sky-500" },
+                { label: "Subscribed", count: funnel.subscribed, rate: funnel.subscribeRate, color: "bg-indigo-500" },
+                { label: "Confirmed", count: funnel.confirmed, rate: funnel.confirmRate,    color: "bg-emerald-500" },
+              ];
+              return (
+                <div className="space-y-2.5">
+                  {steps.map((s, i) => {
+                    const pct = Math.max((s.count / peak) * 100, s.count > 0 ? 3 : 0);
+                    return (
+                      <div key={s.label} className="flex items-center gap-3">
+                        <span className="text-xs font-semibold text-slate-700 w-24 truncate flex-shrink-0">{s.label}</span>
+                        <div className="flex-1 h-7 bg-slate-50 rounded-md overflow-hidden">
+                          <div className={`h-full ${s.color} rounded-md transition-all`} style={{ width: `${pct}%` }}/>
+                        </div>
+                        <span className="text-xs font-bold text-slate-700 w-12 text-right tabular-nums flex-shrink-0">{s.count}</span>
+                        <span className="text-xs text-slate-400 w-16 text-right tabular-nums flex-shrink-0">
+                          {i > 0 && s.rate !== null ? `↓ ${s.rate}%` : ""}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* 7-day trend */}
+        {trend && trend.some(d => d.views + d.subscribed + d.confirmed > 0) && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-bold text-slate-700">7-day trend</span>
+              <div className="flex items-center gap-3 text-xs">
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-slate-300"/><span className="text-slate-500">Views</span></span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-indigo-500"/><span className="text-slate-500">Subs</span></span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"/><span className="text-slate-500">Confirms</span></span>
+              </div>
+            </div>
+            {(() => {
+              const maxV = Math.max(...trend.map(d => Math.max(d.views, d.subscribed, d.confirmed)), 1);
+              return (
+                <div className="flex items-end gap-2 h-32">
+                  {trend.map(d => (
+                    <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
+                      <div className="w-full flex items-end gap-0.5 flex-1">
+                        <div className="flex-1 bg-slate-200 rounded-sm" style={{ height: `${Math.max((d.views / maxV) * 100, d.views > 0 ? 4 : 0)}%` }} title={`${d.views} views`}/>
+                        <div className="flex-1 bg-indigo-500 rounded-sm" style={{ height: `${Math.max((d.subscribed / maxV) * 100, d.subscribed > 0 ? 4 : 0)}%` }} title={`${d.subscribed} subs`}/>
+                        <div className="flex-1 bg-emerald-500 rounded-sm" style={{ height: `${Math.max((d.confirmed / maxV) * 100, d.confirmed > 0 ? 4 : 0)}%` }} title={`${d.confirmed} confirms`}/>
+                      </div>
+                      <span className="text-[10px] text-slate-400 tabular-nums">
+                        {new Date(d.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
         {/* Source breakdown */}
         {sourceTotal > 0 && (
           <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-5">
@@ -151,6 +223,10 @@ function ProjectDetail({ id }: { id: number }) {
           <Link href={`/projects/${p.id}/broadcasts`}
             className="flex items-center gap-1.5 text-xs font-semibold text-rose-700 border border-rose-200 bg-rose-50 px-3 py-2 rounded-lg hover:bg-rose-100 transition-colors">
             📧 Broadcasts
+          </Link>
+          <Link href={`/projects/${p.id}/webhooks`}
+            className="flex items-center gap-1.5 text-xs font-semibold text-sky-700 border border-sky-200 bg-sky-50 px-3 py-2 rounded-lg hover:bg-sky-100 transition-colors">
+            🔌 Webhooks
           </Link>
           <button onClick={async () => {
             const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";

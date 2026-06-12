@@ -29,6 +29,7 @@ public class PublicApiController {
     private final SubscriberService subscriberService;
     private final uz.uzlaunch.service.ValidationScoreService scoreService;
     private final SseService sseService;
+    private final uz.uzlaunch.service.AnalyticsService analyticsService;
 
     @Value("${app.trust-proxy:false}")
     private final boolean trustProxy;
@@ -37,6 +38,18 @@ public class PublicApiController {
     @Operation(summary = "Get public project page by slug")
     public ResponseEntity<ProjectResponse> getProject(@PathVariable String slug) {
         return ResponseEntity.ok(ProjectResponse.from(projectService.getBySlug(slug)));
+    }
+
+    @PostMapping("/projects/{slug}/track")
+    @Operation(summary = "Track a page event (view, form_start)",
+               description = "Fire-and-forget — body: {\"event\":\"view\"|\"form_start\",\"utmSource\":\"...\"}")
+    public ResponseEntity<Void> track(@PathVariable String slug, @RequestBody java.util.Map<String, String> body) {
+        String event = body.get("event");
+        if (event == null) return ResponseEntity.noContent().build();
+        try {
+            analyticsService.track(projectService.getBySlug(slug), event, body.get("utmSource"));
+        } catch (Exception ignored) {}
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/projects/{slug}/subscribe")

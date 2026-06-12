@@ -33,6 +33,7 @@ public class ProjectApiController {
     private final ProjectService projectService;
     private final SubscriberService subscriberService;
     private final UserRepository userRepo;
+    private final uz.uzlaunch.service.AnalyticsService analyticsService;
 
     private User resolveUser(Jwt jwt) {
         return userRepo.findById(jwt.getSubject()).orElseThrow(PageNotFoundException::new);
@@ -78,6 +79,7 @@ public class ProjectApiController {
                                                          @AuthenticationPrincipal Jwt jwt) {
         User user = resolveUser(jwt);
         ProjectService.ProjectDetail detail = projectService.getProjectDetail(id, user, page, q);
+        var f = analyticsService.computeFunnel(detail.project());
         return ResponseEntity.ok(new ProjectDetailResponse(
                 ProjectResponse.from(detail.project()),
                 new PagedResponse<>(
@@ -88,7 +90,11 @@ public class ProjectApiController {
                 detail.locked(),
                 detail.pending().stream().map(SubscriberResponse::from).toList(),
                 detail.commitmentBreakdown(),
-                detail.sourceBreakdown()
+                detail.sourceBreakdown(),
+                new ProjectDetailResponse.FunnelResponse(
+                    f.views(), f.formStarts(), f.subscribed(), f.confirmed(),
+                    f.formStartRate(), f.subscribeRate(), f.confirmRate(), f.overallRate()
+                )
         ));
     }
 
@@ -155,6 +161,18 @@ public class ProjectApiController {
         Project p = projectService.getOwned(id, resolveUser(jwt));
         subscriberService.resendConfirmation(subId, p);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/analytics/trend")
+    @Operation(summary = "Daily funnel trend", description = "Last N days (default 7). Returns daily {date, views, subscribed, confirmed}.")
+    public ResponseEntity<java.util.List<uz.uzlaunch.service.AnalyticsService.DailyPoint>> trend(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "7") int days,
+            @AuthenticationPrincipal Jwt jwt) {
+        User user = resolveUser(jwt);
+        Project p = projectService.getOwned(id, user);
+        int safeDays = Math.max(1, Math.min(days, 30));
+        return ResponseEntity.ok(analyticsService.computeTrend(p, safeDays));
     }
 
     @GetMapping("/{id}/feedback")

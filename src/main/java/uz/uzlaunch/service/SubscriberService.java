@@ -25,6 +25,7 @@ public class SubscriberService {
     private final SseService sseService;
     private final @Qualifier("subscribeRateLimiter") RateLimiter rateLimiter;
     private final ValidationScoreService scoreService;
+    private final WebhookService webhookService;
 
     public void subscribe(String slug, SubscribeRequest req, String ip) {
         if (!rateLimiter.isAllowed(ip + ":" + slug))
@@ -65,6 +66,13 @@ public class SubscriberService {
         subscriberRepo.save(sub);
 
         emailService.sendSubscriberConfirmation(email, req.getName(), project.getName(), project.getSlug(), sub.getToken());
+        webhookService.dispatch(project, uz.uzlaunch.model.Webhook.EVT_SUB_CREATED, java.util.Map.of(
+            "email", sub.getEmail(),
+            "name", sub.getName() == null ? "" : sub.getName(),
+            "commitment", sub.getCommitment().name(),
+            "utmSource", sub.getUtmSource() == null ? "" : sub.getUtmSource(),
+            "projectSlug", project.getSlug()
+        ));
     }
 
     public record ConfirmResult(String slug, long position, long total, String referralCode) {}
@@ -110,6 +118,14 @@ public class SubscriberService {
             p.getUser().getEmail(), p.getUser().getName(),
             sub.getEmail(), sub.getName(), p.getName(), newCount
         );
+        webhookService.dispatch(p, uz.uzlaunch.model.Webhook.EVT_SUB_CONFIRMED, java.util.Map.of(
+            "email", sub.getEmail(),
+            "name", sub.getName() == null ? "" : sub.getName(),
+            "commitment", sub.getCommitment().name(),
+            "referralCode", sub.getReferralCode() == null ? "" : sub.getReferralCode(),
+            "projectSlug", p.getSlug(),
+            "totalConfirmed", newCount
+        ));
 
         return new ConfirmResult(slug, rankOf(sub), newCount, sub.getReferralCode());
     }
@@ -159,12 +175,18 @@ public class SubscriberService {
     @Transactional
     public String unsubscribe(String token) {
         Subscriber sub = subscriberRepo.findByToken(token).orElseThrow(PageNotFoundException::new);
-        String projectName = sub.getProject().getName();
+        Project project = sub.getProject();
+        String projectName = project.getName();
+        String email = sub.getEmail();
         if (sub.isConfirmed()) {
-            projectRepo.decrementSubscriberCount(sub.getProject().getId());
+            projectRepo.decrementSubscriberCount(project.getId());
         }
         subscriberRepo.delete(sub);
-        scoreService.recompute(sub.getProject());
+        scoreService.recompute(project);
+        webhookService.dispatch(project, uz.uzlaunch.model.Webhook.EVT_SUB_UNSUBSCRIBED, java.util.Map.of(
+            "email", email,
+            "projectSlug", project.getSlug()
+        ));
         return projectName;
     }
 }

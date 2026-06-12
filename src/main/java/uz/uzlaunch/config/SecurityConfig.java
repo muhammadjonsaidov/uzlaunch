@@ -85,7 +85,7 @@ public class SecurityConfig {
         return request -> {
             String path = request.getRequestURI();
             if (path != null && path.startsWith("/api/public/projects/")
-                    && (path.endsWith("/subscribe") || path.endsWith("/stream") || path.matches("/api/public/projects/[^/]+"))) {
+                    && (path.endsWith("/subscribe") || path.endsWith("/stream") || path.endsWith("/track") || path.matches("/api/public/projects/[^/]+"))) {
                 return embed;
             }
             if (path != null && path.equals("/widget.js")) return embed;

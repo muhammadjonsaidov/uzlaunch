@@ -21,18 +21,27 @@ export default function PublicPageClient({ project: initial }: { project: Projec
   const [launched, setLaunched] = useState(false);
   const [refCode, setRefCode] = useState<string | undefined>(undefined);
   const [utm, setUtm] = useState<{ source?: string; medium?: string; campaign?: string }>({});
+  const formStartedRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const sp = new URLSearchParams(window.location.search);
     const r = sp.get("ref");
     if (r) setRefCode(r);
+    const source = sp.get("utm_source") ?? undefined;
     setUtm({
-      source:   sp.get("utm_source")   ?? undefined,
+      source,
       medium:   sp.get("utm_medium")   ?? undefined,
       campaign: sp.get("utm_campaign") ?? undefined,
     });
-  }, []);
+    publicApi.track(initial.slug, "view", source);
+  }, [initial.slug]);
+
+  function handleFormStart() {
+    if (formStartedRef.current) return;
+    formStartedRef.current = true;
+    publicApi.track(initial.slug, "form_start", utm.source);
+  }
 
   // SSE live count
   useEffect(() => {
@@ -151,7 +160,8 @@ export default function PublicPageClient({ project: initial }: { project: Projec
               <p className="text-xs font-semibold text-white/50 text-center mb-3">Join the waitlist — be first to know</p>
               <form onSubmit={handleSubmit} className="space-y-2">
                 <input className="glass-input" type="text" placeholder="Your name (optional)" value={name} onChange={e => setName(e.target.value)} autoComplete="name"/>
-                <input className="glass-input" type="email" placeholder="Your email address" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="email"/>
+                <input className="glass-input" type="email" placeholder="Your email address" required value={email}
+                  onChange={e => setEmail(e.target.value)} onFocus={handleFormStart} autoComplete="email"/>
 
                 {/* Commitment */}
                 <div className="flex gap-2 mt-1">

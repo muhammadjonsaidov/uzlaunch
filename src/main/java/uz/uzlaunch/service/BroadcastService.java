@@ -26,6 +26,7 @@ public class BroadcastService {
     private final SubscriberRepository subscriberRepo;
     private final ProjectService projectService;
     private final EmailService emailService;
+    private final WebhookService webhookService;
 
     public List<Broadcast> list(Long projectId, User user) {
         Project p = projectService.getOwned(projectId, user);
@@ -63,6 +64,11 @@ public class BroadcastService {
         } else {
             dispatchAsync(recipients, p.getName(), p.getSlug(), b.getSubject(), b.getBody());
         }
+        webhookService.dispatch(p, uz.uzlaunch.model.Webhook.EVT_BROADCAST_SENT, java.util.Map.of(
+            "subject", b.getSubject(),
+            "recipientCount", b.getRecipientCount(),
+            "projectSlug", p.getSlug()
+        ));
         return b;
     }
 

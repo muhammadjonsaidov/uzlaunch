@@ -9,5 +9,9 @@ public record ProjectDetailResponse(
         boolean locked,
         List<SubscriberResponse> pendingSubscribers,
         java.util.Map<String, Long> commitmentBreakdown,
-        java.util.Map<String, Long> sourceBreakdown
-) {}
+        java.util.Map<String, Long> sourceBreakdown,
+        FunnelResponse funnel
+) {
+    public record FunnelResponse(long views, long formStarts, long subscribed, long confirmed,
+                                  double formStartRate, double subscribeRate, double confirmRate, double overallRate) {}
+}

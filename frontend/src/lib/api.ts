@@ -63,6 +63,8 @@ export const projectApi = {
   resendConfirmation: (id: number, subId: number) =>
     apiFetch(`/api/projects/${id}/subscribers/${subId}/resend`, { method: "POST" }),
   feedback: (id: number) => apiFetch<Subscriber[]>(`/api/projects/${id}/feedback`),
+  trend: (id: number, days = 7) =>
+    apiFetch<DailyPoint[]>(`/api/projects/${id}/analytics/trend?days=${days}`),
 };
 
 export interface Broadcast {
@@ -98,6 +100,58 @@ export const publicApi = {
     apiFetch<{ message: string; projectSlug: string; position: number; total: number; referralCode: string }>(`/api/public/confirm?token=${token}`),
   unsubscribe: (token: string) =>
     apiFetch<{ message: string }>(`/api/public/unsubscribe?token=${token}`),
+  track: (slug: string, event: "view" | "form_start", utmSource?: string) =>
+    fetch(`${API}/api/public/projects/${slug}/track`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event, utmSource }),
+      keepalive: true,
+    }).catch(() => {}),
+};
+
+export interface Webhook {
+  id: number;
+  url: string;
+  events: string;
+  secret?: string;
+  active: boolean;
+  failureCount: number;
+  lastAttemptAt?: string;
+  lastStatus?: number;
+  createdAt: string;
+}
+
+export interface WebhookDelivery {
+  id: number;
+  eventType: string;
+  payload: string;
+  statusCode?: number;
+  responseBody?: string;
+  error?: string;
+  attemptCount: number;
+  deliveredAt: string;
+}
+
+export const webhookApi = {
+  list: (projectId: number) =>
+    apiFetch<Webhook[]>(`/api/projects/${projectId}/webhooks`),
+  create: (projectId: number, data: { url: string; events: string; useSecret: boolean }) =>
+    apiFetch<Webhook>(`/api/projects/${projectId}/webhooks`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  update: (projectId: number, id: number, data: { url?: string; events?: string; active?: boolean; rotateSecret?: boolean }) =>
+    apiFetch<Webhook>(`/api/projects/${projectId}/webhooks/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  delete: (projectId: number, id: number) =>
+    apiFetch(`/api/projects/${projectId}/webhooks/${id}`, { method: "DELETE" }),
+  test: (projectId: number, id: number) =>
+    apiFetch<WebhookDelivery>(`/api/projects/${projectId}/webhooks/${id}/test`, { method: "POST" }),
+  deliveries: (projectId: number, id: number, page = 0) =>
+    apiFetch<{ items: WebhookDelivery[]; page: number; totalPages: number; total: number }>(
+      `/api/projects/${projectId}/webhooks/${id}/deliveries?page=${page}`),
 };
 
 // Types
@@ -144,6 +198,25 @@ export interface ProjectDetail {
   pendingSubscribers: Subscriber[];
   commitmentBreakdown: { WOULD_USE: number; WOULD_PAY: number; PAY_NOW: number };
   sourceBreakdown: Record<string, number>;
+  funnel: Funnel;
+}
+
+export interface Funnel {
+  views: number;
+  formStarts: number;
+  subscribed: number;
+  confirmed: number;
+  formStartRate: number;
+  subscribeRate: number;
+  confirmRate: number;
+  overallRate: number;
+}
+
+export interface DailyPoint {
+  date: string;
+  views: number;
+  subscribed: number;
+  confirmed: number;
 }
 
 export interface StatsData {
