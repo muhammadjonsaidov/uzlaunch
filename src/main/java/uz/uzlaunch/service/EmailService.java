@@ -180,6 +180,52 @@ public class EmailService {
         }
     }
 
+    public int sendProjectBroadcastBatch(List<uz.uzlaunch.model.Subscriber> subscribers,
+                                          String projectName, String projectSlug,
+                                          String subject, String body) {
+        if (subscribers.isEmpty()) return 0;
+        if (apiKey.isBlank()) { log.warn("RESEND_API_KEY not set, skipping broadcast batch"); return 0; }
+
+        String pageUrl = frontendUrl + "/p/" + projectSlug;
+
+        try {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+            httpHeaders.setBearerAuth(apiKey);
+
+            List<Map<String, Object>> batch = new java.util.ArrayList<>();
+            for (uz.uzlaunch.model.Subscriber s : subscribers) {
+                String name = (s.getName() != null && !s.getName().isBlank()) ? s.getName() : "there";
+                String unsubUrl = frontendUrl + "/unsubscribe?token=" + s.getToken();
+                String personalized = body.replace("{{name}}", name);
+                String html =
+                      "<p style='margin:0 0 16px'>Hi <strong>" + esc(name) + "</strong>,</p>"
+                    + "<div style='color:#475569;line-height:1.6;margin:0 0 24px'>" + esc(personalized).replace("\n", "<br/>") + "</div>"
+                    + btn(pageUrl, "Open " + esc(projectName))
+                    + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>You're receiving this because you joined the <strong>" + esc(projectName) + "</strong> waitlist.</p>";
+
+                Map<String, Object> msg = new HashMap<>();
+                msg.put("from", fromAddress);
+                msg.put("to", List.of(s.getEmail()));
+                msg.put("subject", subject);
+                msg.put("html", wrap(projectName, html, unsubUrl));
+                Map<String, String> hdrs = new HashMap<>();
+                hdrs.put("List-Unsubscribe", "<" + unsubUrl + ">");
+                hdrs.put("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
+                msg.put("headers", hdrs);
+                batch.add(msg);
+            }
+
+            rest.exchange("https://api.resend.com/emails/batch",
+                HttpMethod.POST, new HttpEntity<>(batch, httpHeaders), Map.class);
+            log.info("Broadcast batch sent: project='{}', subject='{}', recipients={}", projectName, subject, subscribers.size());
+            return subscribers.size();
+        } catch (Exception e) {
+            log.warn("Broadcast batch failed for project '{}': {}", projectName, e.getMessage());
+            return 0;
+        }
+    }
+
     public int broadcastToUsers(List<String> emails, String subject, String body) {
         if (emails.isEmpty()) { log.warn("Broadcast: no recipients"); return 0; }
         log.info("Broadcast '{}' → {} recipients", subject, emails.size());

@@ -65,6 +65,24 @@ export const projectApi = {
   feedback: (id: number) => apiFetch<Subscriber[]>(`/api/projects/${id}/feedback`),
 };
 
+export interface Broadcast {
+  id: number;
+  subject: string;
+  body: string;
+  sentAt: string;
+  recipientCount: number;
+}
+
+export const broadcastApi = {
+  list: (projectId: number) =>
+    apiFetch<Broadcast[]>(`/api/projects/${projectId}/broadcasts`),
+  send: (projectId: number, subject: string, body: string) =>
+    apiFetch<Broadcast>(`/api/projects/${projectId}/broadcasts`, {
+      method: "POST",
+      body: JSON.stringify({ subject, body }),
+    }),
+};
+
 // Public
 export const publicApi = {
   getProject: (slug: string) =>

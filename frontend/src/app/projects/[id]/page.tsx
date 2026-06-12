@@ -148,6 +148,10 @@ function ProjectDetail({ id }: { id: number }) {
             className="flex items-center gap-1.5 text-xs font-semibold text-purple-700 border border-purple-200 bg-purple-50 px-3 py-2 rounded-lg hover:bg-purple-100 transition-colors">
             🔗 Embed
           </Link>
+          <Link href={`/projects/${p.id}/broadcasts`}
+            className="flex items-center gap-1.5 text-xs font-semibold text-rose-700 border border-rose-200 bg-rose-50 px-3 py-2 rounded-lg hover:bg-rose-100 transition-colors">
+            📧 Broadcasts
+          </Link>
           <button onClick={async () => {
             const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
             const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
