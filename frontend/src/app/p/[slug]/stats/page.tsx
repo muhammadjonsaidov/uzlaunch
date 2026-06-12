@@ -74,25 +74,30 @@ function Stats({ slug }: { slug: string }) {
         </div>
 
         {/* Chart */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6 overflow-hidden">
           <p className="text-sm font-bold text-slate-700 mb-6">Daily signups — last {stats.statsDays} days</p>
           {stats.totalSubscribers === 0 ? (
             <div className="flex items-center justify-center h-44 text-sm text-slate-400">No data yet</div>
-          ) : (
-            <div className="flex items-end justify-between gap-2" style={{ height: 180 }}>
-              {stats.chartData.map(bar => {
-                const h = Math.max((bar.count / maxH) * 160, 4);
-                return (
-                  <div key={bar.label} className="flex flex-col items-center gap-2 flex-1">
-                    <span className="text-xs font-bold text-slate-500">{bar.count > 0 ? bar.count : ""}</span>
-                    <div className="w-full rounded-t-lg"
-                      style={{ height: h, background: "linear-gradient(180deg,#6366f1,#8b5cf6)", minHeight: 4 }}/>
-                    <span className="text-xs text-slate-400 whitespace-nowrap">{bar.label}</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          ) : (() => {
+            const step = stats.chartData.length > 10 ? Math.ceil(stats.chartData.length / 8) : 1;
+            return (
+              <div className="flex items-end gap-1 w-full" style={{ height: 180 }}>
+                {stats.chartData.map((bar, i) => {
+                  const h = Math.max((bar.count / maxH) * 140, 4);
+                  return (
+                    <div key={bar.label} className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                      <span className="text-[10px] font-bold text-slate-500 tabular-nums">{bar.count > 0 ? bar.count : ""}</span>
+                      <div className="w-full rounded-t-lg"
+                        style={{ height: h, background: "linear-gradient(180deg,#6366f1,#8b5cf6)", minHeight: 4 }}/>
+                      <span className="text-[10px] text-slate-400 whitespace-nowrap leading-none h-3">
+                        {i % step === 0 || i === stats.chartData.length - 1 ? bar.label : ""}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Feedback answers — if project has feedback question */}
