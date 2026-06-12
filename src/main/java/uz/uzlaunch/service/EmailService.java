@@ -193,13 +193,18 @@ public class EmailService {
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
             httpHeaders.setBearerAuth(apiKey);
 
+            String trimmedBody = body == null ? "" : body.trim();
+            boolean bodyHasOwnGreeting = trimmedBody.length() >= 4
+                && trimmedBody.substring(0, Math.min(40, trimmedBody.length())).contains("{{name}}");
+
             List<Map<String, Object>> batch = new java.util.ArrayList<>();
             for (uz.uzlaunch.model.Subscriber s : subscribers) {
                 String name = (s.getName() != null && !s.getName().isBlank()) ? s.getName() : "there";
                 String unsubUrl = frontendUrl + "/unsubscribe?token=" + s.getToken();
                 String personalized = body.replace("{{name}}", name);
+                String greeting = bodyHasOwnGreeting ? "" : "<p style='margin:0 0 16px'>Hi <strong>" + esc(name) + "</strong>,</p>";
                 String html =
-                      "<p style='margin:0 0 16px'>Hi <strong>" + esc(name) + "</strong>,</p>"
+                      greeting
                     + "<div style='color:#475569;line-height:1.6;margin:0 0 24px'>" + esc(personalized).replace("\n", "<br/>") + "</div>"
                     + btn(pageUrl, "Open " + esc(projectName))
                     + "<p style='margin:20px 0 0;font-size:12px;color:#cbd5e1'>You're receiving this because you joined the <strong>" + esc(projectName) + "</strong> waitlist.</p>";

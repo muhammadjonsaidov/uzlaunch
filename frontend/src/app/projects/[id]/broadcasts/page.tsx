@@ -87,7 +87,7 @@ function Broadcasts({ id }: { id: number }) {
                 placeholder={"Hi {{name}},\n\nQuick update on what we've shipped this week...\n\n— Founder"}
                 value={body} onChange={e => setBody(e.target.value)}/>
               <p className="text-xs text-slate-400 mt-1.5">
-                {body.length}/10000 characters · Recipients see your message inside a styled email with unsubscribe link.
+                {body.length}/10000 characters · We auto-prepend &quot;Hi {"{name}"},&quot; unless your message already starts with {"{{name}}"}.
               </p>
             </div>
             <div className="flex items-center justify-between pt-2 border-t border-slate-100">
