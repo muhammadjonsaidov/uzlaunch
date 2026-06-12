@@ -40,6 +40,15 @@ public class PublicApiController {
         return ResponseEntity.ok(ProjectResponse.from(projectService.getBySlug(slug)));
     }
 
+    @GetMapping("/explore")
+    @Operation(summary = "Browse public waitlists",
+               description = "sort: trending (last 7d momentum, default) | newest | top. Paginated 12/page.")
+    public ResponseEntity<uz.uzlaunch.api.dto.response.PagedResponse<ProjectResponse>> explore(
+            @RequestParam(defaultValue = "trending") String sort,
+            @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(projectService.explore(sort, Math.max(0, page)));
+    }
+
     @PostMapping("/projects/{slug}/track")
     @Operation(summary = "Track a page event (view, form_start)",
                description = "Fire-and-forget — body: {\"event\":\"view\"|\"form_start\",\"utmSource\":\"...\"}")

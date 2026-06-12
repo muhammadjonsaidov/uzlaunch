@@ -52,6 +52,7 @@ public class ProjectApiController {
         r.setFeedbackQuestion(req.feedbackQuestion());
         r.setLogoUrl(req.logoUrl());
         r.setAccentColor(req.accentColor());
+        r.setIsPublic(req.isPublic());
         return r;
     }
 

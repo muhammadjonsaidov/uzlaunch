@@ -100,6 +100,9 @@ export const publicApi = {
     apiFetch<{ message: string; projectSlug: string; position: number; total: number; referralCode: string }>(`/api/public/confirm?token=${token}`),
   unsubscribe: (token: string) =>
     apiFetch<{ message: string }>(`/api/public/unsubscribe?token=${token}`),
+  explore: (sort: "trending" | "newest" | "top" = "trending", page = 0) =>
+    publicFetch<{ items: Project[]; page: number; totalPages: number; total: number }>(
+      `/api/public/explore?sort=${sort}&page=${page}`),
   track: (slug: string, event: "view" | "form_start", utmSource?: string) =>
     fetch(`${API}/api/public/projects/${slug}/track`, {
       method: "POST",
@@ -177,6 +180,7 @@ export interface Project {
   userEmail?: string;
   logoUrl?: string;
   accentColor?: string;
+  isPublic?: boolean;
 }
 
 export interface Subscriber {
@@ -250,6 +254,7 @@ export interface ProjectForm {
   confirmEmailBody?: string;
   logoUrl?: string;
   accentColor?: string;
+  isPublic?: boolean;
 }
 
 export interface SubscribeForm {

@@ -53,4 +53,7 @@ public class Project {
     private int validationScore = 0;
     private String feedbackQuestion;
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "is_public", nullable = false)
+    private boolean isPublic = true;
 }

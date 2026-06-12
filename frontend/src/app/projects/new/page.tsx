@@ -14,11 +14,14 @@ export default function NewProjectPage() {
 
 function NewProject() {
   const router = useRouter();
-  const [form, setForm] = useState<ProjectForm>({ name: "", tagline: "" });
+  const [form, setForm] = useState<ProjectForm>({ name: "", tagline: "", isPublic: true });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   function set(k: keyof ProjectForm, v: string) {
+    setForm(f => ({ ...f, [k]: v }));
+  }
+  function setBool(k: keyof ProjectForm, v: boolean) {
     setForm(f => ({ ...f, [k]: v }));
   }
 
@@ -85,6 +88,27 @@ function NewProject() {
                 value={form.feedbackQuestion ?? ""} onChange={e => set("feedbackQuestion", e.target.value)}/>
               <p className="text-xs text-slate-400 mt-1">Collect real insights from potential users.</p>
             </div>
+            {/* Visibility — GitHub-style */}
+            <div className="pt-3 border-t border-slate-100">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">👁 Visibility</h3>
+              <div className="space-y-2">
+                <label className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-colors ${form.isPublic !== false ? "bg-indigo-50 border border-indigo-200" : "bg-white border border-slate-200 hover:bg-slate-50"}`}>
+                  <input type="radio" name="visibility" checked={form.isPublic !== false} onChange={() => setBool("isPublic", true)} className="mt-1"/>
+                  <div>
+                    <div className="text-sm font-semibold text-slate-900">🌍 Public</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Listed on /explore. Visitors can discover and subscribe.</div>
+                  </div>
+                </label>
+                <label className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-colors ${form.isPublic === false ? "bg-slate-100 border border-slate-300" : "bg-white border border-slate-200 hover:bg-slate-50"}`}>
+                  <input type="radio" name="visibility" checked={form.isPublic === false} onChange={() => setBool("isPublic", false)} className="mt-1"/>
+                  <div>
+                    <div className="text-sm font-semibold text-slate-900">🔒 Private</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Hidden from /explore. Direct link still works.</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
             <div className="pt-2">
               <button type="submit" disabled={loading} className="btn-primary w-full text-center" style={{ padding: "13px" }}>
                 {loading ? "Creating…" : "Create project →"}

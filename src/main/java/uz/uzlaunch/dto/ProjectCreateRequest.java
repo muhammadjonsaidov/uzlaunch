@@ -39,4 +39,6 @@ public class ProjectCreateRequest {
 
     @Pattern(regexp = "^(#[0-9a-fA-F]{6})?$", message = "Accent color must be a hex code like #6366f1")
     private String accentColor;
+
+    private Boolean isPublic;
 }

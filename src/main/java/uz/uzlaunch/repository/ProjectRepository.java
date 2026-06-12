@@ -1,5 +1,7 @@
 package uz.uzlaunch.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -27,4 +29,16 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Modifying
     @Query("UPDATE Project p SET p.subscriberCount = CASE WHEN p.subscriberCount > 0 THEN p.subscriberCount - 1 ELSE 0 END WHERE p.id = :id")
     void decrementSubscriberCount(@Param("id") Long id);
+
+    @Query("SELECT p FROM Project p WHERE p.isPublic = true AND p.subscriberCount > 0 ORDER BY p.createdAt DESC")
+    Page<Project> findPublicNewest(Pageable pageable);
+
+    @Query("SELECT p FROM Project p WHERE p.isPublic = true AND p.subscriberCount > 0 ORDER BY p.validationScore DESC, p.subscriberCount DESC")
+    Page<Project> findPublicTopScore(Pageable pageable);
+
+    @Query("SELECT p, " +
+           "(SELECT COUNT(s) FROM Subscriber s WHERE s.project = p AND s.confirmed = true AND s.confirmedAt >= :since) AS recent " +
+           "FROM Project p WHERE p.isPublic = true AND p.subscriberCount > 0 " +
+           "ORDER BY recent DESC, p.subscriberCount DESC")
+    Page<Object[]> findPublicTrending(@Param("since") LocalDateTime since, Pageable pageable);
 }

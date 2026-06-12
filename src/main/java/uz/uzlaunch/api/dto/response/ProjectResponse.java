@@ -17,7 +17,8 @@ public record ProjectResponse(
         String createdAt,
         String userEmail,
         String logoUrl,
-        String accentColor
+        String accentColor,
+        boolean isPublic
 ) {
     public static ProjectResponse from(Project p) {
         return new ProjectResponse(
@@ -33,7 +34,8 @@ public record ProjectResponse(
                 p.getCreatedAt().toInstant(ZoneOffset.UTC).toString(),
                 p.getUser() != null ? p.getUser().getEmail() : null,
                 p.getLogoUrl(),
-                p.getAccentColor()
+                p.getAccentColor(),
+                p.isPublic()
         );
     }
 }

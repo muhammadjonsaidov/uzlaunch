@@ -13,6 +13,7 @@ export default function Landing() {
             UZLaunch
           </Link>
           <div className="hidden md:flex items-center gap-6 mr-6">
+            <Link href="/explore" className="text-sm text-white/50 hover:text-white transition-colors font-medium">Explore</Link>
             <a href="#features" className="text-sm text-white/50 hover:text-white transition-colors font-medium">Features</a>
             <a href="#how-it-works" className="text-sm text-white/50 hover:text-white transition-colors font-medium">How it works</a>
             <a href="#pricing" className="text-sm text-white/50 hover:text-white transition-colors font-medium">Pricing</a>

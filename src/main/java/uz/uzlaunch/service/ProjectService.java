@@ -37,6 +37,29 @@ public class ProjectService {
         return projectRepo.findByUser(user);
     }
 
+    public uz.uzlaunch.api.dto.response.PagedResponse<uz.uzlaunch.api.dto.response.ProjectResponse> explore(String sort, int page) {
+        int size = 12;
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        org.springframework.data.domain.Page<Project> result;
+        if ("newest".equals(sort)) {
+            result = projectRepo.findPublicNewest(pageable);
+        } else if ("top".equals(sort)) {
+            result = projectRepo.findPublicTopScore(pageable);
+        } else {
+            LocalDateTime since = LocalDateTime.now().minusDays(7);
+            org.springframework.data.domain.Page<Object[]> rows = projectRepo.findPublicTrending(since, pageable);
+            List<Project> projects = rows.getContent().stream().map(r -> (Project) r[0]).toList();
+            return new uz.uzlaunch.api.dto.response.PagedResponse<>(
+                projects.stream().map(uz.uzlaunch.api.dto.response.ProjectResponse::from).toList(),
+                rows.getNumber(), rows.getTotalPages(), rows.getTotalElements()
+            );
+        }
+        return new uz.uzlaunch.api.dto.response.PagedResponse<>(
+            result.getContent().stream().map(uz.uzlaunch.api.dto.response.ProjectResponse::from).toList(),
+            result.getNumber(), result.getTotalPages(), result.getTotalElements()
+        );
+    }
+
     public Project getBySlug(String slug) {
         return projectRepo.findBySlug(slug).orElseThrow(PageNotFoundException::new);
     }
@@ -111,6 +134,7 @@ public class ProjectService {
     private void applyBranding(Project p, ProjectCreateRequest req) {
         p.setLogoUrl(req.getLogoUrl() != null && !req.getLogoUrl().isBlank() ? req.getLogoUrl().trim() : null);
         p.setAccentColor(req.getAccentColor() != null && !req.getAccentColor().isBlank() ? req.getAccentColor().trim() : null);
+        if (req.getIsPublic() != null) p.setPublic(req.getIsPublic());
     }
 
     public Project update(Long id, ProjectCreateRequest req, User user) {
