@@ -44,5 +44,14 @@ public class Subscriber {
     @Column(name = "referral_count", nullable = false)
     private int referralCount = 0;
 
+    @Column(name = "utm_source", length = 100)
+    private String utmSource;
+
+    @Column(name = "utm_medium", length = 100)
+    private String utmMedium;
+
+    @Column(name = "utm_campaign", length = 100)
+    private String utmCampaign;
+
     public enum Commitment { WOULD_USE, WOULD_PAY, PAY_NOW }
 }

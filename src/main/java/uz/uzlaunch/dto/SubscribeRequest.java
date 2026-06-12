@@ -14,4 +14,7 @@ public class SubscribeRequest {
     private String commitment;
     private String feedbackAnswer;
     private String ref;
+    private String utmSource;
+    private String utmMedium;
+    private String utmCampaign;
 }

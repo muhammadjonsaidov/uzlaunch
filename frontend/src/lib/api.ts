@@ -123,6 +123,7 @@ export interface ProjectDetail {
   locked: boolean;
   pendingSubscribers: Subscriber[];
   commitmentBreakdown: { WOULD_USE: number; WOULD_PAY: number; PAY_NOW: number };
+  sourceBreakdown: Record<string, number>;
 }
 
 export interface StatsData {
@@ -162,4 +163,7 @@ export interface SubscribeForm {
   commitment?: string;
   feedbackAnswer?: string;
   ref?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
 }

@@ -58,6 +58,9 @@ public class SubscriberService {
                 }
             });
         }
+        sub.setUtmSource(trimUtm(req.getUtmSource()));
+        sub.setUtmMedium(trimUtm(req.getUtmMedium()));
+        sub.setUtmCampaign(trimUtm(req.getUtmCampaign()));
         sub.setConfirmed(false);
         subscriberRepo.save(sub);
 
@@ -113,6 +116,13 @@ public class SubscriberService {
 
     private long rankOf(Subscriber sub) {
         return subscriberRepo.countAhead(sub.getProject(), sub.getReferralCount(), sub.getConfirmedAt()) + 1;
+    }
+
+    private String trimUtm(String v) {
+        if (v == null) return null;
+        String t = v.trim();
+        if (t.isEmpty()) return null;
+        return t.length() > 100 ? t.substring(0, 100) : t;
     }
 
     private String generateReferralCode() {

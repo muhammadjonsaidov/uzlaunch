@@ -8,5 +8,6 @@ public record ProjectDetailResponse(
         int pendingCount,
         boolean locked,
         List<SubscriberResponse> pendingSubscribers,
-        java.util.Map<String, Long> commitmentBreakdown
+        java.util.Map<String, Long> commitmentBreakdown,
+        java.util.Map<String, Long> sourceBreakdown
 ) {}

@@ -64,4 +64,7 @@ public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
     @Modifying
     @Query("UPDATE Subscriber s SET s.referralCount = s.referralCount + 1 WHERE s.id = :id")
     void incrementReferralCount(@org.springframework.data.repository.query.Param("id") Long id);
+
+    @Query("SELECT COALESCE(s.utmSource, ''), COUNT(s) FROM Subscriber s WHERE s.project = :project AND s.confirmed = true GROUP BY s.utmSource")
+    List<Object[]> countByUtmSource(@org.springframework.data.repository.query.Param("project") Project project);
 }

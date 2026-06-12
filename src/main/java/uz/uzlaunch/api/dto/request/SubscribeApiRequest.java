@@ -14,5 +14,9 @@ public record SubscribeApiRequest(
         @Size(max = 1000, message = "Feedback answer must be under 1000 characters")
         String feedbackAnswer,
 
-        String ref
+        String ref,
+
+        @Size(max = 100) String utmSource,
+        @Size(max = 100) String utmMedium,
+        @Size(max = 100) String utmCampaign
 ) {}

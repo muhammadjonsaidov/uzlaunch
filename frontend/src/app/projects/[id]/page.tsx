@@ -53,7 +53,9 @@ function ProjectDetail({ id }: { id: number }) {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center text-sm text-red-500">Failed to load project.</div>
   );
 
-  const { project: p, subscribers, pendingSubscribers, commitmentBreakdown } = data;
+  const { project: p, subscribers, pendingSubscribers, commitmentBreakdown, sourceBreakdown } = data;
+  const sourceEntries = Object.entries(sourceBreakdown ?? {}).sort((a, b) => b[1] - a[1]);
+  const sourceTotal = sourceEntries.reduce((sum, [, n]) => sum + n, 0);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -101,6 +103,30 @@ function ProjectDetail({ id }: { id: number }) {
                 <div className="text-xs font-semibold mt-1 opacity-70">{label}</div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Source breakdown */}
+        {sourceTotal > 0 && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-bold text-slate-700">Top sources</span>
+              <span className="text-xs text-slate-400">{sourceTotal} tracked</span>
+            </div>
+            <div className="space-y-2">
+              {sourceEntries.slice(0, 5).map(([src, count]) => {
+                const pct = Math.round((count / sourceTotal) * 100);
+                return (
+                  <div key={src} className="flex items-center gap-3">
+                    <span className="text-xs font-semibold text-slate-700 w-24 truncate">{src}</span>
+                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${pct}%` }}/>
+                    </div>
+                    <span className="text-xs text-slate-500 w-16 text-right tabular-nums">{count} · {pct}%</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 

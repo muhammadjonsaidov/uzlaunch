@@ -50,6 +50,9 @@ public class PublicApiController {
         dto.setCommitment(req.commitment());
         dto.setFeedbackAnswer(req.feedbackAnswer());
         dto.setRef(req.ref());
+        dto.setUtmSource(req.utmSource());
+        dto.setUtmMedium(req.utmMedium());
+        dto.setUtmCampaign(req.utmCampaign());
         subscriberService.subscribe(slug, dto, resolveIp(request));
         return ResponseEntity.ok(new MessageResponse("Confirmation email sent. Please check your inbox."));
     }

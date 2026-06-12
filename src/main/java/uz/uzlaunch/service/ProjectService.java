@@ -29,7 +29,8 @@ public class ProjectService {
     public record ProjectDetail(Project project, List<Subscriber> subscribers,
                                 boolean locked, long total, int page, int totalPages,
                                 List<Subscriber> pending, String q,
-                                Map<String, Long> commitmentBreakdown) {}
+                                Map<String, Long> commitmentBreakdown,
+                                Map<String, Long> sourceBreakdown) {}
     public record ExportData(Project project, List<Subscriber> subscribers) {}
 
     public List<Project> listByUser(User user) {
@@ -77,7 +78,13 @@ public class ProjectService {
         breakdown.put("PAY_NOW", 0L);
         subscriberRepo.countByCommitment(p).forEach(row -> breakdown.put(row[0].toString(), (Long) row[1]));
 
-        return new ProjectDetail(p, result.getContent(), locked, total, effectivePage, displayTotalPages, pending, q, breakdown);
+        Map<String, Long> sourceBreakdown = new LinkedHashMap<>();
+        subscriberRepo.countByUtmSource(p).forEach(row -> {
+            String src = row[0] == null || row[0].toString().isEmpty() ? "direct" : row[0].toString();
+            sourceBreakdown.merge(src, (Long) row[1], Long::sum);
+        });
+
+        return new ProjectDetail(p, result.getContent(), locked, total, effectivePage, displayTotalPages, pending, q, breakdown, sourceBreakdown);
     }
 
     public Project create(ProjectCreateRequest req, User user) {
