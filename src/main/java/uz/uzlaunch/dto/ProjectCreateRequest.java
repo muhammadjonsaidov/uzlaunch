@@ -33,4 +33,10 @@ public class ProjectCreateRequest {
 
     @Size(max = 255, message = "Feedback question must be under 255 characters")
     private String feedbackQuestion;
+
+    @Size(max = 500, message = "Logo URL must be under 500 characters")
+    private String logoUrl;
+
+    @Pattern(regexp = "^(#[0-9a-fA-F]{6})?$", message = "Accent color must be a hex code like #6366f1")
+    private String accentColor;
 }

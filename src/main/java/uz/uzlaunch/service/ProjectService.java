@@ -104,7 +104,13 @@ public class ProjectService {
         }
         if (req.getFeedbackQuestion() != null && !req.getFeedbackQuestion().isBlank())
             p.setFeedbackQuestion(req.getFeedbackQuestion().trim());
+        applyBranding(p, req);
         return projectRepo.save(p);
+    }
+
+    private void applyBranding(Project p, ProjectCreateRequest req) {
+        p.setLogoUrl(req.getLogoUrl() != null && !req.getLogoUrl().isBlank() ? req.getLogoUrl().trim() : null);
+        p.setAccentColor(req.getAccentColor() != null && !req.getAccentColor().isBlank() ? req.getAccentColor().trim() : null);
     }
 
     public Project update(Long id, ProjectCreateRequest req, User user) {
@@ -135,6 +141,7 @@ public class ProjectService {
         }
         p.setFeedbackQuestion(req.getFeedbackQuestion() != null && !req.getFeedbackQuestion().isBlank()
             ? req.getFeedbackQuestion().trim() : null);
+        applyBranding(p, req);
         return projectRepo.save(p);
     }
 

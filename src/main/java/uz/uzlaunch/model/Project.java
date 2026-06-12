@@ -31,7 +31,12 @@ public class Project {
     @Column(length = 1000)
     private String description;
 
+    @Column(length = 500)
     private String logoUrl;
+
+    @Column(length = 7)
+    private String accentColor;
+
     private LocalDateTime launchAt;
     private boolean launchNotified = false;
     private String launchEmailSubject;

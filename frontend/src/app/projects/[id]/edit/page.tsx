@@ -27,6 +27,8 @@ function EditProject({ id }: { id: number }) {
       description: p.description ?? "",
       launchAt: p.launchAt ? p.launchAt.slice(0, 16) : "",
       feedbackQuestion: p.feedbackQuestion ?? "",
+      logoUrl: p.logoUrl ?? "",
+      accentColor: p.accentColor ?? "",
     });
   }, [p]);
 
@@ -92,6 +94,41 @@ function EditProject({ id }: { id: number }) {
               <input className="app-input" maxLength={255} placeholder="e.g. What's your biggest pain with X today?"
                 value={form.feedbackQuestion ?? ""} onChange={e => set("feedbackQuestion", e.target.value)}/>
             </div>
+
+            {/* Branding */}
+            <div className="pt-3 border-t border-slate-100">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">🎨 Branding <span className="text-slate-300 font-normal normal-case">(optional)</span></h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">Logo URL</label>
+                  <div className="flex gap-3 items-start">
+                    {form.logoUrl && /^https?:\/\//.test(form.logoUrl) && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={form.logoUrl} alt="" className="w-12 h-12 rounded-xl object-cover border border-slate-200 flex-shrink-0"
+                        onError={e => (e.currentTarget.style.display = "none")}/>
+                    )}
+                    <input className="app-input flex-1" maxLength={500} placeholder="https://your-cdn.com/logo.png"
+                      value={form.logoUrl ?? ""} onChange={e => set("logoUrl", e.target.value)}/>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1.5">Paste a direct image URL (PNG/SVG/JPG). Host on Imgur, Cloudinary, or your own CDN.</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">Accent color</label>
+                  <div className="flex gap-2">
+                    <input type="color" value={form.accentColor || "#6366f1"} onChange={e => set("accentColor", e.target.value)}
+                      className="h-10 w-14 rounded-lg border border-slate-200 cursor-pointer"/>
+                    <input className="app-input flex-1 font-mono text-sm" placeholder="#6366f1" maxLength={7}
+                      value={form.accentColor ?? ""} onChange={e => set("accentColor", e.target.value)}/>
+                    {form.accentColor && (
+                      <button type="button" onClick={() => set("accentColor", "")}
+                        className="text-xs font-semibold text-slate-500 hover:text-slate-700 px-3">Reset</button>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1.5">Overrides default indigo on avatar + subscribe button.</p>
+                </div>
+              </div>
+            </div>
+
             <div className="pt-2">
               <button type="submit" disabled={loading} className="btn-primary w-full py-3">
                 {loading ? "Saving…" : "Save changes"}

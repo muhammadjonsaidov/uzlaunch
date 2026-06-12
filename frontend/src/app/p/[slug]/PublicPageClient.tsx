@@ -80,16 +80,33 @@ export default function PublicPageClient({ project: initial }: { project: Projec
 
   const pad = (n: number) => String(n).padStart(2, "0");
 
+  const accent = initial.accentColor && /^#[0-9a-fA-F]{6}$/.test(initial.accentColor) ? initial.accentColor : null;
+  const accentRgba = (a: number) => {
+    if (!accent) return `rgba(99,102,241,${a})`;
+    const h = accent.slice(1);
+    return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`;
+  };
+  const avatarBg = accent ? accent : "linear-gradient(135deg,#6366f1,#8b5cf6)";
+  const buttonBg = accent ? accent : "linear-gradient(135deg,#6366f1,#8b5cf6)";
+  const glowRgba = accentRgba(0.4);
+
   return (
     <main className="min-h-screen page-bg flex flex-col items-center justify-center px-4 py-8" style={{ overflow: "hidden" }}>
       <div className="w-full max-w-sm flex flex-col gap-3 relative z-10">
 
         {/* Avatar + title */}
         <div className="text-center">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-black text-white mx-auto mb-3"
-               style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", boxShadow: "0 6px 24px rgba(99,102,241,0.4)" }}>
-            {initial.name[0].toUpperCase()}
-          </div>
+          {initial.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={initial.logoUrl} alt={initial.name}
+              className="w-14 h-14 rounded-xl object-cover mx-auto mb-3"
+              style={{ boxShadow: `0 6px 24px ${glowRgba}` }}/>
+          ) : (
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-black text-white mx-auto mb-3"
+                 style={{ background: avatarBg, boxShadow: `0 6px 24px ${glowRgba}` }}>
+              {initial.name[0].toUpperCase()}
+            </div>
+          )}
           <h1 className="text-3xl font-black text-white tracking-tight leading-tight mb-1">{initial.name}</h1>
           <p className="text-sm text-white/60 leading-snug">{initial.tagline}</p>
           {initial.description && (
@@ -139,8 +156,11 @@ export default function PublicPageClient({ project: initial }: { project: Projec
                 {/* Commitment */}
                 <div className="flex gap-2 mt-1">
                   {COMMITMENT_OPTIONS.map(opt => (
-                    <label key={opt.value} className={`flex-1 flex items-center gap-1.5 cursor-pointer rounded-xl px-3 py-2.5 transition-colors ${commitment === opt.value ? "border-indigo-400 bg-indigo-500/10" : "hover:border-white/30"}`}
-                      style={{ border: `1px solid ${commitment === opt.value ? "rgba(99,102,241,0.6)" : "rgba(255,255,255,0.15)"}` }}>
+                    <label key={opt.value} className="flex-1 flex items-center gap-1.5 cursor-pointer rounded-xl px-3 py-2.5 transition-colors"
+                      style={{
+                        border: `1px solid ${commitment === opt.value ? accentRgba(0.6) : "rgba(255,255,255,0.15)"}`,
+                        background: commitment === opt.value ? accentRgba(0.1) : "transparent",
+                      }}>
                       <input type="radio" name="commitment" value={opt.value} checked={commitment === opt.value}
                         onChange={() => setCommitment(opt.value)} className="sr-only"/>
                       <span className="text-xs text-white/70">{opt.label}</span>
@@ -163,7 +183,7 @@ export default function PublicPageClient({ project: initial }: { project: Projec
 
                 <button type="submit" disabled={status === "loading"}
                   className="w-full text-center font-bold text-sm text-white py-3 rounded-xl transition-opacity disabled:opacity-60"
-                  style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", boxShadow: "0 4px 20px rgba(99,102,241,0.4)" }}>
+                  style={{ background: buttonBg, boxShadow: `0 4px 20px ${glowRgba}` }}>
                   {status === "loading" ? "Sending…" : "Notify me at launch →"}
                 </button>
               </form>

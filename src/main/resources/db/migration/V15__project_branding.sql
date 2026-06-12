@@ -1,0 +1,2 @@
+ALTER TABLE projects ADD COLUMN accent_color VARCHAR(7);
+ALTER TABLE projects ALTER COLUMN logo_url TYPE VARCHAR(500);

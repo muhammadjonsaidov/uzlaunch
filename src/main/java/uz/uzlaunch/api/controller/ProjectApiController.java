@@ -49,6 +49,8 @@ public class ProjectApiController {
         r.setConfirmEmailSubject(req.confirmEmailSubject());
         r.setConfirmEmailBody(req.confirmEmailBody());
         r.setFeedbackQuestion(req.feedbackQuestion());
+        r.setLogoUrl(req.logoUrl());
+        r.setAccentColor(req.accentColor());
         return r;
     }
 

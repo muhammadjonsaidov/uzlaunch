@@ -29,5 +29,11 @@ public record ProjectApiRequest(
         String confirmEmailBody,
 
         @Size(max = 255, message = "Feedback question must be under 255 characters")
-        String feedbackQuestion
+        String feedbackQuestion,
+
+        @Size(max = 500, message = "Logo URL must be under 500 characters")
+        String logoUrl,
+
+        @Pattern(regexp = "^(#[0-9a-fA-F]{6})?$", message = "Accent color must be a hex code like #6366f1")
+        String accentColor
 ) {}

@@ -15,7 +15,9 @@ public record ProjectResponse(
         String feedbackQuestion,
         String launchAt,
         String createdAt,
-        String userEmail
+        String userEmail,
+        String logoUrl,
+        String accentColor
 ) {
     public static ProjectResponse from(Project p) {
         return new ProjectResponse(
@@ -29,7 +31,9 @@ public record ProjectResponse(
                 p.getFeedbackQuestion(),
                 p.getLaunchAt() != null ? p.getLaunchAt().toInstant(ZoneOffset.UTC).toString() : null,
                 p.getCreatedAt().toInstant(ZoneOffset.UTC).toString(),
-                p.getUser() != null ? p.getUser().getEmail() : null
+                p.getUser() != null ? p.getUser().getEmail() : null,
+                p.getLogoUrl(),
+                p.getAccentColor()
         );
     }
 }

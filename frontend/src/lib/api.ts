@@ -103,6 +103,8 @@ export interface Project {
   launchAt?: string;
   createdAt: string;
   userEmail?: string;
+  logoUrl?: string;
+  accentColor?: string;
 }
 
 export interface Subscriber {
@@ -155,6 +157,8 @@ export interface ProjectForm {
   launchEmailBody?: string;
   confirmEmailSubject?: string;
   confirmEmailBody?: string;
+  logoUrl?: string;
+  accentColor?: string;
 }
 
 export interface SubscribeForm {
