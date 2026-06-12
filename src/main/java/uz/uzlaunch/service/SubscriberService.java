@@ -172,6 +172,42 @@ public class SubscriberService {
         }
     }
 
+    public uz.uzlaunch.api.dto.response.SubscriberManageResponse getByToken(String token) {
+        Subscriber sub = subscriberRepo.findByToken(token).orElseThrow(PageNotFoundException::new);
+        Project p = sub.getProject();
+        long position = sub.isConfirmed() ? rankOf(sub) : 0;
+        long total = subscriberRepo.countByProjectAndConfirmed(p, true);
+        return new uz.uzlaunch.api.dto.response.SubscriberManageResponse(
+            sub.getEmail(),
+            sub.getName(),
+            sub.getCommitment().name(),
+            sub.isConfirmed(),
+            position,
+            total,
+            sub.getReferralCode(),
+            new uz.uzlaunch.api.dto.response.SubscriberManageResponse.ProjectInfo(
+                p.getSlug(), p.getName(), p.getTagline(), p.getLogoUrl(), p.getAccentColor(),
+                p.getLaunchAt() != null ? p.getLaunchAt().toString() : null
+            )
+        );
+    }
+
+    @Transactional
+    public uz.uzlaunch.api.dto.response.SubscriberManageResponse updateByToken(String token, String name, String commitment) {
+        Subscriber sub = subscriberRepo.findByToken(token).orElseThrow(PageNotFoundException::new);
+        if (name != null) {
+            String trimmed = name.trim();
+            sub.setName(trimmed.isEmpty() ? null : trimmed);
+        }
+        if (commitment != null && !commitment.isBlank()) {
+            try { sub.setCommitment(Subscriber.Commitment.valueOf(commitment.trim().toUpperCase())); }
+            catch (IllegalArgumentException e) { throw new BadRequestException("Invalid commitment level"); }
+        }
+        subscriberRepo.save(sub);
+        scoreService.recompute(sub.getProject());
+        return getByToken(token);
+    }
+
     @Transactional
     public String unsubscribe(String token) {
         Subscriber sub = subscriberRepo.findByToken(token).orElseThrow(PageNotFoundException::new);

@@ -1,29 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
+import LandingNav from "@/components/LandingNav";
 
 export default function Landing() {
   return (
     <main style={{ background: "linear-gradient(135deg,#0f0f23 0%,#1a1040 45%,#0f1a40 100%)" }} className="text-white overflow-hidden">
-
-      {/* NAV */}
-      <nav style={{ background: "rgba(15,15,35,0.8)", backdropFilter: "blur(20px)" }} className="sticky top-0 z-50 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto flex items-center justify-between h-16">
-          <Link href="/" className="logo-text text-xl">
-            <Image src="/favicon-512.png" width={22} height={22} alt="" style={{ borderRadius: 6, flexShrink: 0 }}/>
-            UZLaunch
-          </Link>
-          <div className="hidden md:flex items-center gap-6 mr-6">
-            <Link href="/explore" className="text-sm text-white/50 hover:text-white transition-colors font-medium">Explore</Link>
-            <Link href="/leaderboard" className="text-sm text-white/50 hover:text-white transition-colors font-medium">🏆 Top</Link>
-            <Link href="/templates" className="text-sm text-white/50 hover:text-white transition-colors font-medium">Templates</Link>
-            <a href="#pricing" className="text-sm text-white/50 hover:text-white transition-colors font-medium">Pricing</a>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm text-white/60 hover:text-white transition-colors font-medium">Log in</Link>
-            <Link href="/register" className="btn-primary text-sm" style={{ padding: "8px 20px" }}>Get started free</Link>
-          </div>
-        </div>
-      </nav>
+      <LandingNav/>
 
       {/* HERO */}
       <section className="relative py-28 px-6 text-center">

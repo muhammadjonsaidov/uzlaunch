@@ -41,6 +41,20 @@ public class PublicApiController {
         return ResponseEntity.ok(ProjectResponse.from(projectService.getBySlug(slug)));
     }
 
+    @GetMapping("/manage")
+    @Operation(summary = "Get subscriber details by token", description = "Returns subscriber info + position + project metadata. ?token=UUID")
+    public ResponseEntity<uz.uzlaunch.api.dto.response.SubscriberManageResponse> getManage(@RequestParam String token) {
+        return ResponseEntity.ok(subscriberService.getByToken(token));
+    }
+
+    @PutMapping("/manage")
+    @Operation(summary = "Update subscriber name + commitment by token", description = "?token=UUID, body: {name, commitment}")
+    public ResponseEntity<uz.uzlaunch.api.dto.response.SubscriberManageResponse> updateManage(
+            @RequestParam String token,
+            @Valid @RequestBody uz.uzlaunch.api.dto.request.SubscriberUpdateRequest req) {
+        return ResponseEntity.ok(subscriberService.updateByToken(token, req.name(), req.commitment()));
+    }
+
     @GetMapping("/founders/{username}")
     @Operation(summary = "Public founder profile + their public projects")
     public ResponseEntity<uz.uzlaunch.api.dto.response.FounderProfileResponse> founder(@PathVariable String username) {

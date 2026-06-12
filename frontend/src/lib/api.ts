@@ -102,6 +102,13 @@ export const publicApi = {
     apiFetch<{ message: string; projectSlug: string; position: number; total: number; referralCode: string }>(`/api/public/confirm?token=${token}`),
   unsubscribe: (token: string) =>
     apiFetch<{ message: string }>(`/api/public/unsubscribe?token=${token}`),
+  manageGet: (token: string) =>
+    apiFetch<SubscriberManage>(`/api/public/manage?token=${token}`),
+  manageUpdate: (token: string, data: { name?: string; commitment?: string }) =>
+    apiFetch<SubscriberManage>(`/api/public/manage?token=${token}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
   explore: (sort: "trending" | "newest" | "top" = "trending", page = 0) =>
     publicFetch<{ items: Project[]; page: number; totalPages: number; total: number }>(
       `/api/public/explore?sort=${sort}&page=${page}`),
@@ -119,6 +126,24 @@ export const publicApi = {
       keepalive: true,
     }).catch(() => {}),
 };
+
+export interface SubscriberManage {
+  email: string;
+  name?: string;
+  commitment: "WOULD_USE" | "WOULD_PAY" | "PAY_NOW";
+  confirmed: boolean;
+  position: number;
+  totalConfirmed: number;
+  referralCode?: string;
+  project: {
+    slug: string;
+    name: string;
+    tagline: string;
+    logoUrl?: string;
+    accentColor?: string;
+    launchAt?: string;
+  };
+}
 
 export interface Webhook {
   id: number;

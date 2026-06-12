@@ -74,6 +74,35 @@
     @apply rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50;
   }
 
+  /* ── PROSE (for legal/marketing content pages) ── */
+  .prose-section {
+    @apply mb-8;
+  }
+  .prose-section h2 {
+    @apply text-xl font-black text-white mb-3 mt-6 tracking-tight;
+  }
+  .prose-section h3 {
+    @apply text-base font-bold text-white mb-2 mt-4;
+  }
+  .prose-section p {
+    @apply text-base text-white/70 leading-relaxed mb-3;
+  }
+  .prose-section ul {
+    @apply list-disc list-outside ml-5 mb-3 space-y-1.5;
+  }
+  .prose-section li {
+    @apply text-base text-white/70 leading-relaxed;
+  }
+  .prose-section a {
+    @apply text-indigo-300 hover:text-indigo-200 underline;
+  }
+  .prose-section code {
+    @apply font-mono text-sm bg-white/5 px-1.5 py-0.5 rounded text-indigo-300;
+  }
+  .prose-section strong {
+    @apply text-white font-bold;
+  }
+
   /* ── CARDS ── */
   .card {
     @apply rounded-2xl border border-slate-200 bg-white;
