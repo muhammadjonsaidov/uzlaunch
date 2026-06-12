@@ -272,7 +272,7 @@ public class EmailService {
     }
 
     private String wrap(String projectName, String bodyHtml, String unsubUrl) {
-        String logoUrl = baseUrl + "/favicon-512.png";
+        String logoUrl = frontendUrl + "/favicon-512.png";
         String footer;
         if (unsubUrl != null) {
             String manageUrl = unsubUrl.replace("/unsubscribe?", "/manage?");
