@@ -86,7 +86,7 @@ function ProjectDetail({ id }: { id: number }) {
             </div>
           </div>
           <div className="text-right flex-shrink-0">
-            <div className="text-3xl font-black text-indigo-600 leading-none">{p.subscriberCount}</div>
+            <div className="text-3xl font-black text-indigo-600 leading-none">{subscribers.total}</div>
             <div className="text-xs text-slate-400 mt-1">subscribers</div>
           </div>
         </div>
