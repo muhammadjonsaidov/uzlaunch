@@ -50,13 +50,21 @@ public class SubscriberService {
         }
         if (req.getFeedbackAnswer() != null && !req.getFeedbackAnswer().isBlank())
             sub.setFeedbackAnswer(req.getFeedbackAnswer().trim());
+        if (req.getRef() != null && !req.getRef().isBlank()) {
+            subscriberRepo.findByReferralCode(req.getRef().trim()).ifPresent(referrer -> {
+                if (referrer.getProject().getId().equals(project.getId())
+                        && !referrer.getEmail().equalsIgnoreCase(email)) {
+                    sub.setReferredById(referrer.getId());
+                }
+            });
+        }
         sub.setConfirmed(false);
         subscriberRepo.save(sub);
 
         emailService.sendSubscriberConfirmation(email, req.getName(), project.getName(), project.getSlug(), sub.getToken());
     }
 
-    public record ConfirmResult(String slug, long position, long total) {}
+    public record ConfirmResult(String slug, long position, long total, String referralCode) {}
 
     @Transactional
     public ConfirmResult confirmSubscription(String token) {
@@ -65,9 +73,11 @@ public class SubscriberService {
         String slug = p.getSlug();
 
         if (sub.isConfirmed()) {
-            long position = subscriberRepo.countConfirmedAtOrBefore(p, sub.getConfirmedAt());
-            long total = subscriberRepo.countByProjectAndConfirmed(p, true);
-            return new ConfirmResult(slug, position, total);
+            if (sub.getReferralCode() == null) {
+                sub.setReferralCode(generateReferralCode());
+                subscriberRepo.save(sub);
+            }
+            return new ConfirmResult(slug, rankOf(sub), subscriberRepo.countByProjectAndConfirmed(p, true), sub.getReferralCode());
         }
 
         if (!sub.getSubscribedAt().isAfter(LocalDateTime.now().minusDays(7))) {
@@ -77,7 +87,14 @@ public class SubscriberService {
 
         sub.setConfirmed(true);
         sub.setConfirmedAt(LocalDateTime.now());
+        if (sub.getReferralCode() == null) sub.setReferralCode(generateReferralCode());
         subscriberRepo.save(sub);
+
+        if (sub.getReferredById() != null) {
+            subscriberRepo.findById(sub.getReferredById()).ifPresent(referrer -> {
+                if (referrer.isConfirmed()) subscriberRepo.incrementReferralCount(referrer.getId());
+            });
+        }
 
         projectRepo.incrementSubscriberCount(p.getId());
         int newCount = p.getSubscriberCount() + 1;
@@ -91,8 +108,23 @@ public class SubscriberService {
             sub.getEmail(), sub.getName(), p.getName(), newCount
         );
 
-        long position = subscriberRepo.countConfirmedAtOrBefore(p, sub.getConfirmedAt());
-        return new ConfirmResult(slug, position, newCount);
+        return new ConfirmResult(slug, rankOf(sub), newCount, sub.getReferralCode());
+    }
+
+    private long rankOf(Subscriber sub) {
+        return subscriberRepo.countAhead(sub.getProject(), sub.getReferralCount(), sub.getConfirmedAt()) + 1;
+    }
+
+    private String generateReferralCode() {
+        String alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        java.security.SecureRandom rng = new java.security.SecureRandom();
+        for (int attempt = 0; attempt < 5; attempt++) {
+            StringBuilder sb = new StringBuilder(8);
+            for (int i = 0; i < 8; i++) sb.append(alphabet.charAt(rng.nextInt(alphabet.length())));
+            String code = sb.toString();
+            if (!subscriberRepo.existsByReferralCode(code)) return code;
+        }
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 12);
     }
 
     @Transactional

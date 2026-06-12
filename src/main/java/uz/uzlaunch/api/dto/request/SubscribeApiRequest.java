@@ -12,5 +12,7 @@ public record SubscribeApiRequest(
         String commitment,
 
         @Size(max = 1000, message = "Feedback answer must be under 1000 characters")
-        String feedbackAnswer
+        String feedbackAnswer,
+
+        String ref
 ) {}

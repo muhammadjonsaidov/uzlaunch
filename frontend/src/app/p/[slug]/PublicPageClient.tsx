@@ -19,6 +19,13 @@ export default function PublicPageClient({ project: initial }: { project: Projec
   const [message, setMessage] = useState("");
   const [countdown, setCountdown] = useState<{ d: number; h: number; m: number; s: number } | null>(null);
   const [launched, setLaunched] = useState(false);
+  const [refCode, setRefCode] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const p = new URLSearchParams(window.location.search).get("ref");
+    if (p) setRefCode(p);
+  }, []);
 
   // SSE live count
   useEffect(() => {
@@ -49,6 +56,7 @@ export default function PublicPageClient({ project: initial }: { project: Projec
       const res = await publicApi.subscribe(initial.slug, {
         email, name: name || undefined, commitment,
         feedbackAnswer: feedback || undefined,
+        ref: refCode,
       });
       setMessage(res.message);
       setStatus("success");

@@ -3,6 +3,7 @@ package uz.uzlaunch.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import uz.uzlaunch.model.Project;
 import uz.uzlaunch.model.Subscriber;
@@ -50,4 +51,17 @@ public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
     @Query("SELECT COUNT(s) FROM Subscriber s WHERE s.project = :project AND s.confirmed = true AND s.confirmedAt <= :at")
     long countConfirmedAtOrBefore(@org.springframework.data.repository.query.Param("project") Project project,
                                   @org.springframework.data.repository.query.Param("at") LocalDateTime at);
+
+    Optional<Subscriber> findByReferralCode(String referralCode);
+    boolean existsByReferralCode(String referralCode);
+
+    @Query("SELECT COUNT(s) FROM Subscriber s WHERE s.project = :project AND s.confirmed = true " +
+           "AND (s.referralCount > :refCount OR (s.referralCount = :refCount AND s.confirmedAt < :at))")
+    long countAhead(@org.springframework.data.repository.query.Param("project") Project project,
+                    @org.springframework.data.repository.query.Param("refCount") int refCount,
+                    @org.springframework.data.repository.query.Param("at") LocalDateTime at);
+
+    @Modifying
+    @Query("UPDATE Subscriber s SET s.referralCount = s.referralCount + 1 WHERE s.id = :id")
+    void incrementReferralCount(@org.springframework.data.repository.query.Param("id") Long id);
 }

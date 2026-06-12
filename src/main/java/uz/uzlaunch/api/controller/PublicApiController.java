@@ -49,6 +49,7 @@ public class PublicApiController {
         dto.setName(req.name());
         dto.setCommitment(req.commitment());
         dto.setFeedbackAnswer(req.feedbackAnswer());
+        dto.setRef(req.ref());
         subscriberService.subscribe(slug, dto, resolveIp(request));
         return ResponseEntity.ok(new MessageResponse("Confirmation email sent. Please check your inbox."));
     }
@@ -57,7 +58,7 @@ public class PublicApiController {
     @Operation(summary = "Confirm subscription via email token", description = "?token=UUID")
     public ResponseEntity<SubscribeConfirmResponse> confirm(@RequestParam String token) {
         SubscriberService.ConfirmResult r = subscriberService.confirmSubscription(token);
-        return ResponseEntity.ok(new SubscribeConfirmResponse("Subscription confirmed!", r.slug(), r.position(), r.total()));
+        return ResponseEntity.ok(new SubscribeConfirmResponse("Subscription confirmed!", r.slug(), r.position(), r.total(), r.referralCode()));
     }
 
     @GetMapping("/unsubscribe")

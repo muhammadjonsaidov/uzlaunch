@@ -13,4 +13,5 @@ public class SubscribeRequest {
     private String name;
     private String commitment;
     private String feedbackAnswer;
+    private String ref;
 }

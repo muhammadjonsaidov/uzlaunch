@@ -11,6 +11,8 @@ function ConfirmContent() {
   const [projectSlug, setProjectSlug] = useState("");
   const [position, setPosition] = useState(0);
   const [total, setTotal] = useState(0);
+  const [referralCode, setReferralCode] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const token = params.get("token");
@@ -20,10 +22,19 @@ function ConfirmContent() {
         setProjectSlug(res.projectSlug);
         setPosition(res.position);
         setTotal(res.total);
+        setReferralCode(res.referralCode ?? "");
         setStatus("ok");
       })
       .catch(() => setStatus("error"));
   }, [params]);
+
+  function copyLink(url: string) {
+    if (typeof navigator === "undefined" || !navigator.clipboard) return;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   if (status === "loading") return (
     <div className="text-center">
@@ -34,11 +45,12 @@ function ConfirmContent() {
 
   if (status === "ok") {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.uzlaunch.uz";
-    const pageUrl = projectSlug ? `${siteUrl}/p/${projectSlug}` : siteUrl;
-    const shareText = encodeURIComponent(`Just joined the waitlist! Check it out:`);
-    const shareUrl = encodeURIComponent(pageUrl);
+    const basePageUrl = projectSlug ? `${siteUrl}/p/${projectSlug}` : siteUrl;
+    const referralUrl = referralCode ? `${basePageUrl}?ref=${referralCode}` : basePageUrl;
+    const shareText = encodeURIComponent(`Just joined the waitlist! Use my link to skip ahead:`);
+    const shareUrl = encodeURIComponent(referralUrl);
     return (
-      <div className="text-center">
+      <div className="text-center max-w-md w-full">
         <div className="text-5xl mb-3">🎉</div>
         <h1 className="font-black text-xl text-slate-900 mb-2">You&apos;re confirmed!</h1>
         {position > 0 && (
@@ -50,6 +62,23 @@ function ConfirmContent() {
           </div>
         )}
         <p className="text-sm text-slate-500 mb-5">Your spot on the waitlist is locked in. We&apos;ll email you at launch.</p>
+
+        {referralCode && (
+          <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4 mb-5 text-left">
+            <p className="text-xs font-bold text-indigo-700 uppercase tracking-wider mb-1">🚀 Skip the line</p>
+            <p className="text-sm text-slate-600 mb-3">Every friend who joins via your link moves you up the list.</p>
+            <div className="flex gap-2 items-stretch">
+              <input readOnly value={referralUrl}
+                className="flex-1 text-xs bg-white border border-indigo-200 rounded-lg px-3 py-2 text-slate-700 font-mono truncate"
+                onFocus={e => e.currentTarget.select()}/>
+              <button onClick={() => copyLink(referralUrl)}
+                className="text-xs font-bold text-white bg-indigo-600 px-4 rounded-lg hover:bg-indigo-700 transition-colors min-w-[72px]">
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col items-center gap-2">
           {projectSlug && (
             <Link href={`/p/${projectSlug}`} className="btn-primary inline-block px-6 py-2.5 text-sm w-full text-center">
