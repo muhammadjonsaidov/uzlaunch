@@ -69,13 +69,28 @@ public class SecurityConfig {
     }
 
     private CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(frontendUrl, "http://localhost:3000",
+        CorsConfiguration restricted = new CorsConfiguration();
+        restricted.setAllowedOrigins(List.of(frontendUrl, "http://localhost:3000",
                 "https://uzlaunch.uz", "https://www.uzlaunch.uz"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
-        return request -> config;
+        restricted.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        restricted.setAllowedHeaders(List.of("*"));
+        restricted.setAllowCredentials(true);
+
+        CorsConfiguration embed = new CorsConfiguration();
+        embed.setAllowedOriginPatterns(List.of("*"));
+        embed.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        embed.setAllowedHeaders(List.of("*"));
+        embed.setAllowCredentials(false);
+
+        return request -> {
+            String path = request.getRequestURI();
+            if (path != null && path.startsWith("/api/public/projects/")
+                    && (path.endsWith("/subscribe") || path.endsWith("/stream") || path.matches("/api/public/projects/[^/]+"))) {
+                return embed;
+            }
+            if (path != null && path.equals("/widget.js")) return embed;
+            return restricted;
+        };
     }
 
     private JwtAuthenticationConverter jwtAuthConverter() {
