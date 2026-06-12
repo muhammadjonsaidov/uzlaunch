@@ -4,11 +4,20 @@ spring:
   application:
     name: uzlaunch
 
+  jmx:
+    enabled: false
+
   datasource:
     url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 60000
+      connection-timeout: 10000
+      max-lifetime: 1800000
 
   flyway:
     baseline-on-migrate: false

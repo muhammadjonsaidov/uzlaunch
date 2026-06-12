@@ -12,4 +12,12 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-Xmx300m", "-Xms128m", "-XX:+UseContainerSupport", "-jar", "app.jar"]
+ENTRYPOINT ["java", \
+    "-Xmx384m", "-Xms128m", \
+    "-XX:+UseContainerSupport", \
+    "-XX:+UseG1GC", \
+    "-XX:+UseStringDeduplication", \
+    "-Xss256k", \
+    "-XX:+ExitOnOutOfMemoryError", \
+    "-Djava.security.egd=file:/dev/./urandom", \
+    "-jar", "app.jar"]
