@@ -30,6 +30,7 @@ public class PublicApiController {
     private final uz.uzlaunch.service.ValidationScoreService scoreService;
     private final SseService sseService;
     private final uz.uzlaunch.service.AnalyticsService analyticsService;
+    private final uz.uzlaunch.service.TemplateService templateService;
 
     @Value("${app.trust-proxy:false}")
     private final boolean trustProxy;
@@ -38,6 +39,26 @@ public class PublicApiController {
     @Operation(summary = "Get public project page by slug")
     public ResponseEntity<ProjectResponse> getProject(@PathVariable String slug) {
         return ResponseEntity.ok(ProjectResponse.from(projectService.getBySlug(slug)));
+    }
+
+    @GetMapping("/founders/{username}")
+    @Operation(summary = "Public founder profile + their public projects")
+    public ResponseEntity<uz.uzlaunch.api.dto.response.FounderProfileResponse> founder(@PathVariable String username) {
+        return ResponseEntity.ok(projectService.founderProfile(username));
+    }
+
+    @GetMapping("/leaderboard")
+    @Operation(summary = "Top public waitlists ranked by score + momentum",
+               description = "period: week | month (default week). Returns top 50.")
+    public ResponseEntity<java.util.List<ProjectResponse>> leaderboard(
+            @RequestParam(defaultValue = "week") String period) {
+        return ResponseEntity.ok(projectService.leaderboard(period));
+    }
+
+    @GetMapping("/templates")
+    @Operation(summary = "Curated waitlist starter templates")
+    public ResponseEntity<java.util.List<uz.uzlaunch.service.TemplateService.Template>> templates() {
+        return ResponseEntity.ok(templateService.list());
     }
 
     @GetMapping("/explore")

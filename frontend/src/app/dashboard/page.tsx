@@ -39,6 +39,8 @@ function Dashboard() {
               )}
             </>
           )}
+          <Link href="/templates" className="text-sm text-slate-500 hover:text-slate-700 font-medium hidden sm:inline">Templates</Link>
+          <Link href="/settings" className="text-sm text-slate-500 hover:text-slate-700 font-medium hidden sm:inline">Settings</Link>
           <ThemeToggle/>
           <button onClick={logout} className="text-sm text-slate-400 hover:text-slate-600 transition-colors">Logout</button>
         </div>

@@ -23,6 +23,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepo;
     private final JwtTokenService jwtTokenService;
     private final EmailService emailService;
+    private final uz.uzlaunch.service.AuthService authService;
 
     @Value("${app.frontend-url}")
     private final String frontendUrl;
@@ -47,13 +48,15 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         final String normalizedEmail = email;
         final boolean[] isNew = {false};
 
+        final String finalName = name;
         User user = userRepo.findByEmail(normalizedEmail).orElseGet(() -> {
             User u = new User();
             u.setId(UUID.randomUUID().toString());
             u.setEmail(normalizedEmail);
-            u.setName(name != null && !name.isBlank() ? name.trim() : normalizedEmail.split("@")[0]);
+            u.setName(finalName != null && !finalName.isBlank() ? finalName.trim() : normalizedEmail.split("@")[0]);
             u.setAuthProvider(provider);
             u.setEmailVerified(true);
+            u.setUsername(authService.generateUsername(u.getName(), normalizedEmail));
             isNew[0] = true;
             return userRepo.save(u);
         });

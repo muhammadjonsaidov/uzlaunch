@@ -34,10 +34,64 @@ public class AuthService {
         user.setAuthProvider(User.AuthProvider.LOCAL);
         user.setEmailVerified(false);
         user.setVerificationToken(UUID.randomUUID().toString());
+        user.setUsername(generateUsername(req.getName(), email));
         userRepo.save(user);
 
         emailService.sendVerificationEmail(email, user.getName(), user.getVerificationToken());
         return user;
+    }
+
+    public User updateProfile(String userId, uz.uzlaunch.api.dto.request.ProfileUpdateRequest req) {
+        User user = userRepo.findById(userId).orElseThrow(() -> new uz.uzlaunch.exception.PageNotFoundException());
+        if (req.name() != null && !req.name().isBlank()) user.setName(req.name().trim());
+        if (req.username() != null && !req.username().isBlank()) {
+            String newUsername = req.username().trim().toLowerCase();
+            if (!newUsername.equals(user.getUsername())) {
+                if (userRepo.existsByUsername(newUsername))
+                    throw new uz.uzlaunch.exception.BadRequestException("Username already taken");
+                user.setUsername(newUsername);
+            }
+        }
+        user.setBio(blankToNull(req.bio()));
+        user.setAvatarUrl(blankToNull(req.avatarUrl()));
+        user.setTwitter(stripHandle(req.twitter()));
+        user.setGithub(stripHandle(req.github()));
+        user.setLinkedin(stripHandle(req.linkedin()));
+        user.setWebsite(blankToNull(req.website()));
+        return userRepo.save(user);
+    }
+
+    private static String blankToNull(String s) {
+        return (s == null || s.trim().isEmpty()) ? null : s.trim();
+    }
+
+    private static String stripHandle(String s) {
+        if (s == null) return null;
+        String t = s.trim();
+        if (t.isEmpty()) return null;
+        if (t.startsWith("@")) t = t.substring(1);
+        return t;
+    }
+
+    public String generateUsername(String name, String email) {
+        String base;
+        if (name != null && !name.isBlank()) {
+            base = name.toLowerCase().trim().replaceAll("[^a-z0-9]+", "-").replaceAll("^-+|-+$", "");
+        } else {
+            String localPart = email.contains("@") ? email.substring(0, email.indexOf("@")) : email;
+            base = localPart.toLowerCase().replaceAll("[^a-z0-9]+", "");
+        }
+        if (base.isEmpty()) base = "founder";
+        if (base.length() > 24) base = base.substring(0, 24);
+
+        String candidate = base;
+        int i = 1;
+        while (userRepo.existsByUsername(candidate)) {
+            i++;
+            candidate = base + "-" + i;
+            if (candidate.length() > 32) candidate = base.substring(0, 30 - String.valueOf(i).length()) + "-" + i;
+        }
+        return candidate;
     }
 
     public User login(LoginRequest req) {

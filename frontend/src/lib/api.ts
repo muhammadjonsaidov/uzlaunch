@@ -43,6 +43,8 @@ export const authApi = {
   me: () => apiFetch<User>("/api/auth/me"),
   forgotPassword: (email: string) =>
     apiFetch<{ message: string }>("/api/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) }),
+  updateProfile: (data: Partial<{ name: string; username: string; bio: string; avatarUrl: string; twitter: string; github: string; linkedin: string; website: string }>) =>
+    apiFetch<User>("/api/auth/profile", { method: "PUT", body: JSON.stringify(data) }),
   resetPassword: (token: string, password: string) =>
     apiFetch<{ message: string }>("/api/auth/reset-password", { method: "POST", body: JSON.stringify({ token, password }) }),
 };
@@ -103,6 +105,12 @@ export const publicApi = {
   explore: (sort: "trending" | "newest" | "top" = "trending", page = 0) =>
     publicFetch<{ items: Project[]; page: number; totalPages: number; total: number }>(
       `/api/public/explore?sort=${sort}&page=${page}`),
+  founder: (username: string) =>
+    publicFetch<FounderProfile>(`/api/public/founders/${username}`),
+  leaderboard: (period: "week" | "month" = "week") =>
+    publicFetch<Project[]>(`/api/public/leaderboard?period=${period}`),
+  templates: () =>
+    publicFetch<Template[]>(`/api/public/templates`),
   track: (slug: string, event: "view" | "form_start", utmSource?: string) =>
     fetch(`${API}/api/public/projects/${slug}/track`, {
       method: "POST",
@@ -164,6 +172,40 @@ export interface User {
   name: string;
   plan: "FREE" | "PAID";
   emailVerified: boolean;
+  username?: string;
+  bio?: string;
+  avatarUrl?: string;
+  twitter?: string;
+  github?: string;
+  linkedin?: string;
+  website?: string;
+}
+
+export interface FounderProfile {
+  username: string;
+  name: string;
+  bio?: string;
+  avatarUrl?: string;
+  twitter?: string;
+  github?: string;
+  linkedin?: string;
+  website?: string;
+  memberSince: string;
+  projectCount: number;
+  totalSubscribers: number;
+  projects: Project[];
+}
+
+export interface Template {
+  slug: string;
+  name: string;
+  emoji: string;
+  category: string;
+  defaultProjectName: string;
+  defaultTagline: string;
+  defaultDescription: string;
+  feedbackQuestion: string;
+  accentColor: string;
 }
 
 export interface Project {

@@ -34,6 +34,27 @@ public class User {
     private LocalDateTime resetTokenExpiry;
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(unique = true, length = 32)
+    private String username;
+
+    @Column(length = 300)
+    private String bio;
+
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
+
+    @Column(length = 100)
+    private String twitter;
+
+    @Column(length = 100)
+    private String github;
+
+    @Column(length = 100)
+    private String linkedin;
+
+    @Column(length = 200)
+    private String website;
+
     public enum Plan { FREE, PAID }
     public enum AuthProvider { LOCAL, GOOGLE, GITHUB }
 }

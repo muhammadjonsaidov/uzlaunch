@@ -1,22 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { projectApi, ProjectForm } from "@/lib/api";
+import { projectApi, publicApi, ProjectForm } from "@/lib/api";
 import AuthGuard from "@/components/AuthGuard";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function NewProjectPage() {
-  return <AuthGuard><NewProject/></AuthGuard>;
+  return <AuthGuard><Suspense><NewProject/></Suspense></AuthGuard>;
 }
 
 function NewProject() {
   const router = useRouter();
+  const params = useSearchParams();
+  const templateSlug = params.get("template");
   const [form, setForm] = useState<ProjectForm>({ name: "", tagline: "", isPublic: true });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+
+  useEffect(() => {
+    if (!templateSlug) return;
+    publicApi.templates().then(list => {
+      const t = list.find(x => x.slug === templateSlug);
+      if (!t) return;
+      setTemplateName(`${t.emoji} ${t.name}`);
+      setForm(f => ({
+        ...f,
+        name: t.defaultProjectName,
+        tagline: t.defaultTagline,
+        description: t.defaultDescription,
+        feedbackQuestion: t.feedbackQuestion,
+        accentColor: t.accentColor,
+      }));
+    }).catch(() => {});
+  }, [templateSlug]);
 
   function set(k: keyof ProjectForm, v: string) {
     setForm(f => ({ ...f, [k]: v }));
@@ -56,6 +77,12 @@ function NewProject() {
         <div className="mb-7">
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Create new project</h1>
           <p className="text-sm text-slate-400 mt-1">Your public waitlist page will be live instantly</p>
+          {templateName && (
+            <div className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-full">
+              Using template: <span>{templateName}</span>
+              <Link href="/projects/new" className="ml-1 text-indigo-500 hover:text-indigo-700">✕ clear</Link>
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 p-7">

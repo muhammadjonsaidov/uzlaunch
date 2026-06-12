@@ -34,6 +34,7 @@ public class ProjectApiController {
     private final SubscriberService subscriberService;
     private final UserRepository userRepo;
     private final uz.uzlaunch.service.AnalyticsService analyticsService;
+    private final uz.uzlaunch.service.TemplateService templateService;
 
     private User resolveUser(Jwt jwt) {
         return userRepo.findById(jwt.getSubject()).orElseThrow(PageNotFoundException::new);
@@ -70,6 +71,12 @@ public class ProjectApiController {
                                                    @AuthenticationPrincipal Jwt jwt) {
         Project p = projectService.create(toCreateRequest(req), resolveUser(jwt));
         return ResponseEntity.status(HttpStatus.CREATED).body(ProjectResponse.from(p));
+    }
+
+    @GetMapping("/template/{slug}")
+    @Operation(summary = "Get template prefill data (auth needed to ensure rate fairness)")
+    public ResponseEntity<uz.uzlaunch.service.TemplateService.Template> template(@PathVariable String slug) {
+        return ResponseEntity.ok(templateService.get(slug));
     }
 
     @GetMapping("/{id}")

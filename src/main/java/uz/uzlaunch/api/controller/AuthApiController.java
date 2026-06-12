@@ -105,6 +105,15 @@ public class AuthApiController {
         return ResponseEntity.ok(UserResponse.from(user));
     }
 
+    @PutMapping("/profile")
+    @SecurityRequirement(name = "Bearer")
+    @Operation(summary = "Update current user profile (name, username, bio, socials)")
+    public ResponseEntity<UserResponse> updateProfile(
+            @org.springframework.web.bind.annotation.RequestBody @jakarta.validation.Valid uz.uzlaunch.api.dto.request.ProfileUpdateRequest req,
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(UserResponse.from(authService.updateProfile(jwt.getSubject(), req)));
+    }
+
     private String resolveIp(HttpServletRequest request) {
         if (trustProxy) {
             String forwarded = request.getHeader("X-Forwarded-For");

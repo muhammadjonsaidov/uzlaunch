@@ -25,6 +25,7 @@ public class ProjectService {
     private final ProjectRepository projectRepo;
     private final SubscriberRepository subscriberRepo;
     private final EmailService emailService;
+    private final uz.uzlaunch.repository.UserRepository userRepo;
 
     public record ProjectDetail(Project project, List<Subscriber> subscribers,
                                 boolean locked, long total, int page, int totalPages,
@@ -35,6 +36,39 @@ public class ProjectService {
 
     public List<Project> listByUser(User user) {
         return projectRepo.findByUser(user);
+    }
+
+    public uz.uzlaunch.api.dto.response.FounderProfileResponse founderProfile(String username) {
+        User user = userRepo.findByUsername(username).orElseThrow(PageNotFoundException::new);
+        if (user.isBanned()) throw new PageNotFoundException();
+        List<Project> all = projectRepo.findByUser(user);
+        List<Project> publicOnes = all.stream().filter(Project::isPublic).toList();
+        long totalSubs = all.stream().mapToLong(Project::getSubscriberCount).sum();
+        return new uz.uzlaunch.api.dto.response.FounderProfileResponse(
+            user.getUsername(),
+            user.getName(),
+            user.getBio(),
+            user.getAvatarUrl(),
+            user.getTwitter(),
+            user.getGithub(),
+            user.getLinkedin(),
+            user.getWebsite(),
+            user.getCreatedAt().toString(),
+            all.size(),
+            totalSubs,
+            publicOnes.stream().map(uz.uzlaunch.api.dto.response.ProjectResponse::from).toList()
+        );
+    }
+
+    public List<uz.uzlaunch.api.dto.response.ProjectResponse> leaderboard(String period) {
+        int days = "month".equals(period) ? 30 : 7;
+        LocalDateTime since = LocalDateTime.now().minusDays(days);
+        org.springframework.data.domain.Pageable top50 = org.springframework.data.domain.PageRequest.of(0, 50);
+        org.springframework.data.domain.Page<Object[]> rows = projectRepo.findPublicTrending(since, top50);
+        return rows.getContent().stream()
+                .map(r -> (Project) r[0])
+                .map(uz.uzlaunch.api.dto.response.ProjectResponse::from)
+                .toList();
     }
 
     public uz.uzlaunch.api.dto.response.PagedResponse<uz.uzlaunch.api.dto.response.ProjectResponse> explore(String sort, int page) {
