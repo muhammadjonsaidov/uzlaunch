@@ -16,6 +16,9 @@ ENTRYPOINT ["java", \
     "-Xmx384m", "-Xms128m", \
     "-XX:+UseContainerSupport", \
     "-XX:+UseG1GC", \
+    "-XX:MaxGCPauseMillis=150", \
+    "-XX:G1HeapRegionSize=2m", \
+    "-XX:InitiatingHeapOccupancyPercent=35", \
     "-XX:+UseStringDeduplication", \
     "-Xss256k", \
     "-XX:+ExitOnOutOfMemoryError", \

@@ -3,7 +3,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "java -Xmx384m -Xms128m -XX:+UseContainerSupport -XX:+UseG1GC -XX:+UseStringDeduplication -Xss256k -XX:+ExitOnOutOfMemoryError -Djava.security.egd=file:/dev/./urandom -jar app.jar"
+startCommand = "java -Xmx384m -Xms128m -XX:+UseContainerSupport -XX:+UseG1GC -XX:MaxGCPauseMillis=150 -XX:G1HeapRegionSize=2m -XX:InitiatingHeapOccupancyPercent=35 -XX:+UseStringDeduplication -Xss256k -XX:+ExitOnOutOfMemoryError -Djava.security.egd=file:/dev/./urandom -jar app.jar"
 healthcheckPath = "/health"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
