@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import useSWR from "swr";
+import { motion, AnimatePresence } from "framer-motion";
 import { publicApi, Project } from "@/lib/api";
 
 type Sort = "trending" | "newest" | "top";
@@ -59,16 +60,21 @@ function ExploreContent() {
         {/* Sort tabs */}
         <div className="flex items-center justify-center gap-2 mb-8">
           {SORTS.map(s => (
-            <button key={s.value} onClick={() => setSort(s.value)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all"
+            <motion.button
+              key={s.value}
+              onClick={() => setSort(s.value)}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors"
               style={{
                 background: sort === s.value ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.05)",
                 border: `1px solid ${sort === s.value ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.1)"}`,
                 color: sort === s.value ? "#a5b4fc" : "rgba(255,255,255,0.6)",
-              }}>
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               <span>{s.emoji}</span>
               <span>{s.label}</span>
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -87,9 +93,22 @@ function ExploreContent() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-              {data.items.map(p => <ProjectCard key={p.id} project={p}/>)}
-            </div>
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
+              initial="hidden"
+              animate="show"
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+            >
+              {data.items.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  variants={{ hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0 } }}
+                  transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+                >
+                  <ProjectCard project={p} />
+                </motion.div>
+              ))}
+            </motion.div>
 
             {/* Pagination */}
             {data.totalPages > 1 && (
@@ -137,13 +156,11 @@ function ProjectCard({ project }: { project: Project }) {
   const accent = project.accentColor && /^#[0-9a-fA-F]{6}$/.test(project.accentColor) ? project.accentColor : "#6366f1";
 
   return (
+    <motion.div whileHover={{ y: -6, borderColor: "rgba(99,102,241,0.35)" }} transition={{ duration: 0.2 }}
+      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }}>
     <Link href={`/p/${project.slug}`} target="_blank" rel="noopener noreferrer"
-      className="group flex flex-col p-5 rounded-2xl transition-all hover:-translate-y-1"
-      style={{
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.08)",
-        boxShadow: "0 1px 0 rgba(255,255,255,0.02)",
-      }}>
+      className="group flex flex-col p-5 rounded-2xl"
+      style={{ display: "flex", flexDirection: "column" }}>
       <div className="flex items-start gap-3 mb-3">
         {project.logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -187,6 +204,7 @@ function ProjectCard({ project }: { project: Project }) {
         ) : null}
       </div>
     </Link>
+    </motion.div>
   );
 }
 

@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import useSWR from "swr";
+import { motion } from "framer-motion";
 import { publicApi, Project } from "@/lib/api";
 
 type Period = "week" | "month";
@@ -44,15 +45,18 @@ function LeaderboardContent() {
         {/* Period tabs */}
         <div className="flex items-center justify-center gap-2 mb-8">
           {(["week", "month"] as const).map(p => (
-            <button key={p} onClick={() => setPeriod(p)}
-              className="px-5 py-2 rounded-full text-sm font-semibold transition-all"
+            <motion.button
+              key={p} onClick={() => setPeriod(p)}
+              className="px-5 py-2 rounded-full text-sm font-semibold transition-colors"
               style={{
                 background: period === p ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.05)",
                 border: `1px solid ${period === p ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.1)"}`,
                 color: period === p ? "#a5b4fc" : "rgba(255,255,255,0.6)",
-              }}>
+              }}
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            >
               Last {p === "week" ? "7 days" : "30 days"}
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -66,9 +70,22 @@ function LeaderboardContent() {
             <Link href="/register" className="btn-primary inline-block px-6 py-2.5 text-sm">Create your waitlist →</Link>
           </div>
         ) : (
-          <div className="space-y-2">
-            {projects.map((p, i) => <LeaderRow key={p.id} project={p} rank={i + 1}/>)}
-          </div>
+          <motion.div
+            className="space-y-2"
+            initial="hidden"
+            animate="show"
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }}
+          >
+            {projects.map((p, i) => (
+              <motion.div
+                key={p.id}
+                variants={{ hidden: { opacity: 0, x: -24 }, show: { opacity: 1, x: 0 } }}
+                transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+              >
+                <LeaderRow project={p} rank={i + 1} />
+              </motion.div>
+            ))}
+          </motion.div>
         )}
       </main>
 
@@ -84,9 +101,11 @@ function LeaderRow({ project, rank }: { project: Project; rank: number }) {
   const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : null;
 
   return (
+    <motion.div whileHover={{ y: -3, borderColor: "rgba(99,102,241,0.3)" }} transition={{ duration: 0.2 }}
+      style={{ border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }}>
     <Link href={`/p/${project.slug}`} target="_blank" rel="noopener noreferrer"
-      className="flex items-center gap-4 p-4 rounded-2xl transition-all hover:-translate-y-0.5"
-      style={{ background: rank <= 3 ? "rgba(99,102,241,0.08)" : "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      className="flex items-center gap-4 p-4 rounded-2xl"
+      style={{ background: rank <= 3 ? "rgba(99,102,241,0.08)" : "rgba(255,255,255,0.04)", display: "flex" }}>
       <div className="w-10 text-center flex-shrink-0">
         {medal ? <span className="text-2xl">{medal}</span> : <span className="text-lg font-black text-white/40 tabular-nums">{rank}</span>}
       </div>
@@ -117,6 +136,7 @@ function LeaderRow({ project, rank }: { project: Project; rank: number }) {
         </div>
       )}
     </Link>
+    </motion.div>
   );
 }
 

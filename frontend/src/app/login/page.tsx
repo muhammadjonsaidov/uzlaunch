@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { authApi } from "@/lib/api";
 import { setToken } from "@/lib/auth";
 
@@ -60,11 +61,28 @@ function LoginForm() {
         UZLaunch
       </Link>
 
-      <div className="glass-card w-full max-w-md p-8 relative z-10">
+      <motion.div
+        className="glass-card w-full max-w-md p-8 relative z-10"
+        initial={{ opacity: 0, scale: 0.94, y: 24 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      >
         <h1 className="text-2xl font-black text-white mb-1 tracking-tight">Welcome back</h1>
         <p className="text-white/50 text-sm mb-7">Log in to your account</p>
 
-        {error && <div className="alert-error mb-5 text-sm">{error}</div>}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              className="alert-error mb-5 text-sm"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto", x: [0, -8, 8, -6, 6, 0] }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -80,9 +98,23 @@ function LoginForm() {
             <input type="password" value={password} onChange={e => setPassword(e.target.value)}
               className="glass-input" placeholder="••••••••" required autoComplete="current-password"/>
           </div>
-          <button type="submit" disabled={loading} className="btn-primary w-full text-center mt-2" style={{ padding: "13px" }}>
-            {loading ? "Signing in…" : "Log in"}
-          </button>
+          <motion.button
+            type="submit" disabled={loading}
+            className="btn-primary w-full text-center mt-2" style={{ padding: "13px" }}
+            whileHover={!loading ? { scale: 1.02 } : {}}
+            whileTap={!loading ? { scale: 0.98 } : {}}
+          >
+            {loading ? (
+              <span className="inline-flex items-center gap-2 justify-center">
+                <motion.span
+                  className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full inline-block"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                />
+                Signing in…
+              </span>
+            ) : "Log in"}
+          </motion.button>
         </form>
 
         <div className="my-5 flex items-center gap-3">
@@ -108,7 +140,7 @@ function LoginForm() {
           Don&apos;t have an account?{" "}
           <Link href="/register" className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">Sign up free</Link>
         </p>
-      </div>
+      </motion.div>
     </main>
   );
 }

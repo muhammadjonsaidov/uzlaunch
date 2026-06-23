@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { authApi } from "@/lib/api";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
@@ -39,10 +40,20 @@ export default function RegisterPage() {
         UZLaunch
       </Link>
 
-      <div className="glass-card w-full max-w-md p-8 relative z-10">
+      <motion.div
+        className="glass-card w-full max-w-md p-8 relative z-10"
+        initial={{ opacity: 0, scale: 0.94, y: 24 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      >
         {success ? (
           <div className="text-center py-4">
-            <div className="text-4xl mb-3">📬</div>
+            <motion.div
+              className="text-4xl mb-3"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 260, damping: 12 }}
+            >📬</motion.div>
             <h2 className="font-bold text-white mb-2">Check your inbox</h2>
             <p className="text-sm text-white/50">We sent a verification link to <strong className="text-white/80">{email}</strong>. Click it to activate your account.</p>
             <Link href="/login" className="btn-primary inline-block mt-5 px-6 text-sm" style={{ padding: "10px 24px" }}>Go to login →</Link>
@@ -52,7 +63,19 @@ export default function RegisterPage() {
             <h1 className="text-2xl font-black text-white mb-1 tracking-tight">Create your account</h1>
             <p className="text-white/50 text-sm mb-7">Free forever. No credit card needed.</p>
 
-            {error && <div className="alert-error mb-5 text-sm">{error}</div>}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  className="alert-error mb-5 text-sm"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto", x: [0, -8, 8, -6, 6, 0] }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -70,9 +93,23 @@ export default function RegisterPage() {
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)}
                   className="glass-input" placeholder="Min. 8 characters" required minLength={8} autoComplete="new-password"/>
               </div>
-              <button type="submit" disabled={loading} className="btn-primary w-full text-center mt-2" style={{ padding: "13px" }}>
-                {loading ? "Creating account…" : "Create account — it's free"}
-              </button>
+              <motion.button
+                type="submit" disabled={loading}
+                className="btn-primary w-full text-center mt-2" style={{ padding: "13px" }}
+                whileHover={!loading ? { scale: 1.02 } : {}}
+                whileTap={!loading ? { scale: 0.98 } : {}}
+              >
+                {loading ? (
+                  <span className="inline-flex items-center gap-2 justify-center">
+                    <motion.span
+                      className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full inline-block"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                    />
+                    Creating account…
+                  </span>
+                ) : "Create account — it's free"}
+              </motion.button>
               <p className="text-xs text-white/40 text-center mt-3 leading-relaxed">
                 By creating an account, you agree to our{" "}
                 <Link href="/terms" className="text-white/60 hover:text-white underline">Terms</Link>
@@ -106,7 +143,7 @@ export default function RegisterPage() {
             </p>
           </>
         )}
-      </div>
+      </motion.div>
     </main>
   );
 }
