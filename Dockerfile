@@ -5,8 +5,10 @@ COPY gradle gradle
 COPY build.gradle.kts .
 COPY settings.gradle.kts .
 COPY lombok.config .
+RUN chmod +x gradlew && ./gradlew dependencies --no-daemon || true
 COPY src ./src
-RUN chmod +x gradlew && ./gradlew build -x test --no-daemon
+RUN --mount=type=cache,target=/root/.gradle/caches \
+    ./gradlew build -x test --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
