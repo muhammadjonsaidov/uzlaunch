@@ -10,9 +10,41 @@ env:
   IMAGE_PREFIX: ghcr.io/muhammadjonsaidov/uzlaunch
 
 jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      infra: ${{ steps.filter.outputs.infra }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'src/**'
+              - 'build.gradle.kts'
+              - 'settings.gradle.kts'
+              - 'gradle/**'
+              - 'gradlew'
+              - 'Dockerfile'
+              - 'lombok.config'
+              - '.github/workflows/deploy.yml'
+            frontend:
+              - 'frontend/**'
+              - 'deploy/frontend.Dockerfile'
+              - '.github/workflows/deploy.yml'
+            infra:
+              - 'deploy/docker-compose.yml'
+              - '.github/workflows/deploy.yml'
+
   build-backend:
     name: Build Backend
     runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
       packages: write
@@ -51,6 +83,8 @@ jobs:
   build-frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
       packages: write
@@ -78,11 +112,22 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
-    needs: [build-backend, build-frontend]
+    needs: [changes, build-backend, build-frontend]
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      (
+        needs.changes.outputs.backend == 'true' ||
+        needs.changes.outputs.frontend == 'true' ||
+        needs.changes.outputs.infra == 'true' ||
+        github.event_name == 'workflow_dispatch'
+      )
     steps:
       - uses: actions/checkout@v5
 
       - name: Copy compose file to server
+        if: needs.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -94,18 +139,37 @@ jobs:
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
+        env:
+          DEPLOY_BACKEND: ${{ needs.changes.outputs.backend }}
+          DEPLOY_FRONTEND: ${{ needs.changes.outputs.frontend }}
+          DEPLOY_INFRA: ${{ needs.changes.outputs.infra }}
+          MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: DEPLOY_BACKEND,DEPLOY_FRONTEND,DEPLOY_INFRA,MANUAL
           script: |
             cd /opt/uzlaunch
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker compose pull
-            docker compose up -d
+
+            if [ "$MANUAL" = "true" ] || [ "$DEPLOY_INFRA" = "true" ]; then
+              docker compose pull
+              docker compose up -d
+            else
+              services=""
+              [ "$DEPLOY_BACKEND" = "true" ] && services="$services backend"
+              [ "$DEPLOY_FRONTEND" = "true" ] && services="$services frontend"
+              if [ -n "$services" ]; then
+                docker compose pull $services
+                docker compose up -d $services
+              fi
+            fi
+
             docker image prune -f
 
       - name: Health Check
+        if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
