@@ -19,7 +19,8 @@ ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build \
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build \
  && cp -r .next/static .next/standalone/.next/static \
  && cp -r public .next/standalone/public
 
