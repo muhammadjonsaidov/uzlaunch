@@ -137,7 +137,7 @@ jobs:
           target: /opt/uzlaunch
           strip_components: 1
 
-      - name: Deploy via SSH
+      - name: Deploy + Health Check via SSH
         uses: appleboy/ssh-action@v1
         env:
           DEPLOY_BACKEND: ${{ needs.changes.outputs.backend }}
@@ -150,12 +150,14 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           envs: DEPLOY_BACKEND,DEPLOY_FRONTEND,DEPLOY_INFRA,MANUAL
           script: |
+            set -e
             cd /opt/uzlaunch
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             if [ "$MANUAL" = "true" ] || [ "$DEPLOY_INFRA" = "true" ]; then
               docker compose pull
               docker compose up -d
+              HEALTHCHECK=1
             else
               services=""
               [ "$DEPLOY_BACKEND" = "true" ] && services="$services backend"
@@ -164,18 +166,21 @@ jobs:
                 docker compose pull $services
                 docker compose up -d $services
               fi
+              HEALTHCHECK=0
+              [ "$DEPLOY_BACKEND" = "true" ] && HEALTHCHECK=1
             fi
 
             docker image prune -f
 
-      - name: Health Check
-        if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            sleep 45
-            curl -f http://172.17.0.1:8081/health || exit 1
-            echo "Deployment successful!"
+            if [ "$HEALTHCHECK" = "1" ]; then
+              for i in 1 2 3 4 5 6; do
+                sleep 8
+                if curl -fsS http://172.17.0.1:8081/health; then
+                  echo "Backend healthy"
+                  exit 0
+                fi
+              done
+              echo "Backend failed health check"
+              docker logs --tail 50 uzlaunch-backend
+              exit 1
+            fi

@@ -31,6 +31,14 @@ FRONTEND.md
 # Frontend (not needed for backend Docker build)
 frontend/
 
+# CI / deploy files
+.github/
+deploy/
+
+# Node (just in case)
+node_modules/
+.next/
+
 # Config files not needed in container
 .sdkmanrc
 *.toml
