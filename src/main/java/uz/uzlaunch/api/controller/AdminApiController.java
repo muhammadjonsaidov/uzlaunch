@@ -20,6 +20,7 @@ import uz.uzlaunch.service.AdminService;
 import uz.uzlaunch.service.RateLimiter;
 
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -45,7 +46,10 @@ public class AdminApiController {
         if (!adminRateLimiter.isAllowed(resolveIp(request))) {
             return ResponseEntity.status(429).body(new ErrorResponse("RATE_LIMITED", "Too many attempts"));
         }
-        if (!adminSecret.equals(req.secret())) {
+        String provided = req.secret() == null ? "" : req.secret();
+        byte[] expected = adminSecret.getBytes(StandardCharsets.UTF_8);
+        byte[] actual = provided.getBytes(StandardCharsets.UTF_8);
+        if (expected.length != actual.length || !MessageDigest.isEqual(expected, actual)) {
             return ResponseEntity.status(401).body(new ErrorResponse("INVALID_CREDENTIALS", "Wrong secret"));
         }
         return ResponseEntity.ok(new TokenResponse(jwtTokenService.issueAdmin()));

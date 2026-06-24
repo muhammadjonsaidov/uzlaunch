@@ -114,4 +114,9 @@ public class SecurityConfig {
     public RateLimiter registerRateLimiter() {
         return new RateLimiter(5, 3_600_000L);
     }
+
+    @Bean("streamRateLimiter")
+    public RateLimiter streamRateLimiter() {
+        return new RateLimiter(10, 60_000L);
+    }
 }

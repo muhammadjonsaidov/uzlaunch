@@ -166,9 +166,20 @@ public class ProjectService {
     }
 
     private void applyBranding(Project p, ProjectCreateRequest req) {
-        p.setLogoUrl(req.getLogoUrl() != null && !req.getLogoUrl().isBlank() ? req.getLogoUrl().trim() : null);
+        p.setLogoUrl(sanitizeLogoUrl(req.getLogoUrl()));
         p.setAccentColor(req.getAccentColor() != null && !req.getAccentColor().isBlank() ? req.getAccentColor().trim() : null);
         if (req.getIsPublic() != null) p.setPublic(req.getIsPublic());
+    }
+
+    private static String sanitizeLogoUrl(String raw) {
+        if (raw == null) return null;
+        String t = raw.trim();
+        if (t.isEmpty()) return null;
+        if (t.length() > 500) throw new BadRequestException("Logo URL too long (max 500)");
+        String lower = t.toLowerCase();
+        if (!lower.startsWith("https://") && !lower.startsWith("http://"))
+            throw new BadRequestException("Logo URL must start with http:// or https://");
+        return t;
     }
 
     public Project update(Long id, ProjectCreateRequest req, User user) {

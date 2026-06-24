@@ -25,7 +25,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HexFormat;
 import java.util.List;
@@ -214,8 +213,23 @@ public class WebhookService {
         if (t.length() > 500) throw new BadRequestException("URL too long (max 500)");
         if (!t.startsWith("https://") && !t.startsWith("http://"))
             throw new BadRequestException("URL must start with http:// or https://");
-        if (t.contains("localhost") || t.contains("127.0.0.1") || t.contains("0.0.0.0"))
-            throw new BadRequestException("Localhost URLs not allowed");
+        String host;
+        try {
+            host = java.net.URI.create(t).getHost();
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Invalid URL");
+        }
+        if (host == null) throw new BadRequestException("Invalid URL host");
+        String h = host.toLowerCase();
+        if (h.equals("localhost") || h.endsWith(".localhost")
+                || h.equals("metadata.google.internal")
+                || h.startsWith("127.") || h.startsWith("0.")
+                || h.startsWith("10.")
+                || h.startsWith("192.168.")
+                || h.startsWith("169.254.")
+                || h.startsWith("::1") || h.startsWith("[::1]")
+                || h.matches("^172\\.(1[6-9]|2[0-9]|3[0-1])\\..*"))
+            throw new BadRequestException("Internal/private URLs not allowed");
     }
 
     private static String normalizeEvents(String events) {
@@ -257,6 +271,4 @@ public class WebhookService {
         return s.length() <= max ? s : s.substring(0, max);
     }
 
-    @SuppressWarnings("unused")
-    private static Duration unused() { return Duration.ofMillis(DELIVERY_TIMEOUT_MS); }
 }

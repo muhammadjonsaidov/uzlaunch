@@ -5,11 +5,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import uz.uzlaunch.service.RateLimiter;
 import uz.uzlaunch.service.SseService;
 import uz.uzlaunch.api.dto.request.SubscribeApiRequest;
 import uz.uzlaunch.api.dto.response.MessageResponse;
@@ -25,12 +30,17 @@ import uz.uzlaunch.service.SubscriberService;
 @RequiredArgsConstructor
 public class PublicApiController {
 
+    private static final Logger log = LoggerFactory.getLogger(PublicApiController.class);
+
     private final ProjectService projectService;
     private final SubscriberService subscriberService;
     private final uz.uzlaunch.service.ValidationScoreService scoreService;
     private final SseService sseService;
     private final uz.uzlaunch.service.AnalyticsService analyticsService;
     private final uz.uzlaunch.service.TemplateService templateService;
+
+    @Qualifier("streamRateLimiter")
+    private final RateLimiter streamRateLimiter;
 
     @Value("${app.trust-proxy:false}")
     private final boolean trustProxy;
@@ -92,7 +102,9 @@ public class PublicApiController {
         if (event == null) return ResponseEntity.noContent().build();
         try {
             analyticsService.track(projectService.getBySlug(slug), event, body.get("utmSource"));
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.warn("track failed slug={} event={}: {}", slug, event, e.getMessage());
+        }
         return ResponseEntity.noContent().build();
     }
 
@@ -129,8 +141,11 @@ public class PublicApiController {
     }
 
     @GetMapping(value = "/projects/{slug}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @Operation(summary = "Live subscriber count stream (SSE)")
-    public SseEmitter stream(@PathVariable String slug) {
+    @Operation(summary = "Live subscriber count stream (SSE)", description = "Rate limited: 10 connections per minute per IP.")
+    public SseEmitter stream(@PathVariable String slug, HttpServletRequest request) {
+        if (!streamRateLimiter.isAllowed(resolveIp(request))) {
+            throw new ResponseStatusException(org.springframework.http.HttpStatus.TOO_MANY_REQUESTS, "Too many stream connections");
+        }
         uz.uzlaunch.model.Project p = projectService.getBySlug(slug);
         return sseService.subscribe(p.getId());
     }

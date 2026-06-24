@@ -37,13 +37,12 @@ public class RateLimiter {
     private void maybeCleanup(long now) {
         long last = lastCleanup.get();
         if (now - last > windowMs && lastCleanup.compareAndSet(last, now)) {
-            store.forEach((k, list) ->
-                store.compute(k, (kk, l) -> {
-                    if (l == null) return null;
+            for (String k : store.keySet()) {
+                store.computeIfPresent(k, (kk, l) -> {
                     l.removeIf(t -> now - t > windowMs);
                     return l.isEmpty() ? null : l;
-                })
-            );
+                });
+            }
         }
     }
 }
