@@ -1,0 +1,74 @@
+name: Cache Cleanup
+
+on:
+  # Auto: clean caches for a PR when it's closed/merged
+  pull_request:
+    types: [closed]
+
+  # Manual: nuke all repo caches on demand
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: What to delete
+        type: choice
+        options:
+          - all
+          - main-only
+        default: all
+
+jobs:
+  cleanup-pr:
+    name: Cleanup PR cache
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Delete caches for closed PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_REF: refs/pull/${{ github.event.pull_request.number }}/merge
+          REPO: ${{ github.repository }}
+        run: |
+          set -e
+          IDS=$(gh cache list --ref "$PR_REF" -R "$REPO" --limit 100 --json id -q '.[].id')
+          if [ -z "$IDS" ]; then
+            echo "No caches for $PR_REF"
+            exit 0
+          fi
+          echo "$IDS" | while read -r id; do
+            echo "Deleting cache $id"
+            gh cache delete "$id" -R "$REPO"
+          done
+
+  cleanup-manual:
+    name: Manual nuke
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: List + delete caches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          MODE: ${{ inputs.mode }}
+        run: |
+          set -e
+          if [ "$MODE" = "main-only" ]; then
+            FILTER="--ref refs/heads/main"
+          else
+            FILTER=""
+          fi
+          IDS=$(gh cache list $FILTER -R "$REPO" --limit 100 --json id -q '.[].id')
+          if [ -z "$IDS" ]; then
+            echo "Nothing to delete"
+            exit 0
+          fi
+          COUNT=0
+          echo "$IDS" | while read -r id; do
+            echo "Deleting cache $id"
+            gh cache delete "$id" -R "$REPO"
+            COUNT=$((COUNT+1))
+          done
+          echo "Done"
