@@ -23,26 +23,56 @@ jobs:
       infra: ${{ steps.filter.outputs.infra }}
     steps:
       - uses: actions/checkout@v5
-      - uses: dorny/paths-filter@v3
-        id: filter
         with:
-          filters: |
-            backend:
-              - 'src/**'
-              - 'build.gradle.kts'
-              - 'settings.gradle.kts'
-              - 'gradle/**'
-              - 'gradlew'
-              - 'Dockerfile'
-              - 'lombok.config'
-              - '.github/workflows/deploy.yml'
-            frontend:
-              - 'frontend/**'
-              - 'deploy/frontend.Dockerfile'
-              - '.github/workflows/deploy.yml'
-            infra:
-              - 'deploy/docker-compose.yml'
-              - '.github/workflows/deploy.yml'
+          fetch-depth: 0
+
+      - id: filter
+        name: Detect changed paths
+        run: |
+          set -e
+
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.event.after }}"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CHANGED=""
+            BACKEND=true; FRONTEND=true; INFRA=true
+          else
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              CHANGED=$(git ls-tree -r --name-only HEAD)
+            else
+              CHANGED=$(git diff --name-only "$BEFORE" "$AFTER")
+            fi
+
+            echo "Changed files:"
+            echo "$CHANGED"
+
+            BACKEND=false
+            FRONTEND=false
+            INFRA=false
+
+            while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              case "$f" in
+                src/*|build.gradle.kts|settings.gradle.kts|gradle/*|gradlew|Dockerfile|lombok.config|.github/workflows/deploy.yml)
+                  BACKEND=true ;;
+              esac
+              case "$f" in
+                frontend/*|deploy/frontend.Dockerfile|.github/workflows/deploy.yml)
+                  FRONTEND=true ;;
+              esac
+              case "$f" in
+                deploy/docker-compose.yml|.github/workflows/deploy.yml)
+                  INFRA=true ;;
+              esac
+            done <<< "$CHANGED"
+          fi
+
+          echo "backend=$BACKEND" >> "$GITHUB_OUTPUT"
+          echo "frontend=$FRONTEND" >> "$GITHUB_OUTPUT"
+          echo "infra=$INFRA" >> "$GITHUB_OUTPUT"
+
+          echo "Detected: backend=$BACKEND frontend=$FRONTEND infra=$INFRA"
 
   build-backend:
     name: Build Backend
