@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: uzlaunch-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: uzlaunch
+      POSTGRES_USER: uzlaunch
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - uzlaunch-pgdata:/var/lib/postgresql/data
+    networks:
+      - uzlaunch-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uzlaunch -d uzlaunch"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: ghcr.io/muhammadjonsaidov/uzlaunch/backend:latest
+    container_name: uzlaunch-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/uzlaunch
+      DB_USER: uzlaunch
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      MAIL_FROM: ${MAIL_FROM}
+      BASE_URL: ${BASE_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
+      ADMIN_SECRET: ${ADMIN_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      TRUST_PROXY: "true"
+      PORT: "8080"
+    ports:
+      - "172.17.0.1:8081:8080"
+    networks:
+      - uzlaunch-net
+
+  frontend:
+    image: ghcr.io/muhammadjonsaidov/uzlaunch/frontend:latest
+    container_name: uzlaunch-frontend
+    restart: unless-stopped
+    ports:
+      - "172.17.0.1:3001:3000"
+    networks:
+      - uzlaunch-net
+
+networks:
+  uzlaunch-net:
+    name: uzlaunch-net
+    driver: bridge
+
+volumes:
+  uzlaunch-pgdata:
+    name: uzlaunch-pgdata
